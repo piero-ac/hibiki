@@ -53,6 +53,12 @@ export default function SimpleShadowingPlayer({
 	// Button 2: Handles the synced recording + audio playback flow
 	async function handleRecordShadowing() {
 		setError("");
+
+		// Explicitly tell the browser it can delete the last attempt from RAM now
+		if (recordingUrl) {
+			URL.revokeObjectURL(recordingUrl);
+		}
+
 		setRecordingUrl(null);
 		chunksRef.current = [];
 
