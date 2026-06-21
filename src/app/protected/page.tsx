@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { Suspense } from "react";
 
@@ -21,6 +21,9 @@ export default function ProtectedPage() {
 				<div className="bg-accent text-sm p-3 px-5 rounded-md text-foreground flex gap-3 items-center">
 					This is a protected page that you can only see as an authenticated
 					user
+				</div>
+				<div>
+					<Link href="/protected/sentences">Go To Sentences</Link>
 				</div>
 			</div>
 			<div className="flex flex-col gap-2 items-start">
