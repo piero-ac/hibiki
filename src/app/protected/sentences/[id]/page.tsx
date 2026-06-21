@@ -1,4 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
+import ShadowingPlayer from "@/components/shadowing-client-player";
+
 interface PageProps {
 	params: Promise<{ id: string }>;
 }
@@ -22,6 +24,9 @@ export default async function ShadowingPage({ params }: PageProps) {
 			ShadowingPage
 			<p>{id}</p>
 			<p>{sentence.japanese_text}</p>
+			<div>
+				<ShadowingPlayer originalAudioUrl={sentence.audio_prompt_url} />
+			</div>
 		</div>
 	);
 }
