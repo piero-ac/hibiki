@@ -1,19 +1,26 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { checkPronunciation } from "@/app/protected/sentences/actions";
 
 interface ShadowingPlayerProps {
-	originalAudioUrl: string; // The N1 sentence audio from your database
+	originalAudioUrl: string;
+	japaneseText: string;
 }
 
 export default function SimpleShadowingPlayer({
 	originalAudioUrl,
+	japaneseText,
 }: ShadowingPlayerProps) {
 	const [isRecording, setIsRecording] = useState(false);
 	const [recordingUrl, setRecordingUrl] = useState<string | null>(null);
 	const [error, setError] = useState("");
+	const [rawAudioBlob, setRawAudioBlob] = useState<Blob | null>(null);
+	const [isGrading, setIsGrading] = useState(false);
+	const [gradingResult, setGradingResult] = useState<string | null>(null);
 
 	const audioRef = useRef<HTMLAudioElement>(null);
+	const userAudioRef = useRef<HTMLAudioElement>(null);
 	const mediaRecorderRef = useRef<MediaRecorder | null>(null);
 	const chunksRef = useRef<Blob[]>([]);
 	const stopTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -50,11 +57,11 @@ export default function SimpleShadowingPlayer({
 		}
 	}
 
-	// Button 2: Handles the synced recording + audio playback flow
 	async function handleRecordShadowing() {
 		setError("");
+		setRawAudioBlob(null);
+		setGradingResult(null);
 
-		// Explicitly tell the browser it can delete the last attempt from RAM now
 		if (recordingUrl) {
 			URL.revokeObjectURL(recordingUrl);
 		}
@@ -87,8 +94,9 @@ export default function SimpleShadowingPlayer({
 				if (e.data.size > 0) chunksRef.current.push(e.data);
 			};
 
-			mediaRecorder.onstop = () => {
+			mediaRecorder.onstop = async () => {
 				const blob = new Blob(chunksRef.current, { type: mimeType });
+				setRawAudioBlob(blob);
 				setRecordingUrl(URL.createObjectURL(blob));
 				setIsRecording(false);
 				stream.getTracks().forEach((track) => track.stop());
@@ -117,12 +125,47 @@ export default function SimpleShadowingPlayer({
 		}
 	}
 
+	async function handleSubmitForGrading() {
+		if (!rawAudioBlob) return;
+
+		setIsGrading(true);
+		setError("");
+
+		try {
+			// Step 1 Checkpoint: Fire the secure tunnel using a temporary dummy string
+			const dummyBase64 = "placeholder_data";
+			const response = await checkPronunciation(dummyBase64, japaneseText);
+
+			if (response.success) {
+				setGradingResult(response.message);
+			} else {
+				setError("Grading engine returned a processing error.");
+			}
+		} catch (err) {
+			setError("Failed to communicate with grading server.");
+			console.error(err);
+		} finally {
+			setIsGrading(false);
+		}
+	}
+
+	function handlePlayBothSync() {
+		if (audioRef.current && userAudioRef.current) {
+			audioRef.current.currentTime = 0;
+			audioRef.current.volume = 0.05;
+			userAudioRef.current.currentTime = 0;
+
+			userAudioRef.current.onended = () => {
+				if (audioRef.current) audioRef.current.volume = 1.0;
+			};
+
+			audioRef.current.play();
+			userAudioRef.current.play();
+		}
+	}
+
 	return (
 		<div className="p-6 max-w-md mx-auto bg-zinc-900 border border-zinc-800 rounded-xl text-white space-y-4">
-			{/* Visible, Locked Audio Player 
-        'pointer-events-none' stops clicks, tracking, dragging, and volume changes.
-        'select-none' prevents keyboard selection/focus manipulation.
-      */}
 			<div className="space-y-1">
 				<p className="text-xs text-zinc-400 font-medium">
 					Original Sentence Audio:
@@ -139,7 +182,6 @@ export default function SimpleShadowingPlayer({
 			</div>
 
 			<div className="flex gap-3 pt-2">
-				{/* Play Button */}
 				<button
 					onClick={handlePlayOriginal}
 					disabled={isRecording}
@@ -148,7 +190,6 @@ export default function SimpleShadowingPlayer({
 					Listen
 				</button>
 
-				{/* Record/Shadowing Button */}
 				{!isRecording ? (
 					<button
 						onClick={handleRecordShadowing}
@@ -166,13 +207,43 @@ export default function SimpleShadowingPlayer({
 
 			{error && <p className="text-xs text-red-400 mt-2">{error}</p>}
 
-			{/* User's Recording Playback Panel */}
 			{recordingUrl && (
-				<div className="pt-4 border-t border-zinc-800 space-y-2">
-					<p className="text-xs text-emerald-400 font-medium">
-						Your Attempt Pacing:
-					</p>
-					<audio controls src={recordingUrl} className="w-full" />
+				<div className="pt-4 border-t border-zinc-800 space-y-3">
+					<div>
+						<p className="text-xs text-zinc-400 font-medium mb-1">
+							Your Capture (Verify your pronunciation):
+						</p>
+						<audio
+							ref={userAudioRef}
+							controls
+							src={recordingUrl}
+							className="w-full"
+						/>
+					</div>
+
+					<button
+						onClick={handlePlayBothSync}
+						disabled={isGrading}
+						className="w-full bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-sm py-2 rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
+					>
+						🔄 Play Both Simultaneously
+					</button>
+
+					{!gradingResult ? (
+						<button
+							onClick={handleSubmitForGrading}
+							disabled={isGrading}
+							className="w-full bg-emerald-600 hover:bg-emerald-700 disabled:bg-zinc-800 text-sm py-2.5 rounded-lg font-semibold transition-all flex items-center justify-center gap-2"
+						>
+							{isGrading
+								? "Analyzing Pronunciation..."
+								: "🎯 Submit & Grade Attempt"}
+						</button>
+					) : (
+						<div className="p-3 bg-zinc-950 border border-emerald-500/30 rounded-lg text-sm text-emerald-400 font-medium">
+							{gradingResult}
+						</div>
+					)}
 				</div>
 			)}
 		</div>
