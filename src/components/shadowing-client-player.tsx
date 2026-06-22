@@ -18,6 +18,8 @@ export default function SimpleShadowingPlayer({
 	const [rawAudioBlob, setRawAudioBlob] = useState<Blob | null>(null);
 	const [isGrading, setIsGrading] = useState(false);
 	const [gradingResult, setGradingResult] = useState<string | null>(null);
+	const [countdown, setCountdown] = useState<number | null>(null);
+	const isCountingDown = countdown !== null;
 
 	const audioRef = useRef<HTMLAudioElement>(null);
 	const userAudioRef = useRef<HTMLAudioElement>(null);
@@ -57,29 +59,12 @@ export default function SimpleShadowingPlayer({
 		}
 	}
 
-	async function handleRecordShadowing() {
-		setError("");
-		setRawAudioBlob(null);
-		setGradingResult(null);
-
-		if (recordingUrl) {
-			URL.revokeObjectURL(recordingUrl);
-		}
-
-		setRecordingUrl(null);
-		chunksRef.current = [];
-
+	async function startActualRecording() {
 		try {
-			// Find this line in your handleRecordShadowing function:
 			const stream = await navigator.mediaDevices.getUserMedia({
 				audio: {
-					// 1. Forces the browser to grab the raw hardware input signal
 					echoCancellation: false,
-
-					// 2. Stop the browser from aggressively filtering "noise" (muffles high fidelity mics)
 					noiseSuppression: false,
-
-					// 3. Prevent automatic digital volume adjustments/pumping
 					autoGainControl: false,
 				},
 			});
@@ -112,7 +97,37 @@ export default function SimpleShadowingPlayer({
 		} catch (err) {
 			setError("Microphone access denied.");
 			console.error(err);
+			setCountdown(null);
 		}
+	}
+
+	function handleRecordShadowing() {
+		setError("");
+		setRawAudioBlob(null);
+		setGradingResult(null);
+
+		if (recordingUrl) {
+			URL.revokeObjectURL(recordingUrl);
+		}
+
+		setRecordingUrl(null);
+		chunksRef.current = [];
+
+		// Start the countdown at 3
+		let currentCount = 3;
+		setCountdown(currentCount);
+
+		const interval = setInterval(() => {
+			currentCount -= 1;
+
+			if (currentCount > 0) {
+				setCountdown(currentCount);
+			} else {
+				clearInterval(interval);
+				setCountdown(null); // Remove countdown overlay/text
+				startActualRecording(); // Fire up the microphone and track!
+			}
+		}, 1000);
 	}
 
 	function handleOriginalAudioEnded() {
@@ -184,13 +199,17 @@ export default function SimpleShadowingPlayer({
 			<div className="flex gap-3 pt-2">
 				<button
 					onClick={handlePlayOriginal}
-					disabled={isRecording}
+					disabled={isRecording || isCountingDown}
 					className="flex-1 bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-sm py-3 rounded-lg font-medium transition-colors disabled:opacity-50"
 				>
 					Listen
 				</button>
 
-				{!isRecording ? (
+				{isCountingDown ? (
+					<div className="flex-1 flex items-center justify-center gap-2 bg-amber-600/20 border border-amber-500 text-sm text-amber-400 font-bold rounded-lg animate-pulse">
+						⏱️ Starting in {countdown}...
+					</div>
+				) : !isRecording ? (
 					<button
 						onClick={handleRecordShadowing}
 						className="flex-1 bg-red-600 hover:bg-red-700 text-sm py-3 rounded-lg font-medium transition-colors"
