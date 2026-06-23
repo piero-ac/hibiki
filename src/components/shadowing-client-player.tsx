@@ -5,12 +5,14 @@ import { checkPronunciation } from "@/app/protected/sentences/actions";
 
 interface ShadowingPlayerProps {
 	originalAudioUrl: string;
-	japaneseText: string;
+	expectedText: string;
+	expectedKana: string;
 }
 
 export default function SimpleShadowingPlayer({
 	originalAudioUrl,
-	japaneseText,
+	expectedText,
+	expectedKana,
 }: ShadowingPlayerProps) {
 	const [isRecording, setIsRecording] = useState(false);
 	const [recordingUrl, setRecordingUrl] = useState<string | null>(null);
@@ -150,7 +152,11 @@ export default function SimpleShadowingPlayer({
 			const formData = new FormData();
 			formData.append("audio", rawAudioBlob, "recording.webm");
 
-			const response = await checkPronunciation(formData, japaneseText);
+			const response = await checkPronunciation(
+				formData,
+				expectedText,
+				expectedKana,
+			);
 
 			if (response.success) {
 				setGradingResult(response.message);

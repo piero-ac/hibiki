@@ -13,6 +13,7 @@ export interface PronunciationResult {
 export async function checkPronunciation(
 	formData: FormData,
 	expectedText: string,
+	expectedKana: string,
 ): Promise<PronunciationResult> {
 	try {
 		const audioFile = formData.get("audio") as File;
