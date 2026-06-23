@@ -63,6 +63,7 @@ export async function checkPronunciation(
 		}
 	} catch (error) {
 		if (error instanceof Error) {
+			console.error("Error inside Whisper grading pipeline:", error);
 			return {
 				success: false,
 				message: error.message,
