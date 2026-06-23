@@ -147,14 +147,17 @@ export default function SimpleShadowingPlayer({
 		setError("");
 
 		try {
-			// Step 1 Checkpoint: Fire the secure tunnel using a temporary dummy string
-			const dummyBase64 = "placeholder_data";
-			const response = await checkPronunciation(dummyBase64, japaneseText);
+			const formData = new FormData();
+			formData.append("audio", rawAudioBlob, "recording.webm");
+
+			const response = await checkPronunciation(formData, japaneseText);
 
 			if (response.success) {
 				setGradingResult(response.message);
 			} else {
-				setError("Grading engine returned a processing error.");
+				setError(
+					response.message || "Grading engine returned a processing error.",
+				);
 			}
 		} catch (err) {
 			setError("Failed to communicate with grading server.");
