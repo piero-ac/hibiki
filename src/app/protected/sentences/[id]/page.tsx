@@ -27,7 +27,9 @@ export default async function ShadowingPage({ params }: PageProps) {
 			<div>
 				<ShadowingPlayer
 					originalAudioUrl={sentence.audio_prompt_url}
-					japaneseText={sentence.japanese_text}
+					expectedText={sentence.japanese_text}
+					expectedKana={sentence.kana_text}
+					sentenceId={sentence.id}
 				/>
 			</div>
 		</div>
