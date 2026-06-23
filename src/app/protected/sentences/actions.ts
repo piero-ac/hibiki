@@ -1,6 +1,7 @@
 "use server";
 
 import { OpenAI, toFile } from "openai";
+import { createClient } from "@/lib/supabase/server";
 
 const openai = new OpenAI();
 
@@ -8,6 +9,7 @@ export interface PronunciationResult {
 	success: boolean;
 	message: string;
 	receivedText?: string;
+	score?: number;
 }
 
 function cleanJapaneseText(text: string): string {
@@ -21,8 +23,22 @@ export async function checkPronunciation(
 	formData: FormData,
 	expectedText: string,
 	expectedKana: string,
+	sentenceId: string,
 ): Promise<PronunciationResult> {
 	try {
+		const supabase = await createClient();
+		const {
+			data: { user },
+			error: authError,
+		} = await supabase.auth.getUser();
+
+		if (authError || !user) {
+			return {
+				success: false,
+				message: "Unauthorized. Please log in to save attempts.",
+			};
+		}
+
 		const audioFile = formData.get("audio") as File;
 
 		if (!audioFile) {
@@ -48,17 +64,39 @@ export async function checkPronunciation(
 		const normalizedUser = cleanJapaneseText(userTranscript);
 		const normalizedExpected = cleanJapaneseText(expectedText);
 
-		if (normalizedUser === normalizedExpected) {
+		const isPerfect = normalizedUser === normalizedExpected;
+		const calculatedScore = isPerfect ? 100 : 0;
+
+		const { error: dbError } = await supabase.from("attempts").insert({
+			user_id: user.id,
+			sentence_id: sentenceId,
+			accuracy_score: calculatedScore,
+			// audio_attempt_url can be omitted for now since it's optional in your DB schema
+		});
+
+		if (dbError) {
+			console.error("Supabase saving error:", dbError);
+			return {
+				success: true,
+				message: `Graded, but failed to save history: ${dbError.message}`,
+				receivedText: userTranscript,
+				score: calculatedScore,
+			};
+		}
+
+		if (isPerfect) {
 			return {
 				success: true,
 				message: `Perfect match! Your pronunciation is spot on. 🎉`,
 				receivedText: userTranscript,
+				score: calculatedScore,
 			};
 		} else {
 			return {
 				success: true,
 				message: `Close! Whisper heard: "${userTranscript}". Expected: "${expectedText}"`,
 				receivedText: userTranscript,
+				score: calculatedScore,
 			};
 		}
 	} catch (error) {
