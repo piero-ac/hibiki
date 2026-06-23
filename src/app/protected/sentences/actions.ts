@@ -1,7 +1,6 @@
 "use server";
 
 import { OpenAI, toFile } from "openai";
-import { toHiragana } from "wanakana";
 
 const openai = new OpenAI();
 
@@ -11,8 +10,9 @@ export interface PronunciationResult {
 	receivedText?: string;
 }
 
-function cleanKanaString(text: string): string {
-	return toHiragana(text)
+function cleanJapaneseText(text: string): string {
+	if (!text) return "";
+	return text
 		.replace(/[\u3001\u3002\uFF0C\uFF0E\uFF1F\uFF01,.\?!]/g, "")
 		.replace(/\s+/g, "");
 }
@@ -40,15 +40,15 @@ export async function checkPronunciation(
 			file: virtualFile,
 			model: "whisper-1",
 			language: "ja",
+			prompt: expectedText,
 		});
 
 		const userTranscript = transcription.text;
-		console.log("Whisper Transcript:", userTranscript);
 
-		const normalizedUserKana = cleanKanaString(userTranscript);
-		const normalizedTargetKana = cleanKanaString(expectedKana);
+		const normalizedUser = cleanJapaneseText(userTranscript);
+		const normalizedExpected = cleanJapaneseText(expectedText);
 
-		if (normalizedUserKana === normalizedTargetKana) {
+		if (normalizedUser === normalizedExpected) {
 			return {
 				success: true,
 				message: `Perfect match! Your pronunciation is spot on. 🎉`,
@@ -63,7 +63,6 @@ export async function checkPronunciation(
 		}
 	} catch (error) {
 		if (error instanceof Error) {
-			console.error("Error inside Whisper grading pipeline:", error);
 			return {
 				success: false,
 				message: error.message,
