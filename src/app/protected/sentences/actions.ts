@@ -1,9 +1,13 @@
 "use server";
 
+import { OpenAI, toFile } from "openai";
+
+const openai = new OpenAI();
+
 export interface PronunciationResult {
 	success: boolean;
 	message: string;
-	receivedText?: string; // Optional: only present when success is true
+	receivedText?: string;
 }
 
 export async function checkPronunciation(
@@ -20,14 +24,45 @@ export async function checkPronunciation(
 		const arrayBuffer = await audioFile.arrayBuffer();
 		const buffer = Buffer.from(arrayBuffer);
 
-		console.log("Received audio:", audioFile.name, "Size:", buffer.length);
-		return {
-			success: true,
-			message: `Received audio: ${audioFile.name} size: ${buffer.length}`,
-			receivedText: expectedText,
-		};
+		// 1. Convert the raw server Buffer into a virtual file object Whisper can read
+		const virtualFile = await toFile(buffer, "recording.webm", {
+			type: "audio/webm",
+		});
+
+		const transcription = await openai.audio.transcriptions.create({
+			file: virtualFile,
+			model: "whisper-1",
+			language: "ja",
+		});
+
+		const userTranscript = transcription.text;
+		console.log("Whisper Transcript:", userTranscript);
+
+		if (userTranscript === expectedText) {
+			return {
+				success: true,
+				message: `Perfect! Whisper matched your speech exactly.`,
+				receivedText: userTranscript,
+			};
+		} else {
+			return {
+				success: true,
+				message: `Whisper heard: "${userTranscript}". Expected: "${expectedText}"`,
+				receivedText: userTranscript,
+			};
+		}
 	} catch (error) {
-		console.error("Error processing audio:", error);
-		return { success: false, message: "Server error" };
+		if (error instanceof Error) {
+			console.error("Error inside Whisper grading pipeline:", error);
+			return {
+				success: false,
+				message: error.message,
+			};
+		}
+
+		return {
+			success: false,
+			message: "An error occurred while communicating with Whisper.",
+		};
 	}
 }
