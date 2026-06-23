@@ -7,18 +7,21 @@ interface ShadowingPlayerProps {
 	originalAudioUrl: string;
 	expectedText: string;
 	expectedKana: string;
+	sentenceId: string;
 }
 
 export default function SimpleShadowingPlayer({
 	originalAudioUrl,
 	expectedText,
 	expectedKana,
+	sentenceId,
 }: ShadowingPlayerProps) {
 	const [isRecording, setIsRecording] = useState(false);
 	const [recordingUrl, setRecordingUrl] = useState<string | null>(null);
 	const [error, setError] = useState("");
 	const [rawAudioBlob, setRawAudioBlob] = useState<Blob | null>(null);
 	const [isGrading, setIsGrading] = useState(false);
+	const [attemptScore, setAttemptScore] = useState<number | null>(null);
 	const [gradingResult, setGradingResult] = useState<string | null>(null);
 	const [countdown, setCountdown] = useState<number | null>(null);
 	const isCountingDown = countdown !== null;
@@ -107,6 +110,7 @@ export default function SimpleShadowingPlayer({
 		setError("");
 		setRawAudioBlob(null);
 		setGradingResult(null);
+		setAttemptScore(null);
 
 		if (recordingUrl) {
 			URL.revokeObjectURL(recordingUrl);
@@ -156,10 +160,12 @@ export default function SimpleShadowingPlayer({
 				formData,
 				expectedText,
 				expectedKana,
+				sentenceId,
 			);
 
 			if (response.success) {
 				setGradingResult(response.message);
+				setAttemptScore(response.score !== undefined ? response.score : 0);
 			} else {
 				setError(
 					response.message || "Grading engine returned a processing error.",
@@ -269,7 +275,8 @@ export default function SimpleShadowingPlayer({
 						</button>
 					) : (
 						<div className="p-3 bg-zinc-950 border border-emerald-500/30 rounded-lg text-sm text-emerald-400 font-medium">
-							{gradingResult}
+							<p>{gradingResult}</p>
+							{attemptScore !== null && <p>Score: {attemptScore}</p>}
 						</div>
 					)}
 				</div>
