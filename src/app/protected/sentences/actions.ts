@@ -1,6 +1,7 @@
 "use server";
 
 import { OpenAI, toFile } from "openai";
+import { toHiragana } from "wanakana";
 
 const openai = new OpenAI();
 
@@ -8,6 +9,12 @@ export interface PronunciationResult {
 	success: boolean;
 	message: string;
 	receivedText?: string;
+}
+
+function cleanKanaString(text: string): string {
+	return toHiragana(text)
+		.replace(/[\u3001\u3002\uFF0C\uFF0E\uFF1F\uFF01,.\?!]/g, "")
+		.replace(/\s+/g, "");
 }
 
 export async function checkPronunciation(
@@ -25,7 +32,6 @@ export async function checkPronunciation(
 		const arrayBuffer = await audioFile.arrayBuffer();
 		const buffer = Buffer.from(arrayBuffer);
 
-		// 1. Convert the raw server Buffer into a virtual file object Whisper can read
 		const virtualFile = await toFile(buffer, "recording.webm", {
 			type: "audio/webm",
 		});
@@ -39,16 +45,19 @@ export async function checkPronunciation(
 		const userTranscript = transcription.text;
 		console.log("Whisper Transcript:", userTranscript);
 
-		if (userTranscript === expectedText) {
+		const normalizedUserKana = cleanKanaString(userTranscript);
+		const normalizedTargetKana = cleanKanaString(expectedKana);
+
+		if (normalizedUserKana === normalizedTargetKana) {
 			return {
 				success: true,
-				message: `Perfect! Whisper matched your speech exactly.`,
+				message: `Perfect match! Your pronunciation is spot on. 🎉`,
 				receivedText: userTranscript,
 			};
 		} else {
 			return {
 				success: true,
-				message: `Whisper heard: "${userTranscript}". Expected: "${expectedText}"`,
+				message: `Close! Whisper heard: "${userTranscript}". Expected: "${expectedText}"`,
 				receivedText: userTranscript,
 			};
 		}
@@ -63,7 +72,7 @@ export async function checkPronunciation(
 
 		return {
 			success: false,
-			message: "An error occurred while communicating with Whisper.",
+			message: "An error occurred.",
 		};
 	}
 }
