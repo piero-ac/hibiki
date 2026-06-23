@@ -8,7 +8,6 @@ export default async function Sentences() {
 		.select("*");
 
 	if (error) {
-		console.log(error);
 		return <p>Error loading posts.</p>;
 	}
 
