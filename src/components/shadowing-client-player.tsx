@@ -297,21 +297,25 @@ export default function SimpleShadowingPlayer({
 }
 
 function getFeedbackMessage(score: number): string {
+	if (score === 100) {
+		return "Perfect! You said it perfectly. 🎉";
+	}
+
 	if (score >= 95) {
-		return `Excellent! Nearly identical to the target sentence. 🎉`;
+		return "Excellent! Nearly identical to the target sentence.";
 	}
 
 	if (score >= 85) {
-		return `Great job! Just a few small differences detected.`;
+		return "Great job! Just a few small differences detected.";
 	}
 
 	if (score >= 70) {
-		return `Good attempt. You're close, but there are some words Whisper interpreted differently.`;
+		return "Good attempt. You're close, but some words were interpreted differently.";
 	}
 
 	if (score >= 50) {
-		return `Decent start. Try speaking a little more clearly and matching the rhythm of the sentence.`;
+		return "Decent start. Try speaking more clearly and matching the rhythm.";
 	}
 
-	return `Keep practicing. Whisper had trouble matching your recording to the target sentence.`;
+	return "Keep practicing. Whisper had trouble matching your recording to the target sentence.";
 }
