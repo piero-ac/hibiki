@@ -71,7 +71,7 @@ export async function checkPronunciation(
 			user_id: user.id,
 			sentence_id: sentenceId,
 			accuracy_score: calculatedScore,
-			// audio_attempt_url can be omitted for now since it's optional in your DB schema
+			user_audio_transcript: userTranscript,
 		});
 
 		if (dbError) {
