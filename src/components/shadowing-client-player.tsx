@@ -6,14 +6,12 @@ import { checkPronunciation } from "@/app/protected/sentences/actions";
 interface ShadowingPlayerProps {
 	originalAudioUrl: string;
 	expectedText: string;
-	expectedKana: string;
 	sentenceId: string;
 }
 
 export default function SimpleShadowingPlayer({
 	originalAudioUrl,
 	expectedText,
-	expectedKana,
 	sentenceId,
 }: ShadowingPlayerProps) {
 	const [isRecording, setIsRecording] = useState(false);
@@ -22,7 +20,8 @@ export default function SimpleShadowingPlayer({
 	const [rawAudioBlob, setRawAudioBlob] = useState<Blob | null>(null);
 	const [isGrading, setIsGrading] = useState(false);
 	const [attemptScore, setAttemptScore] = useState<number | null>(null);
-	const [gradingResult, setGradingResult] = useState<string | null>(null);
+	const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
+	const [receivedText, setReceivedText] = useState<string | null>(null);
 	const [countdown, setCountdown] = useState<number | null>(null);
 	const isCountingDown = countdown !== null;
 
@@ -109,8 +108,9 @@ export default function SimpleShadowingPlayer({
 	function handleRecordShadowing() {
 		setError("");
 		setRawAudioBlob(null);
-		setGradingResult(null);
+		setFeedbackMessage(null);
 		setAttemptScore(null);
+		setReceivedText(null);
 
 		if (recordingUrl) {
 			URL.revokeObjectURL(recordingUrl);
@@ -159,16 +159,16 @@ export default function SimpleShadowingPlayer({
 			const response = await checkPronunciation(
 				formData,
 				expectedText,
-				expectedKana,
 				sentenceId,
 			);
 
 			if (response.success) {
-				setGradingResult(response.message);
+				setFeedbackMessage(getFeedbackMessage(response.score ?? 0));
 				setAttemptScore(response.score !== undefined ? response.score : 0);
+				setReceivedText(response.receivedText ?? null);
 			} else {
 				setError(
-					response.message || "Grading engine returned a processing error.",
+					response.error || "Grading engine returned a processing error.",
 				);
 			}
 		} catch (err) {
@@ -263,7 +263,7 @@ export default function SimpleShadowingPlayer({
 						🔄 Play Both Simultaneously
 					</button>
 
-					{!gradingResult ? (
+					{!feedbackMessage ? (
 						<button
 							onClick={handleSubmitForGrading}
 							disabled={isGrading}
@@ -275,12 +275,43 @@ export default function SimpleShadowingPlayer({
 						</button>
 					) : (
 						<div className="p-3 bg-zinc-950 border border-emerald-500/30 rounded-lg text-sm text-emerald-400 font-medium">
-							<p>{gradingResult}</p>
-							{attemptScore !== null && <p>Score: {attemptScore}</p>}
+							{attemptScore !== null && (
+								<p className="text-lg font-bold text-emerald-300">
+									Score: {attemptScore}%
+								</p>
+							)}
+
+							<p>{feedbackMessage}</p>
+
+							{receivedText && (
+								<p className="text-xs text-zinc-400 mt-2">
+									Whisper heard: {receivedText}
+								</p>
+							)}
 						</div>
 					)}
 				</div>
 			)}
 		</div>
 	);
+}
+
+function getFeedbackMessage(score: number): string {
+	if (score >= 95) {
+		return `Excellent! Nearly identical to the target sentence. 🎉`;
+	}
+
+	if (score >= 85) {
+		return `Great job! Just a few small differences detected.`;
+	}
+
+	if (score >= 70) {
+		return `Good attempt. You're close, but there are some words Whisper interpreted differently.`;
+	}
+
+	if (score >= 50) {
+		return `Decent start. Try speaking a little more clearly and matching the rhythm of the sentence.`;
+	}
+
+	return `Keep practicing. Whisper had trouble matching your recording to the target sentence.`;
 }
