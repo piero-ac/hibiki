@@ -70,7 +70,7 @@ export default function RecentAttempts({
 								</span>
 
 								<span className="rounded bg-zinc-800 px-2 py-1 text-xs text-zinc-300">
-									{attempt.category ?? "N/A"}
+									{attempt.category ?? "General"}
 								</span>
 							</div>
 						</div>
