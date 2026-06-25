@@ -47,6 +47,13 @@ export type Database = {
             foreignKeyName: "attempts_sentence_id_fkey"
             columns: ["sentence_id"]
             isOneToOne: false
+            referencedRelation: "recent_attempts"
+            referencedColumns: ["sentence_id"]
+          },
+          {
+            foreignKeyName: "attempts_sentence_id_fkey"
+            columns: ["sentence_id"]
+            isOneToOne: false
             referencedRelation: "sentences"
             referencedColumns: ["id"]
           },
@@ -83,6 +90,7 @@ export type Database = {
       sentences: {
         Row: {
           audio_prompt_url: string
+          category: string | null
           created_at: string
           english_translation: string
           id: string
@@ -92,6 +100,7 @@ export type Database = {
         }
         Insert: {
           audio_prompt_url: string
+          category?: string | null
           created_at?: string
           english_translation: string
           id?: string
@@ -101,6 +110,7 @@ export type Database = {
         }
         Update: {
           audio_prompt_url?: string
+          category?: string | null
           created_at?: string
           english_translation?: string
           id?: string
@@ -112,7 +122,60 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      attempts_summary: {
+        Row: {
+          average_score: number | null
+          days_practiced: number | null
+          sentences_practiced: number | null
+          total_attempts: number | null
+        }
+        Relationships: []
+      }
+      recent_attempts: {
+        Row: {
+          accuracy_score: number | null
+          category: string | null
+          created_at: string | null
+          english_translation: string | null
+          id: string | null
+          japanese_text: string | null
+          jlpt_level: string | null
+          kana_text: string | null
+          sentence_id: string | null
+          user_audio_transcript: string | null
+        }
+        Relationships: []
+      }
+      sentence_progress: {
+        Row: {
+          attempt_count: number | null
+          average_score: number | null
+          best_score: number | null
+          category: string | null
+          english_translation: string | null
+          japanese_text: string | null
+          jlpt_level: string | null
+          last_attempted: string | null
+          lowest_score: number | null
+          sentence_id: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "attempts_sentence_id_fkey"
+            columns: ["sentence_id"]
+            isOneToOne: false
+            referencedRelation: "recent_attempts"
+            referencedColumns: ["sentence_id"]
+          },
+          {
+            foreignKeyName: "attempts_sentence_id_fkey"
+            columns: ["sentence_id"]
+            isOneToOne: false
+            referencedRelation: "sentences"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       [_ in never]: never
