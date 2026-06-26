@@ -1,7 +1,8 @@
+import { createClient } from "@/lib/supabase/server";
 import ProgressOverview from "@/components/progress-overview";
 import RecentAttempts from "@/components/recent-attempts";
 import SentencePerformance from "@/components/sentence-performance";
-import { createClient } from "@/lib/supabase/server";
+import { PageContainer } from "@/components/app/page-container";
 
 export default async function ProgressPage() {
 	const supabase = await createClient();
@@ -39,24 +40,34 @@ export default async function ProgressPage() {
 			.limit(5);
 
 	return (
-		<div className="mx-auto w-full max-w-6xl space-y-8 px-4 py-8">
-			<ProgressOverview
-				totalAttempts={total_attempts ?? 0}
-				averageScore={average_score}
-				sentencesPracticed={sentences_practiced ?? 0}
-				daysPracticed={days_practiced ?? 0}
-			/>
-			{shouldShowSentencePerformance && (
-				<SentencePerformance
-					weakest={weakestSentences ?? []}
-					strongest={strongestSentences ?? []}
-					hasError={!!weakestSentencesError || !!strongestSentencesError}
+		<PageContainer>
+			<div className="space-y-8 sm:space-y-10">
+				<div>
+					<h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
+						Progress
+					</h1>
+					<p className="mt-2 text-sm text-muted-foreground sm:text-base">
+						Track your Japanese shadowing practice over time.
+					</p>
+				</div>
+				<ProgressOverview
+					totalAttempts={total_attempts ?? 0}
+					averageScore={average_score}
+					sentencesPracticed={sentences_practiced ?? 0}
+					daysPracticed={days_practiced ?? 0}
 				/>
-			)}
-			<RecentAttempts
-				attempts={recentAttempts ?? []}
-				hasError={!!recentAttemptsError}
-			/>
-		</div>
+				{shouldShowSentencePerformance && (
+					<SentencePerformance
+						weakest={weakestSentences ?? []}
+						strongest={strongestSentences ?? []}
+						hasError={!!weakestSentencesError || !!strongestSentencesError}
+					/>
+				)}
+				<RecentAttempts
+					attempts={recentAttempts ?? []}
+					hasError={!!recentAttemptsError}
+				/>
+			</div>
+		</PageContainer>
 	);
 }
