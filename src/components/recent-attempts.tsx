@@ -1,4 +1,9 @@
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 import { Database } from "@/types/database.types";
+import { BookOpenIcon } from "@phosphor-icons/react/dist/ssr";
+import { EmptyState } from "./app/empty-state";
 
 type RecentAttemptsProps = {
 	attempts: Database["public"]["Views"]["recent_attempts"]["Row"][];
@@ -11,9 +16,11 @@ export default function RecentAttempts({
 }: RecentAttemptsProps) {
 	if (hasError) {
 		return (
-			<section>
-				<h2 className="text-lg font-semibold">Recent Attempts</h2>
-				<p className="text-sm text-red-400">
+			<section className="space-y-2">
+				<h2 className="text-xl font-semibold tracking-tight">
+					Recent Attempts
+				</h2>
+				<p className="text-sm text-destructive">
 					Unable to load your recent attempts.
 				</p>
 			</section>
@@ -23,57 +30,62 @@ export default function RecentAttempts({
 	return (
 		<section className="space-y-4">
 			<div>
-				<h2 className="text-lg font-semibold text-white">Recent Attempts</h2>
-				<p className="text-sm text-zinc-400">
+				<h2 className="text-xl font-semibold tracking-tight">
+					Recent Attempts
+				</h2>
+				<p className="text-sm text-muted-foreground">
 					Your latest pronunciation practice sessions.
 				</p>
 			</div>
 
 			{attempts.length === 0 ? (
-				<div className="rounded-xl border border-zinc-800 bg-zinc-900 p-6 text-center">
-					<p className="text-zinc-400">
-						You haven&apos;t completed any shadowing attempts yet.
-					</p>
-				</div>
+				<EmptyState
+					icon={<BookOpenIcon className="h-10 w-10" />}
+					title="No attempts yet"
+					description="Complete your first shadowing exercise to start tracking your progress."
+				/>
 			) : (
-				<div className="space-y-3">
+				<div className="max-w-4xl space-y-4">
 					{attempts.map((attempt) => (
-						<div
-							key={attempt.id}
-							className="rounded-xl border border-zinc-800 bg-zinc-900 p-4"
-						>
-							<div className="flex items-center justify-between">
-								<p className="text-lg font-bold text-emerald-300">
-									{attempt.accuracy_score}%
+						<Card key={attempt.id}>
+							<CardContent className="p-5 sm:p-6">
+								<div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+									<p className="text-3xl font-bold tracking-tight text-emerald-300 sm:text-4xl">
+										{attempt.accuracy_score ?? 0}%
+									</p>
+
+									<span className="text-xs text-muted-foreground">
+										{attempt.created_at
+											? new Date(attempt.created_at).toLocaleDateString()
+											: "Unknown Date"}
+									</span>
+								</div>
+
+								<p className="mt-5 text-lg font-semibold leading-relaxed sm:text-xl">
+									{attempt.japanese_text ?? "Unknown sentence"}
 								</p>
 
-								<span className="text-xs text-zinc-500">
-									{attempt.created_at
-										? new Date(attempt.created_at).toLocaleDateString()
-										: "Unknown Date"}
-								</span>
-							</div>
+								<Separator className="my-5" />
 
-							<p className="mt-3 font-medium text-white">
-								{attempt.japanese_text}
-							</p>
+								<div className="space-y-2">
+									<p className="text-xs uppercase tracking-wide text-muted-foreground">
+										Whisper transcription
+									</p>
+									<p className="text-sm leading-relaxed text-muted-foreground">
+										{attempt.user_audio_transcript ??
+											"No transcript available."}
+									</p>
+								</div>
 
-							<p className="mt-2 text-sm text-zinc-400">Whisper heard:</p>
+								<div className="mt-5 flex flex-wrap gap-2">
+									<Badge variant="secondary">{attempt.jlpt_level ?? "—"}</Badge>
 
-							<p className="text-sm text-zinc-300">
-								{attempt.user_audio_transcript}
-							</p>
-
-							<div className="mt-3 flex gap-2">
-								<span className="rounded bg-zinc-800 px-2 py-1 text-xs text-zinc-300">
-									{attempt.jlpt_level}
-								</span>
-
-								<span className="rounded bg-zinc-800 px-2 py-1 text-xs text-zinc-300">
-									{attempt.category ?? "General"}
-								</span>
-							</div>
-						</div>
+									<Badge variant="secondary">
+										{attempt.category ?? "General"}
+									</Badge>
+								</div>
+							</CardContent>
+						</Card>
 					))}
 				</div>
 			)}
