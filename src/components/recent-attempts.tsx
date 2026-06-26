@@ -2,6 +2,8 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Database } from "@/types/database.types";
+import { BookOpenIcon } from "@phosphor-icons/react/dist/ssr";
+import { EmptyState } from "./app/empty-state";
 
 type RecentAttemptsProps = {
 	attempts: Database["public"]["Views"]["recent_attempts"]["Row"][];
@@ -37,13 +39,11 @@ export default function RecentAttempts({
 			</div>
 
 			{attempts.length === 0 ? (
-				<Card className="max-w-4xl">
-					<CardContent className="p-5 text-center sm:p-6">
-						<p className="text-sm text-muted-foreground">
-							You haven&apos;t completed any shadowing attempts yet.
-						</p>
-					</CardContent>
-				</Card>
+				<EmptyState
+					icon={<BookOpenIcon className="h-10 w-10" />}
+					title="No attempts yet"
+					description="Complete your first shadowing exercise to start tracking your progress."
+				/>
 			) : (
 				<div className="max-w-4xl space-y-4">
 					{attempts.map((attempt) => (
