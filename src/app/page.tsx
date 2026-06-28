@@ -10,7 +10,6 @@ import {
 	Sparkles,
 } from "lucide-react";
 import { AuthButton } from "@/components/auth-button";
-import { Button } from "@/components/ui/button";
 import {
 	Card,
 	CardContent,
@@ -55,16 +54,6 @@ export default function Home() {
 							your speech with AI transcription, and track your pronunciation
 							progress over time.
 						</p>
-
-						{/* <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center lg:justify-start">
-							<Button asChild size="lg">
-								<Link href="/signup">Create free account</Link>
-							</Button>
-
-							<Button asChild variant="outline" size="lg">
-								<Link href="/login">Log in</Link>
-							</Button>
-						</div> */}
 
 						<div className="mt-8 flex flex-col items-center gap-3 text-sm text-muted-foreground sm:flex-row sm:justify-center lg:justify-start">
 							<div className="flex items-center gap-2">
