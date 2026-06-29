@@ -4,7 +4,11 @@ import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/server";
 import { LogoutButton } from "./logout-button";
 
-export async function AuthButton() {
+type AuthButtonProps = {
+	showOpenApp?: boolean;
+};
+
+export async function AuthButton({ showOpenApp = false }: AuthButtonProps) {
 	const supabase = await createClient();
 
 	const { data } = await supabase.auth.getClaims();
@@ -13,9 +17,11 @@ export async function AuthButton() {
 	if (user) {
 		return (
 			<div className="flex items-center gap-2">
-				<Button asChild variant="outline" size="sm">
-					<Link href="/protected">Open App</Link>
-				</Button>
+				{showOpenApp && (
+					<Button asChild variant="outline" size="sm">
+						<Link href="/protected">Open App</Link>
+					</Button>
+				)}
 
 				<LogoutButton />
 			</div>
