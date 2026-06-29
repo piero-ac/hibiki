@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { checkPronunciation } from "@/app/protected/sentences/actions";
+import { Button } from "@/components/ui/button";
 
 interface ShadowingPlayerProps {
 	originalAudioUrl: string;
@@ -195,58 +196,50 @@ export default function SimpleShadowingPlayer({
 	}
 
 	return (
-		<div className="p-6 max-w-md mx-auto bg-zinc-900 border border-zinc-800 rounded-xl text-white space-y-4">
-			<div className="space-y-1">
-				<p className="text-xs text-zinc-400 font-medium">
-					Original Sentence Audio:
-				</p>
-				<div className="pointer-events-none select-none opacity-75">
-					<audio
-						ref={audioRef}
-						controls
-						src={originalAudioUrl}
-						onEnded={handleOriginalAudioEnded}
-						className="w-full"
-					/>
-				</div>
-			</div>
+		<div className="w-full max-w-2xl space-y-4">
+			<audio
+				ref={audioRef}
+				src={originalAudioUrl}
+				onEnded={handleOriginalAudioEnded}
+				className="hidden"
+			/>
 
-			<div className="flex gap-3 pt-2">
-				<button
+			<div className="grid gap-3 sm:grid-cols-2">
+				<Button
 					onClick={handlePlayOriginal}
 					disabled={isRecording || isCountingDown}
-					className="flex-1 bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-sm py-3 rounded-lg font-medium transition-colors disabled:opacity-50"
+					variant="outline"
+					size="lg"
+					className="h-14"
 				>
 					Listen
-				</button>
+				</Button>
 
 				{isCountingDown ? (
-					<div className="flex-1 flex items-center justify-center gap-2 bg-amber-600/20 border border-amber-500 text-sm text-amber-400 font-bold rounded-lg animate-pulse">
-						⏱️ Starting in {countdown}...
-					</div>
+					<Button disabled size="lg" className="h-14 animate-pulse">
+						Starting in {countdown}...
+					</Button>
 				) : !isRecording ? (
-					<button
-						onClick={handleRecordShadowing}
-						className="flex-1 bg-red-600 hover:bg-red-700 text-sm py-3 rounded-lg font-medium transition-colors"
-					>
-						Record
-					</button>
+					<Button onClick={handleRecordShadowing} size="lg" className="h-14">
+						Record Shadowing
+					</Button>
 				) : (
-					<div className="flex-1 flex items-center justify-center gap-2 bg-zinc-950 border border-red-500/20 text-xs text-red-400 font-medium rounded-lg animate-pulse">
-						<span className="h-1.5 w-1.5 rounded-full bg-red-500"></span>
+					<Button disabled size="lg" className="h-14 animate-pulse">
 						Recording...
-					</div>
+					</Button>
 				)}
 			</div>
 
-			{error && <p className="text-xs text-red-400 mt-2">{error}</p>}
+			{error && (
+				<div className="rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+					{error}
+				</div>
+			)}
 
 			{recordingUrl && (
-				<div className="pt-4 border-t border-zinc-800 space-y-3">
-					<div>
-						<p className="text-xs text-zinc-400 font-medium mb-1">
-							Your Capture (Verify your pronunciation):
-						</p>
+				<div className="space-y-4 rounded-2xl border bg-muted/40 p-4">
+					<div className="space-y-2">
+						<p className="text-sm font-medium">Your recording</p>
 						<audio
 							ref={userAudioRef}
 							controls
@@ -255,36 +248,38 @@ export default function SimpleShadowingPlayer({
 						/>
 					</div>
 
-					<button
-						onClick={handlePlayBothSync}
-						disabled={isGrading}
-						className="w-full bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-sm py-2 rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
-					>
-						🔄 Play Both Simultaneously
-					</button>
-
-					{!feedbackMessage ? (
-						<button
-							onClick={handleSubmitForGrading}
+					<div className="grid gap-3 sm:grid-cols-2">
+						<Button
+							onClick={handlePlayBothSync}
 							disabled={isGrading}
-							className="w-full bg-emerald-600 hover:bg-emerald-700 disabled:bg-zinc-800 text-sm py-2.5 rounded-lg font-semibold transition-all flex items-center justify-center gap-2"
+							variant="outline"
 						>
-							{isGrading
-								? "Analyzing Pronunciation..."
-								: "🎯 Submit & Grade Attempt"}
-						</button>
-					) : (
-						<div className="p-3 bg-zinc-950 border border-emerald-500/30 rounded-lg text-sm text-emerald-400 font-medium">
+							Play Both
+						</Button>
+
+						{!feedbackMessage ? (
+							<Button onClick={handleSubmitForGrading} disabled={isGrading}>
+								{isGrading ? "Analyzing..." : "Submit Attempt"}
+							</Button>
+						) : (
+							<Button disabled variant="secondary">
+								Attempt Graded
+							</Button>
+						)}
+					</div>
+
+					{feedbackMessage && (
+						<div className="rounded-xl border bg-background p-4">
 							{attemptScore !== null && (
-								<p className="text-lg font-bold text-emerald-300">
-									Score: {attemptScore}%
-								</p>
+								<p className="text-2xl font-bold">Score: {attemptScore}%</p>
 							)}
 
-							<p>{feedbackMessage}</p>
+							<p className="mt-2 text-sm text-muted-foreground">
+								{feedbackMessage}
+							</p>
 
 							{receivedText && (
-								<p className="text-xs text-zinc-400 mt-2">
+								<p className="mt-3 text-xs leading-5 text-muted-foreground">
 									Whisper heard: {receivedText}
 								</p>
 							)}

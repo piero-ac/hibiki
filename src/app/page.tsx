@@ -34,7 +34,7 @@ export default function Home() {
 							<div className="text-sm text-muted-foreground">Loading...</div>
 						}
 					>
-						<AuthButton />
+						<AuthButton showOpenApp={true} />
 					</Suspense>
 				</nav>
 
