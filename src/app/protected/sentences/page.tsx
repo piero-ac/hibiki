@@ -14,16 +14,30 @@ import {
 } from "@/components/ui/card";
 import { createClient } from "@/lib/supabase/server";
 
+type Sentence = {
+	id: string;
+	japanese_text: string;
+	english_text?: string | null;
+	jlpt_level?: string | null;
+	category?: string | null;
+};
+
+type SentenceProgress = {
+	sentence_id: string | null;
+	average_score: number | null;
+	attempt_count: number | null;
+};
+
 export default async function Sentences() {
 	const supabase = await createClient();
 
-	const { data: sentences, error } = await supabase
+	const { data: sentences, error: sentencesError } = await supabase
 		.from("sentences")
 		.select("*")
 		.order("jlpt_level", { ascending: true })
 		.order("category", { ascending: true });
 
-	if (error) {
+	if (sentencesError) {
 		return (
 			<PageContainer>
 				<Card>
@@ -37,6 +51,19 @@ export default async function Sentences() {
 			</PageContainer>
 		);
 	}
+
+	const { data: sentenceProgress, error: sentenceProgressError } =
+		await supabase
+			.from("sentence_progress")
+			.select("sentence_id, average_score, attempt_count");
+
+	const progressBySentenceId = sentenceProgressError
+		? new Map<string, SentenceProgress>()
+		: new Map(
+				sentenceProgress
+					?.filter((progress) => progress.sentence_id !== null)
+					.map((progress) => [progress.sentence_id as string, progress]) ?? [],
+			);
 
 	return (
 		<PageContainer>
@@ -56,6 +83,15 @@ export default async function Sentences() {
 					</Badge>
 				</div>
 
+				{sentenceProgressError && (
+					<Card className="border-dashed">
+						<CardContent className="py-4 text-sm text-muted-foreground">
+							Sentence progress could not be loaded, but your practice library
+							is still available.
+						</CardContent>
+					</Card>
+				)}
+
 				{!sentences?.length ? (
 					<Card>
 						<CardContent className="flex flex-col items-center justify-center py-16 text-center">
@@ -73,7 +109,11 @@ export default async function Sentences() {
 				) : (
 					<div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
 						{sentences.map((sentence) => (
-							<SentenceCard key={sentence.id} sentence={sentence} />
+							<SentenceCard
+								key={sentence.id}
+								sentence={sentence}
+								progress={progressBySentenceId.get(sentence.id)}
+							/>
 						))}
 					</div>
 				)}
@@ -84,25 +124,36 @@ export default async function Sentences() {
 
 function SentenceCard({
 	sentence,
+	progress,
 }: {
-	sentence: {
-		id: string;
-		japanese_text: string;
-		english_text?: string | null;
-		jlpt_level?: string | null;
-		category?: string | null;
-	};
+	sentence: Sentence;
+	progress?: SentenceProgress;
 }) {
 	return (
 		<Card className="flex flex-col shadow-sm transition-all hover:-translate-y-1 hover:shadow-md">
 			<CardHeader className="space-y-3">
-				<div className="flex flex-wrap gap-2">
+				<div className="flex flex-wrap items-center gap-2">
 					{sentence.jlpt_level && (
 						<Badge variant="secondary">{sentence.jlpt_level}</Badge>
 					)}
 
 					{sentence.category && (
-						<Badge variant="outline">{sentence.category}</Badge>
+						<Badge variant="outline">
+							{sentence.category === "daily_conversation"
+								? "Conversation"
+								: sentence.category}
+						</Badge>
+					)}
+
+					{progress ? (
+						<Badge variant="default" className="ml-auto">
+							Avg {Math.round(progress.average_score ?? 0)}% ·{" "}
+							{progress.attempt_count ?? 0} attempts
+						</Badge>
+					) : (
+						<Badge variant="outline" className="ml-auto">
+							Not attempted
+						</Badge>
 					)}
 				</div>
 
