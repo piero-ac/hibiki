@@ -1,6 +1,12 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { ArrowRight, BarChart3, BookOpenText, Headphones } from "lucide-react";
+import {
+	ArrowRight,
+	BarChart3,
+	BookOpenText,
+	Headphones,
+	Dices,
+} from "lucide-react";
 
 import { createClient } from "@/lib/supabase/server";
 
@@ -60,8 +66,9 @@ export default async function HomeDashboard() {
 
 					<CardContent>
 						<Button asChild size="lg">
-							<Link href="/protected/sentences">
-								Start Practicing
+							<Link href="/protected/sentences/random">
+								<Dices className="mr-2 h-4 w-4" />
+								Practice a Random Sentence
 								<ArrowRight className="ml-2 h-4 w-4" />
 							</Link>
 						</Button>
