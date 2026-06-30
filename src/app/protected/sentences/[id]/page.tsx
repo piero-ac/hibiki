@@ -1,9 +1,16 @@
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
+
 import ShadowingPlayer from "@/components/shadowing-client-player";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+	Card,
+	CardContent,
+	CardDescription,
+	CardHeader,
+	CardTitle,
+} from "@/components/ui/card";
 import { createClient } from "@/lib/supabase/server";
 
 interface PageProps {
@@ -37,9 +44,16 @@ export default async function ShadowingPage({ params }: PageProps) {
 		);
 	}
 
+	const { data: recentAttempts } = await supabase
+		.from("attempts")
+		.select("id, accuracy_score, created_at")
+		.eq("sentence_id", id)
+		.order("created_at", { ascending: false })
+		.limit(5);
+
 	return (
-		<main className="flex min-h-[calc(100vh-4rem)] flex-col bg-background px-4 py-4 text-foreground sm:px-6 lg:px-8">
-			<section className="mx-auto flex w-full max-w-5xl flex-1 flex-col">
+		<main className="min-h-[calc(100vh-4rem)] bg-background px-4 py-4 text-foreground sm:px-6 lg:px-8">
+			<section className="mx-auto flex w-full max-w-7xl flex-col">
 				<div className="mb-3 flex items-center justify-between">
 					<Button asChild variant="ghost" size="sm">
 						<Link href="/protected/sentences">
@@ -49,38 +63,117 @@ export default async function ShadowingPage({ params }: PageProps) {
 					</Button>
 				</div>
 
-				<Card className="flex min-h-0 flex-1 flex-col shadow-sm">
-					<CardHeader className="space-y-3 text-center">
-						<div className="flex items-center justify-center gap-2">
-							{sentence.jlpt_level && (
-								<Badge variant="secondary">{sentence.jlpt_level}</Badge>
+				<div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_320px] xl:grid-cols-[minmax(0,1fr)_360px]">
+					<Card className="flex min-h-[calc(100vh-7rem)] flex-col shadow-sm">
+						<CardHeader className="space-y-3 text-center">
+							<div className="flex items-center justify-center gap-2">
+								{sentence.jlpt_level && (
+									<Badge variant="secondary">{sentence.jlpt_level}</Badge>
+								)}
+
+								{sentence.category && (
+									<Badge variant="outline">{sentence.category}</Badge>
+								)}
+							</div>
+
+							<CardTitle className="mx-auto max-w-4xl text-3xl font-bold leading-relaxed tracking-tight sm:text-4xl lg:text-5xl">
+								{sentence.japanese_text}
+							</CardTitle>
+
+							{sentence.english_translation && (
+								<p className="mx-auto max-w-2xl text-sm leading-6 text-muted-foreground sm:text-base">
+									{sentence.english_translation}
+								</p>
 							)}
+						</CardHeader>
 
-							{sentence.category && (
-								<Badge variant="outline">{sentence.category}</Badge>
-							)}
-						</div>
+						<CardContent className="flex flex-1 items-center justify-center">
+							<ShadowingPlayer
+								originalAudioUrl={sentence.audio_prompt_url}
+								expectedText={sentence.japanese_text}
+								sentenceId={sentence.id}
+							/>
+						</CardContent>
+					</Card>
 
-						<CardTitle className="mx-auto max-w-4xl text-3xl font-bold leading-relaxed tracking-tight sm:text-4xl lg:text-5xl">
-							{sentence.japanese_text}
-						</CardTitle>
-
-						{sentence.english_translation && (
-							<p className="mx-auto max-w-2xl text-sm leading-6 text-muted-foreground sm:text-base">
-								{sentence.english_translation}
-							</p>
-						)}
-					</CardHeader>
-
-					<CardContent className="flex min-h-0 flex-1 items-center justify-center">
-						<ShadowingPlayer
-							originalAudioUrl={sentence.audio_prompt_url}
-							expectedText={sentence.japanese_text}
-							sentenceId={sentence.id}
-						/>
-					</CardContent>
-				</Card>
+					<PreviousAttemptsCard attempts={recentAttempts ?? []} />
+				</div>
 			</section>
 		</main>
 	);
+}
+
+function PreviousAttemptsCard({
+	attempts,
+}: {
+	attempts: {
+		id: string;
+		accuracy_score: number | null;
+		created_at: string | null;
+	}[];
+}) {
+	return (
+		<Card className="h-fit shadow-sm lg:sticky lg:top-4">
+			<CardHeader>
+				<CardTitle className="text-base">Previous attempts</CardTitle>
+				<CardDescription>
+					{attempts.length
+						? "Your last attempts for this sentence."
+						: "No attempts yet for this sentence."}
+				</CardDescription>
+			</CardHeader>
+
+			<CardContent>
+				{!attempts.length ? (
+					<p className="rounded-xl border bg-muted/40 p-4 text-sm text-muted-foreground">
+						Try this sentence once to start tracking progress.
+					</p>
+				) : (
+					<div className="space-y-1">
+						{attempts.map((attempt) => {
+							const score = Math.round(attempt.accuracy_score ?? 0);
+
+							return (
+								<div
+									key={attempt.id}
+									className="flex items-center justify-between rounded-lg px-3 py-2 transition-colors hover:bg-muted/50"
+								>
+									<div className="flex items-center gap-3">
+										<span className="h-2 w-2 rounded-full bg-primary" />
+										<div>
+											<p className="text-sm font-semibold">{score}%</p>
+											<p className="text-xs text-muted-foreground">
+												{formatAttemptDate(attempt.created_at)}
+											</p>
+										</div>
+									</div>
+
+									<Badge variant="outline" className="text-xs">
+										{getScoreLabel(score)}
+									</Badge>
+								</div>
+							);
+						})}
+					</div>
+				)}
+			</CardContent>
+		</Card>
+	);
+}
+
+function formatAttemptDate(date: string | null) {
+	if (!date) return "Unknown date";
+
+	return new Intl.DateTimeFormat("en-US", {
+		month: "short",
+		day: "numeric",
+	}).format(new Date(date));
+}
+
+function getScoreLabel(score: number) {
+	if (score >= 95) return "Excellent";
+	if (score >= 85) return "Great";
+	if (score >= 70) return "Good";
+	if (score >= 50) return "Practice";
+	return "Retry";
 }
