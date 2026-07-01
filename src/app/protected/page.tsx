@@ -22,7 +22,7 @@ import {
 } from "@/components/ui/card";
 
 import { PageContainer } from "@/components/app/page-container";
-import ProgressOverview from "@/components/progress-overview";
+import ProgressOverview from "@/components/progress/progress-overview";
 
 export default async function HomeDashboard() {
 	const supabase = await createClient();
