@@ -3,7 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Database } from "@/types/database.types";
 import { BookOpenIcon } from "@phosphor-icons/react/dist/ssr";
-import { EmptyState } from "./app/empty-state";
+import { EmptyState } from "@/components/app/empty-state";
 
 type RecentAttemptsProps = {
 	attempts: Database["public"]["Views"]["recent_attempts"]["Row"][];

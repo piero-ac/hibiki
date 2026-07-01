@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
-import ProgressOverview from "@/components/progress-overview";
-import RecentAttempts from "@/components/recent-attempts";
-import SentencePerformance from "@/components/sentence-performance";
+import ProgressOverview from "@/components/progress/progress-overview";
+import RecentAttempts from "@/components/progress/recent-attempts";
+import SentencePerformance from "@/components/progress/sentence-performance";
 import { PageContainer } from "@/components/app/page-container";
 
 export default async function ProgressPage() {
