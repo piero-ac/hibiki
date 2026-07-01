@@ -9,7 +9,7 @@ import {
 	Mic,
 	Sparkles,
 } from "lucide-react";
-import { AuthButton } from "@/components/auth-button";
+import { AuthButton } from "@/components/auth/auth-button";
 import {
 	Card,
 	CardContent,

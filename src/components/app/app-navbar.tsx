@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Suspense } from "react";
 import { Separator } from "@/components/ui/separator";
-import { AuthButton } from "@/components/auth-button";
+import { AuthButton } from "@/components/auth/auth-button";
 
 type AppNavbarProps = {
 	email?: string | null;
