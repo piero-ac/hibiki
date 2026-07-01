@@ -7,19 +7,17 @@ import {
 	Headphones,
 	Dices,
 } from "lucide-react";
-
 import { createClient } from "@/lib/supabase/server";
-
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
 	Card,
 	CardContent,
 	CardDescription,
-	CardFooter,
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
+import ActionCard from "@/components/dashboard/action-card";
 
 import { PageContainer } from "@/components/app/page-container";
 import ProgressOverview from "@/components/progress/progress-overview";
@@ -121,39 +119,5 @@ export default async function HomeDashboard() {
 				</div>
 			</div>
 		</PageContainer>
-	);
-}
-
-function ActionCard({
-	icon,
-	title,
-	description,
-	href,
-	buttonText,
-}: {
-	icon: React.ReactNode;
-	title: string;
-	description: string;
-	href: string;
-	buttonText: string;
-}) {
-	return (
-		<Card className="flex flex-col transition-all hover:-translate-y-1 hover:shadow-md">
-			<CardHeader>
-				<div className="mb-2 flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-primary-foreground">
-					{icon}
-				</div>
-
-				<CardTitle>{title}</CardTitle>
-
-				<CardDescription>{description}</CardDescription>
-			</CardHeader>
-
-			<CardFooter className="mt-auto">
-				<Button asChild variant="outline" className="w-full">
-					<Link href={href}>{buttonText}</Link>
-				</Button>
-			</CardFooter>
-		</Card>
 	);
 }
