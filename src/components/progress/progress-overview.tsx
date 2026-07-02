@@ -25,7 +25,7 @@ export default function ProgressOverview({
 				<StatCard label="Total Attempts" value={totalAttempts} emoji="🎯" />
 				<StatCard
 					label="Average Score"
-					value={averageScore !== null ? `${averageScore}%` : "—"}
+					value={averageScore !== null ? `${averageScore}%` : "0%"}
 					emoji="📈"
 				/>
 				<StatCard
