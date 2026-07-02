@@ -8,12 +8,14 @@ interface ShadowingPlayerProps {
 	originalAudioUrl: string;
 	expectedText: string;
 	sentenceId: string;
+	isDemoUser?: boolean;
 }
 
 export default function SimpleShadowingPlayer({
 	originalAudioUrl,
 	expectedText,
 	sentenceId,
+	isDemoUser,
 }: ShadowingPlayerProps) {
 	const [isRecording, setIsRecording] = useState(false);
 	const [recordingUrl, setRecordingUrl] = useState<string | null>(null);
@@ -32,31 +34,26 @@ export default function SimpleShadowingPlayer({
 	const chunksRef = useRef<Blob[]>([]);
 	const stopTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-	// Sync the visible audio player's volume slider with the application flow state
 	useEffect(() => {
 		if (audioRef.current) {
 			audioRef.current.volume = isRecording ? 0.25 : 1.0;
 		}
 	}, [isRecording]);
 
-	// Clean up timers on unmount
 	useEffect(() => {
 		return () => {
 			if (stopTimeoutRef.current) clearTimeout(stopTimeoutRef.current);
 		};
 	}, []);
 
-	// Add this effect to your player component
 	useEffect(() => {
-		// This cleanup function runs automatically when the user leaves the page / unmounts
 		return () => {
 			if (recordingUrl) {
 				URL.revokeObjectURL(recordingUrl);
 			}
 		};
-	}, [recordingUrl]); // Tracks your recording URL state
+	}, [recordingUrl]);
 
-	// Button 1: Purely plays the reference audio
 	function handlePlayOriginal() {
 		if (audioRef.current) {
 			audioRef.current.currentTime = 0;
@@ -120,7 +117,6 @@ export default function SimpleShadowingPlayer({
 		setRecordingUrl(null);
 		chunksRef.current = [];
 
-		// Start the countdown at 3
 		let currentCount = 3;
 		setCountdown(currentCount);
 
@@ -131,8 +127,8 @@ export default function SimpleShadowingPlayer({
 				setCountdown(currentCount);
 			} else {
 				clearInterval(interval);
-				setCountdown(null); // Remove countdown overlay/text
-				startActualRecording(); // Fire up the microphone and track!
+				setCountdown(null);
+				startActualRecording();
 			}
 		}, 1000);
 	}
@@ -257,7 +253,11 @@ export default function SimpleShadowingPlayer({
 							Play Both
 						</Button>
 
-						{!feedbackMessage ? (
+						{isDemoUser ? (
+							<Button disabled variant="secondary">
+								Demo Mode · AI Grading Unavailable
+							</Button>
+						) : !feedbackMessage ? (
 							<Button onClick={handleSubmitForGrading} disabled={isGrading}>
 								{isGrading ? "Analyzing..." : "Submit Attempt"}
 							</Button>
