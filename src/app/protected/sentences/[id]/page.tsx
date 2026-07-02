@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import PreviousAttemptsCard from "@/components/practice/practice-attempt-card";
 import { createClient } from "@/lib/supabase/server";
+import { isDemoUser } from "@/lib/demo";
 
 interface PageProps {
 	params: Promise<{ id: string }>;
@@ -14,6 +15,12 @@ interface PageProps {
 export default async function ShadowingPage({ params }: PageProps) {
 	const { id } = await params;
 	const supabase = await createClient();
+
+	const {
+		data: { user },
+	} = await supabase.auth.getUser();
+
+	const demoUser = isDemoUser(user?.email);
 
 	const { data: sentence, error } = await supabase
 		.from("sentences")
@@ -86,6 +93,7 @@ export default async function ShadowingPage({ params }: PageProps) {
 								originalAudioUrl={sentence.audio_prompt_url}
 								expectedText={sentence.japanese_text}
 								sentenceId={sentence.id}
+								isDemoUser={demoUser}
 							/>
 						</CardContent>
 					</Card>
