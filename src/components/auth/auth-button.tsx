@@ -35,9 +35,9 @@ export async function AuthButton({ showOpenApp = false }: AuthButtonProps) {
 				<Link href="/auth/login">Log in</Link>
 			</Button>
 
-			<Button asChild size="sm" disabled>
+			{/* <Button asChild size="sm">
 				<Link href="/auth/sign-up">Sign up</Link>
-			</Button>
+			</Button> */}
 
 			<DemoLoginButton />
 		</div>
