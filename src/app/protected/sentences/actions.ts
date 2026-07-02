@@ -3,6 +3,7 @@
 import { OpenAI, toFile } from "openai";
 import { createClient } from "@/lib/supabase/server";
 import { calculateSimilarityScore } from "@/lib/scoring";
+import { isDemoUser } from "@/lib/demo";
 
 const openai = new OpenAI();
 
@@ -29,6 +30,13 @@ export async function checkPronunciation(
 			return {
 				success: false,
 				error: "Unauthorized. Please log in to save attempts.",
+			};
+		}
+
+		if (isDemoUser(user.email)) {
+			return {
+				success: false,
+				error: "AI Grading is disabled in Demo Mode.",
 			};
 		}
 

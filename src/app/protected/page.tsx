@@ -102,14 +102,6 @@ export default async function HomeDashboard() {
 
 				{/* Snapshot */}
 				<div className="space-y-4">
-					<div>
-						<h2 className="text-xl font-semibold">Quick Snapshot</h2>
-
-						<p className="text-sm text-muted-foreground">
-							A quick overview of your progress.
-						</p>
-					</div>
-
 					<ProgressOverview
 						totalAttempts={summary.total_attempts ?? 0}
 						averageScore={summary.average_score}
