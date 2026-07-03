@@ -2,6 +2,8 @@
 
 > AI-powered Japanese shadowing application built with Next.js, Supabase, and OpenAI Whisper.
 
+**Live Demo:** https://hibiki-mu.vercel.app/
+
 Hibiki helps advanced Japanese learners improve their pronunciation through shadowing. Users practice curated N2 and N1 sentences, record their voice, receive AI-powered transcription feedback, and track their progress over time.
 
 ---
