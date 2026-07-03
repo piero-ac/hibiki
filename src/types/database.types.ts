@@ -4,211 +4,214 @@ export type Json =
   | boolean
   | null
   | { [key: string]: Json | undefined }
-  | Json[]
+  | Json[];
 
 export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "14.5"
-  }
+    PostgrestVersion: "14.5";
+  };
   public: {
     Tables: {
       attempts: {
         Row: {
-          accuracy_score: number
-          audio_attempt_url: string | null
-          created_at: string
-          id: string
-          sentence_id: string
-          user_audio_transcript: string | null
-          user_id: string
-        }
+          accuracy_score: number;
+          audio_attempt_url: string | null;
+          created_at: string;
+          id: string;
+          sentence_id: string;
+          user_audio_transcript: string | null;
+          user_id: string;
+        };
         Insert: {
-          accuracy_score: number
-          audio_attempt_url?: string | null
-          created_at?: string
-          id?: string
-          sentence_id: string
-          user_audio_transcript?: string | null
-          user_id: string
-        }
+          accuracy_score: number;
+          audio_attempt_url?: string | null;
+          created_at?: string;
+          id?: string;
+          sentence_id: string;
+          user_audio_transcript?: string | null;
+          user_id: string;
+        };
         Update: {
-          accuracy_score?: number
-          audio_attempt_url?: string | null
-          created_at?: string
-          id?: string
-          sentence_id?: string
-          user_audio_transcript?: string | null
-          user_id?: string
-        }
+          accuracy_score?: number;
+          audio_attempt_url?: string | null;
+          created_at?: string;
+          id?: string;
+          sentence_id?: string;
+          user_audio_transcript?: string | null;
+          user_id?: string;
+        };
         Relationships: [
           {
-            foreignKeyName: "attempts_sentence_id_fkey"
-            columns: ["sentence_id"]
-            isOneToOne: false
-            referencedRelation: "recent_attempts"
-            referencedColumns: ["sentence_id"]
+            foreignKeyName: "attempts_sentence_id_fkey";
+            columns: ["sentence_id"];
+            isOneToOne: false;
+            referencedRelation: "recent_attempts";
+            referencedColumns: ["sentence_id"];
           },
           {
-            foreignKeyName: "attempts_sentence_id_fkey"
-            columns: ["sentence_id"]
-            isOneToOne: false
-            referencedRelation: "sentences"
-            referencedColumns: ["id"]
+            foreignKeyName: "attempts_sentence_id_fkey";
+            columns: ["sentence_id"];
+            isOneToOne: false;
+            referencedRelation: "sentences";
+            referencedColumns: ["id"];
           },
           {
-            foreignKeyName: "attempts_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
+            foreignKeyName: "attempts_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
           },
-        ]
-      }
+        ];
+      };
       profiles: {
         Row: {
-          id: string
-          target_jlpt_level: string | null
-          updated_at: string
-          username: string | null
-        }
+          id: string;
+          target_jlpt_level: string | null;
+          updated_at: string;
+          username: string | null;
+        };
         Insert: {
-          id: string
-          target_jlpt_level?: string | null
-          updated_at?: string
-          username?: string | null
-        }
+          id: string;
+          target_jlpt_level?: string | null;
+          updated_at?: string;
+          username?: string | null;
+        };
         Update: {
-          id?: string
-          target_jlpt_level?: string | null
-          updated_at?: string
-          username?: string | null
-        }
-        Relationships: []
-      }
+          id?: string;
+          target_jlpt_level?: string | null;
+          updated_at?: string;
+          username?: string | null;
+        };
+        Relationships: [];
+      };
       sentences: {
         Row: {
-          audio_prompt_url: string
-          category: string | null
-          created_at: string
-          english_translation: string
-          id: string
-          japanese_text: string
-          jlpt_level: string
-          kana_text: string
-        }
+          audio_prompt_url: string;
+          category: string | null;
+          created_at: string;
+          english_translation: string;
+          id: string;
+          japanese_text: string;
+          jlpt_level: string;
+          kana_text: string;
+        };
         Insert: {
-          audio_prompt_url: string
-          category?: string | null
-          created_at?: string
-          english_translation: string
-          id?: string
-          japanese_text: string
-          jlpt_level: string
-          kana_text: string
-        }
+          audio_prompt_url: string;
+          category?: string | null;
+          created_at?: string;
+          english_translation: string;
+          id?: string;
+          japanese_text: string;
+          jlpt_level: string;
+          kana_text: string;
+        };
         Update: {
-          audio_prompt_url?: string
-          category?: string | null
-          created_at?: string
-          english_translation?: string
-          id?: string
-          japanese_text?: string
-          jlpt_level?: string
-          kana_text?: string
-        }
-        Relationships: []
-      }
-    }
+          audio_prompt_url?: string;
+          category?: string | null;
+          created_at?: string;
+          english_translation?: string;
+          id?: string;
+          japanese_text?: string;
+          jlpt_level?: string;
+          kana_text?: string;
+        };
+        Relationships: [];
+      };
+    };
     Views: {
       attempts_summary: {
         Row: {
-          average_score: number | null
-          days_practiced: number | null
-          sentences_practiced: number | null
-          total_attempts: number | null
-        }
-        Relationships: []
-      }
+          average_score: number | null;
+          days_practiced: number | null;
+          sentences_practiced: number | null;
+          total_attempts: number | null;
+        };
+        Relationships: [];
+      };
       recent_attempts: {
         Row: {
-          accuracy_score: number | null
-          category: string | null
-          created_at: string | null
-          english_translation: string | null
-          id: string | null
-          japanese_text: string | null
-          jlpt_level: string | null
-          kana_text: string | null
-          sentence_id: string | null
-          user_audio_transcript: string | null
-        }
-        Relationships: []
-      }
+          accuracy_score: number | null;
+          category: string | null;
+          created_at: string | null;
+          english_translation: string | null;
+          id: string | null;
+          japanese_text: string | null;
+          jlpt_level: string | null;
+          kana_text: string | null;
+          sentence_id: string | null;
+          user_audio_transcript: string | null;
+        };
+        Relationships: [];
+      };
       sentence_progress: {
         Row: {
-          attempt_count: number | null
-          average_score: number | null
-          best_score: number | null
-          category: string | null
-          english_translation: string | null
-          japanese_text: string | null
-          jlpt_level: string | null
-          last_attempted: string | null
-          lowest_score: number | null
-          sentence_id: string | null
-        }
+          attempt_count: number | null;
+          average_score: number | null;
+          best_score: number | null;
+          category: string | null;
+          english_translation: string | null;
+          japanese_text: string | null;
+          jlpt_level: string | null;
+          last_attempted: string | null;
+          lowest_score: number | null;
+          sentence_id: string | null;
+        };
         Relationships: [
           {
-            foreignKeyName: "attempts_sentence_id_fkey"
-            columns: ["sentence_id"]
-            isOneToOne: false
-            referencedRelation: "recent_attempts"
-            referencedColumns: ["sentence_id"]
+            foreignKeyName: "attempts_sentence_id_fkey";
+            columns: ["sentence_id"];
+            isOneToOne: false;
+            referencedRelation: "recent_attempts";
+            referencedColumns: ["sentence_id"];
           },
           {
-            foreignKeyName: "attempts_sentence_id_fkey"
-            columns: ["sentence_id"]
-            isOneToOne: false
-            referencedRelation: "sentences"
-            referencedColumns: ["id"]
+            foreignKeyName: "attempts_sentence_id_fkey";
+            columns: ["sentence_id"];
+            isOneToOne: false;
+            referencedRelation: "sentences";
+            referencedColumns: ["id"];
           },
-        ]
-      }
-    }
+        ];
+      };
+    };
     Functions: {
-      [_ in never]: never
-    }
+      [_ in never]: never;
+    };
     Enums: {
-      [_ in never]: never
-    }
+      [_ in never]: never;
+    };
     CompositeTypes: {
-      [_ in never]: never
-    }
-  }
-}
+      [_ in never]: never;
+    };
+  };
+};
 
-type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">
+type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">;
 
-type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">]
+type DefaultSchema = DatabaseWithoutInternals[Extract<
+  keyof Database,
+  "public"
+>];
 
 export type Tables<
   DefaultSchemaTableNameOrOptions extends
     | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals;
   }
     ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
         DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals
+  schema: keyof DatabaseWithoutInternals;
 }
   ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
       DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
-      Row: infer R
+      Row: infer R;
     }
     ? R
     : never
@@ -216,98 +219,95 @@ export type Tables<
         DefaultSchema["Views"])
     ? (DefaultSchema["Tables"] &
         DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
-        Row: infer R
+        Row: infer R;
       }
       ? R
       : never
-    : never
+    : never;
 
 export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
-    | keyof DefaultSchema["Tables"]
-    | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals
+    keyof DefaultSchema["Tables"] | { schema: keyof DatabaseWithoutInternals },
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals;
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals
+  schema: keyof DatabaseWithoutInternals;
 }
   ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
-      Insert: infer I
+      Insert: infer I;
     }
     ? I
     : never
   : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
     ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
-        Insert: infer I
+        Insert: infer I;
       }
       ? I
       : never
-    : never
+    : never;
 
 export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
-    | keyof DefaultSchema["Tables"]
-    | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals
+    keyof DefaultSchema["Tables"] | { schema: keyof DatabaseWithoutInternals },
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals;
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals
+  schema: keyof DatabaseWithoutInternals;
 }
   ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
-      Update: infer U
+      Update: infer U;
     }
     ? U
     : never
   : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
     ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
-        Update: infer U
+        Update: infer U;
       }
       ? U
       : never
-    : never
+    : never;
 
 export type Enums<
   DefaultSchemaEnumNameOrOptions extends
-    | keyof DefaultSchema["Enums"]
-    | { schema: keyof DatabaseWithoutInternals },
-  EnumName extends DefaultSchemaEnumNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals
+    keyof DefaultSchema["Enums"] | { schema: keyof DatabaseWithoutInternals },
+  EnumName extends (DefaultSchemaEnumNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals;
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaEnumNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals
+  schema: keyof DatabaseWithoutInternals;
 }
   ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
   : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
     ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
-    : never
+    : never;
 
 export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
     | keyof DefaultSchema["CompositeTypes"]
     | { schema: keyof DatabaseWithoutInternals },
-  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals
+  CompositeTypeName extends (PublicCompositeTypeNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals;
   }
     ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
-    : never = never,
+    : never) = never,
 > = PublicCompositeTypeNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals
+  schema: keyof DatabaseWithoutInternals;
 }
   ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
   : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
     ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
-    : never
+    : never;
 
 export const Constants = {
   public: {
     Enums: {},
   },
-} as const
+} as const;

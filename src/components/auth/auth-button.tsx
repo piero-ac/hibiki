@@ -6,40 +6,40 @@ import { LogoutButton } from "./logout-button";
 import { DemoLoginButton } from "./demo-login-button";
 
 type AuthButtonProps = {
-	showOpenApp?: boolean;
+  showOpenApp?: boolean;
 };
 
 export async function AuthButton({ showOpenApp = false }: AuthButtonProps) {
-	const supabase = await createClient();
+  const supabase = await createClient();
 
-	const { data } = await supabase.auth.getClaims();
-	const user = data?.claims;
+  const { data } = await supabase.auth.getClaims();
+  const user = data?.claims;
 
-	if (user) {
-		return (
-			<div className="flex items-center gap-2">
-				{showOpenApp && (
-					<Button asChild variant="outline" size="sm">
-						<Link href="/protected">Open App</Link>
-					</Button>
-				)}
+  if (user) {
+    return (
+      <div className="flex items-center gap-2">
+        {showOpenApp && (
+          <Button asChild variant="outline" size="sm">
+            <Link href="/protected">Open App</Link>
+          </Button>
+        )}
 
-				<LogoutButton />
-			</div>
-		);
-	}
+        <LogoutButton />
+      </div>
+    );
+  }
 
-	return (
-		<div className="flex items-center gap-2">
-			<Button asChild variant="outline" size="sm">
-				<Link href="/auth/login">Log in</Link>
-			</Button>
+  return (
+    <div className="flex items-center gap-2">
+      <Button asChild variant="outline" size="sm">
+        <Link href="/auth/login">Log in</Link>
+      </Button>
 
-			{/* <Button asChild size="sm">
+      {/* <Button asChild size="sm">
 				<Link href="/auth/sign-up">Sign up</Link>
 			</Button> */}
 
-			<DemoLoginButton />
-		</div>
-	);
+      <DemoLoginButton />
+    </div>
+  );
 }
