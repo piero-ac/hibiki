@@ -26,6 +26,7 @@ export default function RootLayout({
         jetbrainsMono.variable,
         "dark",
       )}
+      data-scroll-behavior="smooth"
     >
       <body className="min-h-screen bg-background text-foreground antialiased">
         {children}
