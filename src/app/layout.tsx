@@ -3,33 +3,34 @@ import "./globals.css";
 import { cn } from "@/lib/utils";
 
 const jetbrainsMono = JetBrains_Mono({
-	subsets: ["latin"],
-	variable: "--font-mono",
+  subsets: ["latin"],
+  variable: "--font-mono",
 });
 
 export const metadata = {
-	title: "Hibiki",
-	description: "Japanese shadowing and pronunciation practice.",
+  title: "Hibiki",
+  description: "Japanese shadowing and pronunciation practice.",
 };
 
 export default function RootLayout({
-	children,
+  children,
 }: {
-	children: React.ReactNode;
+  children: React.ReactNode;
 }) {
-	return (
-		<html
-			lang="en"
-			className={cn(
-				"scroll-smooth",
-				"font-mono",
-				jetbrainsMono.variable,
-				"dark",
-			)}
-		>
-			<body className="min-h-screen bg-background text-foreground antialiased">
-				{children}
-			</body>
-		</html>
-	);
+  return (
+    <html
+      lang="en"
+      className={cn(
+        "scroll-smooth",
+        "font-mono",
+        jetbrainsMono.variable,
+        "dark",
+      )}
+      data-scroll-behavior="smooth"
+    >
+      <body className="min-h-screen bg-background text-foreground antialiased">
+        {children}
+      </body>
+    </html>
+  );
 }

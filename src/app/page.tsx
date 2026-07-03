@@ -1,13 +1,13 @@
 import Link from "next/link";
 import { Suspense } from "react";
 import {
-	BarChart3,
-	BookOpenText,
-	Brain,
-	CheckCircle2,
-	Headphones,
-	Mic,
-	Sparkles,
+  BarChart3,
+  BookOpenText,
+  Brain,
+  CheckCircle2,
+  Headphones,
+  Mic,
+  Sparkles,
 } from "lucide-react";
 import { AuthButton } from "@/components/auth/auth-button";
 import { Separator } from "@/components/ui/separator";
@@ -16,121 +16,121 @@ import ProcessCard from "@/components/landing/process-card";
 import FeatureCard from "@/components/landing/feature-card";
 
 export default function Home() {
-	return (
-		<main className="min-h-screen bg-background text-foreground">
-			<div className="mx-auto flex min-h-screen max-w-6xl flex-col px-6 py-6 sm:px-8 lg:px-12">
-				<nav className="flex items-center justify-between">
-					<Link href="/" className="group">
-						<p className="text-xl font-bold tracking-tight">Hibiki</p>
-						<p className="text-xs text-muted-foreground">ひびき · 響</p>
-					</Link>
+  return (
+    <main className="min-h-screen bg-background text-foreground">
+      <div className="mx-auto flex min-h-screen max-w-6xl flex-col px-6 py-6 sm:px-8 lg:px-12">
+        <nav className="flex items-center justify-between">
+          <Link href="/" className="group">
+            <p className="text-xl font-bold tracking-tight">Hibiki</p>
+            <p className="text-xs text-muted-foreground">ひびき · 響</p>
+          </Link>
 
-					<Suspense
-						fallback={
-							<div className="text-sm text-muted-foreground">Loading...</div>
-						}
-					>
-						<AuthButton showOpenApp={true} />
-					</Suspense>
-				</nav>
+          <Suspense
+            fallback={
+              <div className="text-sm text-muted-foreground">Loading...</div>
+            }
+          >
+            <AuthButton showOpenApp={true} />
+          </Suspense>
+        </nav>
 
-				<section className="grid flex-1 items-center gap-12 py-16 lg:grid-cols-[1.05fr_0.95fr] lg:py-24">
-					<div className="text-center lg:text-left">
-						<div className="mb-5 inline-flex items-center gap-2 rounded-full border bg-card px-4 py-2 text-sm text-muted-foreground shadow-sm">
-							<Sparkles className="h-4 w-4" />
-							AI-powered Japanese shadowing practice
-						</div>
+        <section className="grid flex-1 items-center gap-12 py-16 lg:grid-cols-[1.05fr_0.95fr] lg:py-24">
+          <div className="text-center lg:text-left">
+            <div className="mb-5 inline-flex items-center gap-2 rounded-full border bg-card px-4 py-2 text-sm text-muted-foreground shadow-sm">
+              <Sparkles className="h-4 w-4" />
+              AI-powered Japanese shadowing practice
+            </div>
 
-						<h1 className="text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl">
-							Shadow. Speak. Improve your Japanese.
-						</h1>
+            <h1 className="text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl">
+              Shadow. Speak. Improve your Japanese.
+            </h1>
 
-						<p className="mx-auto mt-6 max-w-2xl text-base leading-7 text-muted-foreground sm:text-lg lg:mx-0">
-							Practice advanced N2 and N1 sentences, record your voice, compare
-							your speech with AI transcription, and track your pronunciation
-							progress over time.
-						</p>
+            <p className="mx-auto mt-6 max-w-2xl text-base leading-7 text-muted-foreground sm:text-lg lg:mx-0">
+              Practice advanced N2 and N1 sentences, record your voice, compare
+              your speech with AI transcription, and track your pronunciation
+              progress over time.
+            </p>
 
-						<div className="mt-8 flex flex-col items-center gap-3 text-sm text-muted-foreground sm:flex-row sm:justify-center lg:justify-start">
-							<div className="flex items-center gap-2">
-								<CheckCircle2 className="h-4 w-4" />
-								<span>Built for N2/N1 learners</span>
-							</div>
+            <div className="mt-8 flex flex-col items-center gap-3 text-sm text-muted-foreground sm:flex-row sm:justify-center lg:justify-start">
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="h-4 w-4" />
+                <span>Built for N2/N1 learners</span>
+              </div>
 
-							<div className="hidden h-1 w-1 rounded-full bg-muted-foreground sm:block" />
+              <div className="hidden h-1 w-1 rounded-full bg-muted-foreground sm:block" />
 
-							<div className="flex items-center gap-2">
-								<CheckCircle2 className="h-4 w-4" />
-								<span>Practice from any device</span>
-							</div>
-						</div>
-					</div>
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="h-4 w-4" />
+                <span>Practice from any device</span>
+              </div>
+            </div>
+          </div>
 
-					<AppPreview />
-				</section>
+          <AppPreview />
+        </section>
 
-				<Separator />
+        <Separator />
 
-				<section className="py-16">
-					<div className="mx-auto max-w-2xl text-center">
-						<h2 className="text-3xl font-bold tracking-tight">
-							A simple loop for better pronunciation.
-						</h2>
-						<p className="mt-4 text-muted-foreground">
-							Hibiki keeps practice focused: listen carefully, shadow out loud,
-							compare your attempt, and improve through repetition.
-						</p>
-					</div>
+        <section className="py-16">
+          <div className="mx-auto max-w-2xl text-center">
+            <h2 className="text-3xl font-bold tracking-tight">
+              A simple loop for better pronunciation.
+            </h2>
+            <p className="mt-4 text-muted-foreground">
+              Hibiki keeps practice focused: listen carefully, shadow out loud,
+              compare your attempt, and improve through repetition.
+            </p>
+          </div>
 
-					<div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-						<ProcessCard
-							icon={<Headphones className="h-5 w-5" />}
-							title="Listen"
-							description="Hear the target Japanese sentence."
-						/>
+          <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <ProcessCard
+              icon={<Headphones className="h-5 w-5" />}
+              title="Listen"
+              description="Hear the target Japanese sentence."
+            />
 
-						<ProcessCard
-							icon={<Mic className="h-5 w-5" />}
-							title="Shadow"
-							description="Record yourself speaking out loud."
-						/>
+            <ProcessCard
+              icon={<Mic className="h-5 w-5" />}
+              title="Shadow"
+              description="Record yourself speaking out loud."
+            />
 
-						<ProcessCard
-							icon={<Brain className="h-5 w-5" />}
-							title="Compare"
-							description="AI transcribes and checks your attempt."
-						/>
+            <ProcessCard
+              icon={<Brain className="h-5 w-5" />}
+              title="Compare"
+              description="AI transcribes and checks your attempt."
+            />
 
-						<ProcessCard
-							icon={<BarChart3 className="h-5 w-5" />}
-							title="Improve"
-							description="Track attempts, scores, and progress."
-						/>
-					</div>
-				</section>
+            <ProcessCard
+              icon={<BarChart3 className="h-5 w-5" />}
+              title="Improve"
+              description="Track attempts, scores, and progress."
+            />
+          </div>
+        </section>
 
-				<section className="pb-16">
-					<div className="grid gap-4 lg:grid-cols-3">
-						<FeatureCard
-							icon={<BookOpenText className="h-6 w-6" />}
-							title="Curated advanced sentences"
-							description="Practice with focused N2 and N1 Japanese sentences instead of beginner material you already know."
-						/>
+        <section className="pb-16">
+          <div className="grid gap-4 lg:grid-cols-3">
+            <FeatureCard
+              icon={<BookOpenText className="h-6 w-6" />}
+              title="Curated advanced sentences"
+              description="Practice with focused N2 and N1 Japanese sentences instead of beginner material you already know."
+            />
 
-						<FeatureCard
-							icon={<Mic className="h-6 w-6" />}
-							title="Real speaking practice"
-							description="Move beyond passive study by recording yourself, shadowing aloud, and building speaking confidence."
-						/>
+            <FeatureCard
+              icon={<Mic className="h-6 w-6" />}
+              title="Real speaking practice"
+              description="Move beyond passive study by recording yourself, shadowing aloud, and building speaking confidence."
+            />
 
-						<FeatureCard
-							icon={<BarChart3 className="h-6 w-6" />}
-							title="Progress you can see"
-							description="Review your history, scores, and repeated attempts so improvement feels measurable."
-						/>
-					</div>
-				</section>
-			</div>
-		</main>
-	);
+            <FeatureCard
+              icon={<BarChart3 className="h-6 w-6" />}
+              title="Progress you can see"
+              description="Review your history, scores, and repeated attempts so improvement feels measurable."
+            />
+          </div>
+        </section>
+      </div>
+    </main>
+  );
 }
