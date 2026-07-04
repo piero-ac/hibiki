@@ -37,7 +37,7 @@
     "eslint-config-next": "16.2.9",
     "knip": "^6.24.0",
     "prettier": "^3.9.4",
-    "supabase": "^2.108.0",
+    "supabase": "^2.109.0",
     "tailwindcss": "^4",
     "typescript": "^5"
   }
