@@ -13,8 +13,8 @@ import { ArrowRight } from "lucide-react";
 type Sentence = {
   id: string;
   japanese_text: string;
-  english_text?: string | null;
-  jlpt_level?: string | null;
+  english_translation: string;
+  jlpt_level: string;
   category?: string | null;
 };
 
@@ -63,9 +63,9 @@ export default function SentenceCard({
           {sentence.japanese_text}
         </CardTitle>
 
-        {sentence.english_text && (
+        {sentence.english_translation && (
           <CardDescription className="line-clamp-2 leading-6">
-            {sentence.english_text}
+            {sentence.english_translation}
           </CardDescription>
         )}
       </CardHeader>
