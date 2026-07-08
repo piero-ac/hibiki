@@ -3,6 +3,25 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { isAuthError } from "@supabase/supabase-js";
+
+type SignUpErrorCode =
+  | "passwords_do_not_match"
+  | "weak_password"
+  | "email_already_registered"
+  | "signup_disabled"
+  | "rate_limited"
+  | "unexpected_signup_error";
+
+const SIGN_UP_ERROR_MESSAGES = {
+  passwords_do_not_match: "Passwords do not match.",
+  weak_password: "Choose a stronger password.",
+  email_already_registered: "An account may already exist for this email.",
+  signup_disabled: "New account registration is currently unavailable.",
+  rate_limited: "Too many attempts. Please wait a moment and try again.",
+  unexpected_signup_error:
+    "We could not create your account. Please try again.",
+} satisfies Record<SignUpErrorCode, string>;
 
 export default function SignUpForm({
   className,
@@ -11,7 +30,7 @@ export default function SignUpForm({
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [repeatPassword, setRepeatPassword] = useState("");
-  const [error, setError] = useState<string | null>(null);
+  const [errorCode, setErrorCode] = useState<SignUpErrorCode | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
@@ -19,10 +38,10 @@ export default function SignUpForm({
     e.preventDefault();
     const supabase = createClient();
     setIsLoading(true);
-    setError(null);
+    setErrorCode(null);
 
     if (password !== repeatPassword) {
-      setError("Passwords do not match");
+      setErrorCode("passwords_do_not_match");
       setIsLoading(false);
       return;
     }
@@ -35,10 +54,17 @@ export default function SignUpForm({
           emailRedirectTo: `${window.location.origin}/protected`,
         },
       });
-      if (error) throw error;
+      if (error) {
+        setErrorCode(getSignUpErrorCode(error));
+        return;
+      }
       router.push("/auth/sign-up-success");
     } catch (error: unknown) {
-      setError(error instanceof Error ? error.message : "An error occurred");
+      if (process.env.NODE_ENV !== "production") {
+        console.error(error);
+      }
+
+      setErrorCode("unexpected_signup_error");
     } finally {
       setIsLoading(false);
     }
@@ -113,9 +139,9 @@ export default function SignUpForm({
           />
         </div>
 
-        {error && (
+        {errorCode && (
           <div className="text-sm font-medium text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/30 p-2.5 rounded-lg border border-red-200 dark:border-red-900/50">
-            {error}
+            {SIGN_UP_ERROR_MESSAGES[errorCode]}
           </div>
         )}
 
@@ -129,4 +155,28 @@ export default function SignUpForm({
       </form>
     </div>
   );
+}
+
+function getSignUpErrorCode(error: unknown): SignUpErrorCode {
+  if (!isAuthError(error)) {
+    return "unexpected_signup_error";
+  }
+
+  if (error.status === 429) {
+    return "rate_limited";
+  }
+
+  if (error.code === "weak_password") {
+    return "weak_password";
+  }
+
+  if (error.code === "email_exists" || error.code === "user_already_exists") {
+    return "email_already_registered";
+  }
+
+  if (error.code === "signup_disabled") {
+    return "signup_disabled";
+  }
+
+  return "unexpected_signup_error";
 }
