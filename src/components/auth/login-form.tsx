@@ -3,6 +3,20 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { isAuthError } from "@supabase/supabase-js";
+
+type LoginErrorCode =
+  | "invalid_credentials"
+  | "email_not_confirmed"
+  | "rate_limited"
+  | "unexpected_login_error";
+
+const LOGIN_ERROR_MESSAGES = {
+  invalid_credentials: "Invalid email or password.",
+  email_not_confirmed: "Please confirm your email before logging in.",
+  rate_limited: "Too many attempts. Please wait a moment and try again.",
+  unexpected_login_error: "We could not log you in. Please try again.",
+} satisfies Record<LoginErrorCode, string>;
 
 export default function LoginForm({
   className,
@@ -10,26 +24,36 @@ export default function LoginForm({
 }: React.ComponentPropsWithoutRef<"div">) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState<string | null>(null);
+  const [errorCode, setErrorCode] = useState<LoginErrorCode | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+
     const supabase = createClient();
+
     setIsLoading(true);
-    setError(null);
+    setErrorCode(null);
 
     try {
       const { error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
-      if (error) throw error;
-      // Update this route to redirect to an authenticated route. The user already has an active session.
+
+      if (error) {
+        setErrorCode(getLoginErrorCode(error));
+        return;
+      }
+
       router.push("/protected");
     } catch (error: unknown) {
-      setError(error instanceof Error ? error.message : "An error occurred");
+      if (process.env.NODE_ENV !== "production") {
+        console.error(error);
+      }
+
+      setErrorCode("unexpected_login_error");
     } finally {
       setIsLoading(false);
     }
@@ -86,9 +110,9 @@ export default function LoginForm({
           />
         </div>
 
-        {error && (
+        {errorCode && (
           <div className="text-sm font-medium text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/30 p-2.5 rounded-lg border border-red-200 dark:border-red-900/50">
-            {error}
+            {LOGIN_ERROR_MESSAGES[errorCode]}
           </div>
         )}
 
@@ -102,4 +126,24 @@ export default function LoginForm({
       </form>
     </div>
   );
+}
+
+function getLoginErrorCode(error: unknown): LoginErrorCode {
+  if (!isAuthError(error)) {
+    return "unexpected_login_error";
+  }
+
+  if (error.status === 429) {
+    return "rate_limited";
+  }
+
+  if (error.code === "email_not_confirmed") {
+    return "email_not_confirmed";
+  }
+
+  if (error.code === "invalid_credentials" || error.code === "invalid_grant") {
+    return "invalid_credentials";
+  }
+
+  return "unexpected_login_error";
 }
