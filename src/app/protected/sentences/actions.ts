@@ -32,6 +32,13 @@ export async function checkPronunciation(
       };
     }
 
+    if (isDemoUser(user.email)) {
+      return {
+        success: false,
+        error: "AI Grading is disabled in Demo Mode.",
+      };
+    }
+
     const { data: sentence, error: sentenceError } = await supabase
       .from("sentences")
       .select("id, japanese_text")
@@ -46,13 +53,6 @@ export async function checkPronunciation(
     }
 
     const expectedText = sentence.japanese_text;
-
-    if (isDemoUser(user.email)) {
-      return {
-        success: false,
-        error: "AI Grading is disabled in Demo Mode.",
-      };
-    }
 
     const audioFile = formData.get("audio") as File;
 
