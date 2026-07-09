@@ -6,14 +6,12 @@ import { Button } from "@/components/ui/button";
 
 interface ShadowingPlayerProps {
   originalAudioUrl: string;
-  expectedText: string;
   sentenceId: string;
   isDemoUser?: boolean;
 }
 
 export default function SimpleShadowingPlayer({
   originalAudioUrl,
-  expectedText,
   sentenceId,
   isDemoUser,
 }: ShadowingPlayerProps) {
@@ -153,11 +151,7 @@ export default function SimpleShadowingPlayer({
       const formData = new FormData();
       formData.append("audio", rawAudioBlob, "recording.webm");
 
-      const response = await checkPronunciation(
-        formData,
-        expectedText,
-        sentenceId,
-      );
+      const response = await checkPronunciation(formData, sentenceId);
 
       if (response.success) {
         setFeedbackMessage(getFeedbackMessage(response.score ?? 0));

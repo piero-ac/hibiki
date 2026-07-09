@@ -91,7 +91,6 @@ export default async function ShadowingPage({ params }: PageProps) {
             <CardContent className="flex flex-1 items-center justify-center">
               <ShadowingPlayer
                 originalAudioUrl={sentence.audio_prompt_url}
-                expectedText={sentence.japanese_text}
                 sentenceId={sentence.id}
                 isDemoUser={demoUser}
               />

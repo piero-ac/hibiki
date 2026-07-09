@@ -16,7 +16,6 @@ export interface PronunciationResult {
 
 export async function checkPronunciation(
   formData: FormData,
-  expectedText: string,
   sentenceId: string,
 ): Promise<PronunciationResult> {
   try {
@@ -39,6 +38,21 @@ export async function checkPronunciation(
         error: "AI Grading is disabled in Demo Mode.",
       };
     }
+
+    const { data: sentence, error: sentenceError } = await supabase
+      .from("sentences")
+      .select("id, japanese_text")
+      .eq("id", sentenceId)
+      .single();
+
+    if (sentenceError || !sentence) {
+      return {
+        success: false,
+        error: "Sentence could not be found.",
+      };
+    }
+
+    const expectedText = sentence.japanese_text;
 
     const audioFile = formData.get("audio") as File;
 
@@ -69,7 +83,7 @@ export async function checkPronunciation(
 
     const { error: dbError } = await supabase.from("attempts").insert({
       user_id: user.id,
-      sentence_id: sentenceId,
+      sentence_id: sentence.id,
       accuracy_score: calculatedScore,
       user_audio_transcript: userTranscript,
     });
