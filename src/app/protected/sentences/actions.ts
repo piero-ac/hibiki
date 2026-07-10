@@ -4,8 +4,11 @@ import { OpenAI, toFile } from "openai";
 import { createClient } from "@/lib/supabase/server";
 import { calculateSimilarityScore } from "@/lib/scoring";
 import { isDemoUser } from "@/lib/demo";
+import { serverEnv } from "@/lib/server-env";
 
-const openai = new OpenAI();
+const openai = new OpenAI({
+  apiKey: serverEnv.openaiApiKey,
+});
 
 export interface PronunciationResult {
   success: boolean;
