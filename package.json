@@ -9,6 +9,8 @@
     "lint": "eslint",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
+    "db:seed-dev": "node scripts/seed-local-dev.mjs",
+    "db:reset-dev": "npx supabase db reset --local && node scripts/seed-local-dev.mjs",
     "update-types": "npx supabase gen types typescript --project-id 'chycityeoaprvneuoxkd' > src/types/database.types.ts"
   },
   "dependencies": {
