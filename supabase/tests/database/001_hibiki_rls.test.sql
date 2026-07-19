@@ -2,7 +2,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(11);
+select plan(18);
 
 -- Test setup
 -- Set up auth.users entries
@@ -227,6 +227,64 @@ select results_eq(
     where false
   $$,
   'Alice cannot delete an existing attempt'
+);
+
+-- Switch from Alice to Bob
+set local "request.jwt.claims" = '{
+  "sub": "10000000-0000-0000-0000-000000000002",
+  "role": "authenticated"
+}';
+
+-- 12: Bob's JWT resolves to Bob
+select ok(
+  auth.uid() = '10000000-0000-0000-0000-000000000002'::uuid,
+  'Bob JWT resolves to Bob'
+);
+
+-- 13: Bob sees only his attempt
+select results_eq(
+  $$ select count(*) from public.attempts $$,
+  array[1::bigint],
+  'Bob sees only his attempt'
+);
+
+-- 14: Bob cannot see Alice's attempts
+select results_eq(
+  $$
+    select count(*)
+    from public.attempts
+    where user_id = '10000000-0000-0000-0000-000000000001'::uuid
+  $$,
+  array[0::bigint],
+  'Bob cannot see Alice attempts'
+);
+
+-- 15: Bob sees only his profile
+select results_eq(
+  $$ select count(*) from public.profiles $$,
+  array[1::bigint],
+  'Bob sees only his profile'
+);
+
+-- 16: Bob's summary includes only his attempt
+select results_eq(
+  $$ select total_attempts from public.attempts_summary $$,
+  array[1::bigint],
+  'Bob summary includes only his attempt'
+);
+
+-- 17: Bob's recent-attempt view contains only his attempt
+select results_eq(
+  $$ select count(*) from public.recent_attempts $$,
+  array[1::bigint],
+  'Bob recent attempts include only his attempt'
+);
+
+-- 18: Bob's sentence progress includes only his attempt
+select results_eq(
+  $$ select attempt_count from public.sentence_progress $$,
+  array[1::bigint],
+  'Bob sentence progress includes only his attempt'
 );
 
 select * from finish();
