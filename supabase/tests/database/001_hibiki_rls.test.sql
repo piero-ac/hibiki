@@ -2,7 +2,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(18);
+select plan(26);
 
 -- Test setup
 -- Set up auth.users entries
@@ -286,6 +286,89 @@ select results_eq(
   array[1::bigint],
   'Bob sentence progress includes only his attempt'
 );
+
+-- Switch to a logged-out anonymous request
+set local role anon;
+
+set local "request.jwt.claims" = '{
+  "role": "anon"
+}';
+
+-- 19: Anonymous requests have no user ID
+select ok(
+  auth.uid() is null,
+  'Anonymous request has no authenticated user ID'
+);
+
+-- 20: Anonymous users cannot read sentences
+select results_eq(
+  $$ select count(*) from public.sentences $$,
+  array[0::bigint],
+  'Anonymous users cannot read sentences'
+);
+
+-- 21: Anonymous users cannot read attempts
+select results_eq(
+  $$ select count(*) from public.attempts $$,
+  array[0::bigint],
+  'Anonymous users cannot read attempts'
+);
+
+-- 22: Anonymous users cannot read profiles
+select results_eq(
+  $$ select count(*) from public.profiles $$,
+  array[0::bigint],
+  'Anonymous users cannot read profiles'
+);
+
+-- 23: Anonymous users cannot read attempt summaries
+select throws_ok(
+  $$ select * from public.attempts_summary $$,
+  '42501',
+  'permission denied for view attempts_summary',
+  'Anonymous users cannot read attempt summaries'
+);
+
+-- 24: Anonymous users cannot read recent attempts
+select throws_ok(
+  $$ select * from public.recent_attempts $$,
+  '42501',
+  'permission denied for view recent_attempts',
+  'Anonymous users cannot read recent attempts'
+);
+
+-- 25: Anonymous users cannot read sentence progress
+select throws_ok(
+  $$ select * from public.sentence_progress $$,
+  '42501',
+  'permission denied for view sentence_progress',
+  'Anonymous users cannot read sentence progress'
+);
+
+-- 26: Anonymous users cannot insert attempts
+select throws_ok(
+  $$
+    insert into public.attempts (
+      id,
+      user_id,
+      sentence_id,
+      accuracy_score,
+      user_audio_transcript
+    )
+    values (
+      '30000000-0000-0000-0000-000000000006'::uuid,
+      '10000000-0000-0000-0000-000000000001'::uuid,
+      '20000000-0000-0000-0000-000000000001'::uuid,
+      100,
+      'Anonymous forged attempt'
+    )
+  $$,
+  '42501',
+  'new row violates row-level security policy for table "attempts"',
+  'Anonymous users cannot insert attempts'
+);
+
+reset role;
 
 select * from finish();
 
