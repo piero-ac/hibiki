@@ -158,12 +158,15 @@ Hibiki follows a server-first architecture using the Next.js App Router.
 
 ## Roadmap
 
+- [x] Supabase database migrations
+- [x] Local Supabase development and repeatable seed data
+- [x] Database security tests for RLS, storage, and profile creation
 - [ ] Admin panel for sentence management
-- [ ] Supabase database migrations
 - [ ] Improved pronunciation scoring algorithm
 - [ ] Progress charts and visualizations
 - [ ] User settings
-- [ ] Docker support
+- [ ] Automated application tests and CI
+- [ ] Docker support for the complete application
 
 ---
 
