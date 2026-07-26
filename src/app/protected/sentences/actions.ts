@@ -6,6 +6,10 @@ import { calculateSimilarityScore } from "@/lib/scoring";
 import { isDemoUser } from "@/lib/demo";
 import { serverEnv } from "@/lib/server-env";
 
+const MAX_AUDIO_SIZE_BYTES = 5 * 1024 * 1024; // 5 MB
+
+const ALLOWED_AUDIO_TYPES = new Set(["audio/webm", "audio/mp4"]);
+
 const openai = new OpenAI({
   apiKey: serverEnv.openaiApiKey,
 });
@@ -57,17 +61,39 @@ export async function checkPronunciation(
 
     const expectedText = sentence.japanese_text;
 
-    const audioFile = formData.get("audio") as File;
+    const audioFile = formData.get("audio");
 
-    if (!audioFile) {
-      return { success: false, error: "No audio file found." };
+    if (!(audioFile instanceof File)) {
+      return { success: false, error: "No audio file was provided." };
+    }
+
+    if (audioFile.size === 0) {
+      return { success: false, error: "The audio recording is empty." };
+    }
+
+    if (audioFile.size > MAX_AUDIO_SIZE_BYTES) {
+      return {
+        success: false,
+        error: "The audio recording is too large.",
+      };
+    }
+
+    const mimeType = audioFile.type.split(";")[0].toLowerCase();
+
+    if (!ALLOWED_AUDIO_TYPES.has(mimeType)) {
+      return {
+        success: false,
+        error: "Unsupported audio format.",
+      };
     }
 
     const arrayBuffer = await audioFile.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
-    const virtualFile = await toFile(buffer, "recording.webm", {
-      type: "audio/webm",
+    const extension = mimeType === "audio/mp4" ? "m4a" : "webm";
+
+    const virtualFile = await toFile(buffer, `recording.${extension}`, {
+      type: mimeType,
     });
 
     const transcription = await openai.audio.transcriptions.create({
