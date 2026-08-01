@@ -72,7 +72,10 @@ export default function SimpleShadowingPlayer({
         ? "audio/webm"
         : "audio/mp4";
 
-      const mediaRecorder = new MediaRecorder(stream, { mimeType });
+      const mediaRecorder = new MediaRecorder(stream, {
+        mimeType,
+        audioBitsPerSecond: 96_000,
+      });
       mediaRecorderRef.current = mediaRecorder;
 
       mediaRecorder.ondataavailable = (e) => {
@@ -149,7 +152,11 @@ export default function SimpleShadowingPlayer({
 
     try {
       const formData = new FormData();
-      formData.append("audio", rawAudioBlob, "recording.webm");
+      const filename = rawAudioBlob.type.startsWith("audio/mp4")
+        ? "recording.m4a"
+        : "recording.webm";
+
+      formData.append("audio", rawAudioBlob, filename);
 
       const response = await checkPronunciation(formData, sentenceId);
 
