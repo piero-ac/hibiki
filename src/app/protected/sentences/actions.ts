@@ -6,7 +6,7 @@ import { calculateSimilarityScore } from "@/lib/scoring";
 import { isDemoUser } from "@/lib/demo";
 import { serverEnv } from "@/lib/server-env";
 
-const MAX_AUDIO_SIZE_BYTES = 5 * 1024 * 1024; // 5 MB
+const MAX_AUDIO_SIZE_BYTES = 1 * 1024 * 1024; // 1 MB
 
 const ALLOWED_AUDIO_TYPES = new Set(["audio/webm", "audio/mp4"]);
 
