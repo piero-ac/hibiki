@@ -5,10 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { calculateSimilarityScore } from "@/lib/scoring";
 import { isDemoUser } from "@/lib/demo";
 import { serverEnv } from "@/lib/server-env";
-
-const MAX_AUDIO_SIZE_BYTES = 1 * 1024 * 1024; // 1 MB
-
-const ALLOWED_AUDIO_TYPES = new Set(["audio/webm", "audio/mp4"]);
+import { validateAudioUpload } from "@/lib/audio-validation";
 
 const openai = new OpenAI({
   apiKey: serverEnv.openaiApiKey,
@@ -61,36 +58,19 @@ export async function checkPronunciation(
 
     const expectedText = sentence.japanese_text;
 
-    const audioFile = formData.get("audio");
+    const audioValidation = validateAudioUpload(formData.get("audio"));
 
-    if (!(audioFile instanceof File)) {
-      return { success: false, error: "No audio file was provided." };
-    }
-
-    if (audioFile.size === 0) {
-      return { success: false, error: "The audio recording is empty." };
-    }
-
-    if (audioFile.size > MAX_AUDIO_SIZE_BYTES) {
+    if (!audioValidation.success) {
       return {
         success: false,
-        error: "The audio recording is too large.",
+        error: audioValidation.error,
       };
     }
 
-    const mimeType = audioFile.type.split(";")[0].toLowerCase();
-
-    if (!ALLOWED_AUDIO_TYPES.has(mimeType)) {
-      return {
-        success: false,
-        error: "Unsupported audio format.",
-      };
-    }
+    const { file: audioFile, mimeType, extension } = audioValidation;
 
     const arrayBuffer = await audioFile.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
-
-    const extension = mimeType === "audio/mp4" ? "m4a" : "webm";
 
     const virtualFile = await toFile(buffer, `recording.${extension}`, {
       type: mimeType,
