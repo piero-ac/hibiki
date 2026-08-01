@@ -12,7 +12,9 @@
     "db:seed-dev": "node scripts/seed-local-dev.mjs",
     "db:reset-dev": "npx supabase db reset --local && node scripts/seed-local-dev.mjs",
     "update-types": "npx supabase gen types typescript --project-id 'chycityeoaprvneuoxkd' > src/types/database.types.ts",
-    "knip": "knip"
+    "knip": "knip",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@phosphor-icons/react": "^2.1.10",
@@ -42,6 +44,7 @@
     "prettier": "^3.9.4",
     "supabase": "^2.109.0",
     "tailwindcss": "^4",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "vitest": "^4.1.10"
   }
 }
