@@ -24,7 +24,7 @@ deployable product. Timing is directional and can shift around work on Tomowa.
 
 ### Testing Foundation
 
-- [ ] Add unit tests for pronunciation scoring and Japanese text normalization
+- [x] Add unit tests for pronunciation scoring and Japanese text normalization
 - [ ] Add integration tests for authentication and pronunciation grading
 - [ ] Run existing Supabase database tests automatically
 - [ ] Add reusable test fixtures for users, sentences, attempts, and audio uploads
