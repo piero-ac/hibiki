@@ -14,7 +14,8 @@
     "update-types": "npx supabase gen types typescript --project-id 'chycityeoaprvneuoxkd' > src/types/database.types.ts",
     "knip": "knip",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@phosphor-icons/react": "^2.1.10",
