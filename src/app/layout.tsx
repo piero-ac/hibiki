@@ -1,10 +1,12 @@
-import { JetBrains_Mono } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 
-const jetbrainsMono = JetBrains_Mono({
-  subsets: ["latin"],
+const jetbrainsMono = localFont({
+  src: "./fonts/jetbrains-mono-variable.ttf",
   variable: "--font-mono",
+  weight: "100 800",
+  display: "swap",
 });
 
 export const metadata = {
