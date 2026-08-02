@@ -18,7 +18,7 @@ export function calculateSimilarityScore(
   return Math.max(0, Math.round((1 - dist / maxLength) * 100));
 }
 
-function normalizeJapaneseText(text: string): string {
+export function normalizeJapaneseText(text: string): string {
   if (!text) return "";
 
   return text
