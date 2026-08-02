@@ -17,7 +17,7 @@ deployable product. Timing is directional and can shift around work on Tomowa.
 
 - [x] Add focused tests for audio upload validation
 - [ ] Consolidate duplicated environment-variable validation
-- [ ] Make production builds independent of downloading Google Fonts
+- [x] Make production builds independent of downloading Google Fonts
 - [ ] Review dependency updates and keep the lockfile current
 
 ## August Product Readiness
