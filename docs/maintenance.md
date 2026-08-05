@@ -16,7 +16,7 @@ deployable product. Timing is directional and can shift around work on Tomowa.
 ## Current Focus
 
 - [x] Add focused tests for audio upload validation
-- [ ] Consolidate duplicated environment-variable validation
+- [x] Consolidate duplicated environment-variable validation
 - [x] Make production builds independent of downloading Google Fonts
 - [ ] Review dependency updates and keep the lockfile current
 
@@ -40,7 +40,7 @@ deployable product. Timing is directional and can shift around work on Tomowa.
 
 ### CI/CD
 
-- [ ] Run lint, formatting, Knip, builds, and tests on every pull request
+- [x] Run lint, formatting, Knip, builds, and tests on every pull request
 - [ ] Add a staging environment for migration and release verification
 - [ ] Add an automated production deployment pipeline
 - [ ] Document environment configuration, database migration order, and rollback steps
