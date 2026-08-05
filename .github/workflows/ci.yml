@@ -40,7 +40,7 @@ jobs:
 
       - name: Check TypeScript
         run: npm run typecheck
-      
+
       - name: Check for unused code
         run: npm run knip
 
