@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { MAX_AUDIO_SIZE_BYTES, validateAudioUpload } from "./audio-validation";
+import {
+  MAX_AUDIO_SIZE_BYTES,
+  validateAudioUpload,
+} from "@/lib/audio-validation";
 
 function createAudioFile(
   size: number,
