@@ -6,6 +6,7 @@ import { calculateSimilarityScore } from "@/lib/scoring";
 import { isDemoUser } from "@/lib/demo";
 import { serverEnv } from "@/lib/server-env";
 import { validateAudioUpload } from "@/lib/audio-validation";
+import { validateAudioContent } from "@/lib/audio-content-validation";
 
 const openai = new OpenAI({
   apiKey: serverEnv.openaiApiKey,
@@ -69,8 +70,16 @@ export async function checkPronunciation(
 
     const { file: audioFile, mimeType, extension } = audioValidation;
 
-    const arrayBuffer = await audioFile.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
+    const contentValidation = await validateAudioContent(audioFile, mimeType);
+
+    if (!contentValidation.success) {
+      return {
+        success: false,
+        error: contentValidation.error,
+      };
+    }
+
+    const buffer = Buffer.from(contentValidation.bytes);
 
     const virtualFile = await toFile(buffer, `recording.${extension}`, {
       type: mimeType,

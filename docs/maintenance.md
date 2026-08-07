@@ -31,8 +31,8 @@ deployable product. Timing is directional and can shift around work on Tomowa.
 
 ### Security and Cost Controls
 
-- [ ] Parse uploaded audio server-side to verify its format and duration
-- [ ] Reject corrupt audio and recordings exceeding the duration limit
+- [x] Parse uploaded audio server-side to verify its format and duration
+- [x] Reject corrupt audio and recordings exceeding the duration limit
 - [ ] Add per-user and per-IP rate limiting to AI grading requests
 - [ ] Add grading timeouts, usage limits, and OpenAI failure handling
 - [ ] Review and rotate production API keys before a public launch

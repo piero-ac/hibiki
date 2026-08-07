@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { calculateSimilarityScore, normalizeJapaneseText } from "./scoring";
+import { calculateSimilarityScore, normalizeJapaneseText } from "@/lib/scoring";
 
 describe("normalizeJapaneseText", () => {
   it("returns an empty string for empty input", () => {

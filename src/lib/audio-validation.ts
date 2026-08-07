@@ -1,6 +1,6 @@
 export const MAX_AUDIO_SIZE_BYTES = 1 * 1024 * 1024;
 
-type AllowedAudioMimeType = "audio/webm" | "audio/mp4";
+export type AllowedAudioMimeType = "audio/webm" | "audio/mp4";
 type AudioExtension = "webm" | "m4a";
 
 export type AudioValidationResult =
