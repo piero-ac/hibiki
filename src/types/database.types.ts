@@ -117,6 +117,7 @@ export type Database = {
           japanese_text: string;
           jlpt_level: string;
           kana_text: string;
+          slow_audio_prompt_url: string | null;
         };
         Insert: {
           audio_prompt_url: string;
@@ -127,6 +128,7 @@ export type Database = {
           japanese_text: string;
           jlpt_level: string;
           kana_text: string;
+          slow_audio_prompt_url?: string | null;
         };
         Update: {
           audio_prompt_url?: string;
@@ -137,6 +139,7 @@ export type Database = {
           japanese_text?: string;
           jlpt_level?: string;
           kana_text?: string;
+          slow_audio_prompt_url?: string | null;
         };
         Relationships: [];
       };
