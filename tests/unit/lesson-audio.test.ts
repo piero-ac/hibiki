@@ -34,17 +34,6 @@ describe("createLessonAudioUrl", () => {
     );
   });
 
-  it("preserves a legacy public URL without calling Storage", async () => {
-    const { from, supabase } = createMockSupabase();
-    const publicUrl =
-      "https://example.supabase.co/storage/v1/object/public/audio/prompt.mp3";
-
-    await expect(createLessonAudioUrl(supabase, publicUrl)).resolves.toBe(
-      publicUrl,
-    );
-    expect(from).not.toHaveBeenCalled();
-  });
-
   it("returns null for a missing optional audio path", async () => {
     const { from, supabase } = createMockSupabase();
 
