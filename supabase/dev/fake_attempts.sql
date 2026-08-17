@@ -1,10 +1,7 @@
 -- Local development fixture for Hibiki's three fake users.
 --
--- Run this only against the local Supabase database, after creating the users
--- the script can be rerun without accumulating duplicates.
--- in local Studio. It resolves users by email and replaces their attempts so
--- the script can be rerun without accumulating duplicates.
--- the script can be rerun without accumulating duplicates.
+-- Run this only against the local Supabase database. It resolves users by
+-- email and replaces their attempts, so it can be rerun without duplicates.
 
 begin;
 
@@ -64,12 +61,12 @@ fake_users as (
       ),
       (
         'bob@hibiki.local',
-        4,
+        0,
         52
       ),
       (
         'demo@hibiki.local',
-        8,
+        0,
         76
       )
   ) as fixtures(email, sentence_offset, base_score)
@@ -97,11 +94,11 @@ select
 from fake_users
 join ranked_sentences
   on ranked_sentences.sentence_number > fake_users.sentence_offset
- and ranked_sentences.sentence_number <= fake_users.sentence_offset + 12;
+ and ranked_sentences.sentence_number <= fake_users.sentence_offset + 3;
 
 commit;
 
--- Expected result: 12 attempts per fake user, 36 attempts total.
+-- Expected result: 3 attempts per fake user, 9 attempts total.
 select
   auth.users.email,
   count(public.attempts.id) as attempt_count,
