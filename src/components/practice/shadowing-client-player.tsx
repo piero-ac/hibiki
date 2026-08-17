@@ -5,13 +5,15 @@ import { checkPronunciation } from "@/app/protected/sentences/actions";
 import { Button } from "@/components/ui/button";
 
 interface ShadowingPlayerProps {
-  originalAudioUrl: string;
+  naturalAudioUrl: string;
+  slowAudioUrl: string | null;
   sentenceId: string;
   isDemoUser?: boolean;
 }
 
 export default function SimpleShadowingPlayer({
-  originalAudioUrl,
+  naturalAudioUrl,
+  slowAudioUrl,
   sentenceId,
   isDemoUser,
 }: ShadowingPlayerProps) {
@@ -26,15 +28,16 @@ export default function SimpleShadowingPlayer({
   const [countdown, setCountdown] = useState<number | null>(null);
   const isCountingDown = countdown !== null;
 
-  const audioRef = useRef<HTMLAudioElement>(null);
+  const naturalAudioRef = useRef<HTMLAudioElement>(null);
+  const slowAudioRef = useRef<HTMLAudioElement>(null);
   const userAudioRef = useRef<HTMLAudioElement>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
   const stopTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    if (audioRef.current) {
-      audioRef.current.volume = isRecording ? 0.25 : 1.0;
+    if (naturalAudioRef.current) {
+      naturalAudioRef.current.volume = isRecording ? 0.25 : 1.0;
     }
   }, [isRecording]);
 
@@ -52,10 +55,21 @@ export default function SimpleShadowingPlayer({
     };
   }, [recordingUrl]);
 
-  function handlePlayOriginal() {
-    if (audioRef.current) {
-      audioRef.current.currentTime = 0;
-      audioRef.current.play();
+  function handlePlayNatural() {
+    slowAudioRef.current?.pause();
+
+    if (naturalAudioRef.current) {
+      naturalAudioRef.current.currentTime = 0;
+      naturalAudioRef.current.play();
+    }
+  }
+
+  function handlePlaySlow() {
+    naturalAudioRef.current?.pause();
+
+    if (slowAudioRef.current) {
+      slowAudioRef.current.currentTime = 0;
+      slowAudioRef.current.play();
     }
   }
 
@@ -93,9 +107,11 @@ export default function SimpleShadowingPlayer({
       mediaRecorder.start();
       setIsRecording(true);
 
-      if (audioRef.current) {
-        audioRef.current.currentTime = 0;
-        await audioRef.current.play();
+      slowAudioRef.current?.pause();
+
+      if (naturalAudioRef.current) {
+        naturalAudioRef.current.currentTime = 0;
+        await naturalAudioRef.current.play();
       }
     } catch (err) {
       setError("Microphone access denied.");
@@ -117,6 +133,8 @@ export default function SimpleShadowingPlayer({
 
     setRecordingUrl(null);
     chunksRef.current = [];
+    naturalAudioRef.current?.pause();
+    slowAudioRef.current?.pause();
 
     let currentCount = 3;
     setCountdown(currentCount);
@@ -178,16 +196,17 @@ export default function SimpleShadowingPlayer({
   }
 
   function handlePlayBothSync() {
-    if (audioRef.current && userAudioRef.current) {
-      audioRef.current.currentTime = 0;
-      audioRef.current.volume = 0.05;
+    if (naturalAudioRef.current && userAudioRef.current) {
+      slowAudioRef.current?.pause();
+      naturalAudioRef.current.currentTime = 0;
+      naturalAudioRef.current.volume = 0.05;
       userAudioRef.current.currentTime = 0;
 
       userAudioRef.current.onended = () => {
-        if (audioRef.current) audioRef.current.volume = 1.0;
+        if (naturalAudioRef.current) naturalAudioRef.current.volume = 1.0;
       };
 
-      audioRef.current.play();
+      naturalAudioRef.current.play();
       userAudioRef.current.play();
     }
   }
@@ -195,33 +214,58 @@ export default function SimpleShadowingPlayer({
   return (
     <div className="w-full max-w-2xl space-y-4">
       <audio
-        ref={audioRef}
-        src={originalAudioUrl}
+        ref={naturalAudioRef}
+        src={naturalAudioUrl}
         onEnded={handleOriginalAudioEnded}
         className="hidden"
       />
+      {slowAudioUrl && (
+        <audio ref={slowAudioRef} src={slowAudioUrl} className="hidden" />
+      )}
 
       <div className="grid gap-3 sm:grid-cols-2">
         <Button
-          onClick={handlePlayOriginal}
+          onClick={handlePlaySlow}
+          disabled={!slowAudioUrl || isRecording || isCountingDown}
+          variant="outline"
+          size="lg"
+          className="h-14"
+        >
+          Listen Slow
+        </Button>
+
+        <Button
+          onClick={handlePlayNatural}
           disabled={isRecording || isCountingDown}
           variant="outline"
           size="lg"
           className="h-14"
         >
-          Listen
+          Listen Natural
         </Button>
 
         {isCountingDown ? (
-          <Button disabled size="lg" className="h-14 animate-pulse">
+          <Button
+            disabled
+            size="lg"
+            className="h-14 animate-pulse sm:col-span-2"
+          >
             Starting in {countdown}...
           </Button>
         ) : !isRecording ? (
-          <Button onClick={handleRecordShadowing} size="lg" className="h-14">
+          <Button
+            onClick={handleRecordShadowing}
+            size="lg"
+            className="h-14 sm:col-span-2"
+          >
             Record Shadowing
           </Button>
         ) : (
-          <Button disabled size="lg" className="h-14 animate-pulse">
+          <Button
+            disabled
+            size="lg"
+            className="h-14 animate-pulse sm:col-span-2"
+          >
             Recording...
           </Button>
         )}

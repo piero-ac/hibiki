@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import PreviousAttemptsCard from "@/components/practice/practice-attempt-card";
 import { createClient } from "@/lib/supabase/server";
 import { isDemoUser } from "@/lib/demo";
+import { createLessonAudioUrl } from "@/lib/lesson-audio";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -43,6 +44,15 @@ export default async function ShadowingPage({ params }: PageProps) {
         </Card>
       </main>
     );
+  }
+
+  const [naturalAudioUrl, slowAudioUrl] = await Promise.all([
+    createLessonAudioUrl(supabase, sentence.audio_prompt_url),
+    createLessonAudioUrl(supabase, sentence.slow_audio_prompt_url),
+  ]);
+
+  if (!naturalAudioUrl) {
+    throw new Error("Natural lesson audio is unavailable.");
   }
 
   const { data: recentAttempts } = await supabase
@@ -90,7 +100,8 @@ export default async function ShadowingPage({ params }: PageProps) {
 
             <CardContent className="flex flex-1 items-center justify-center">
               <ShadowingPlayer
-                originalAudioUrl={sentence.audio_prompt_url}
+                naturalAudioUrl={naturalAudioUrl}
+                slowAudioUrl={slowAudioUrl}
                 sentenceId={sentence.id}
                 isDemoUser={demoUser}
               />
