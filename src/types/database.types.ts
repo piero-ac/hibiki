@@ -7,31 +7,6 @@ export type Json =
   | Json[];
 
 export type Database = {
-  graphql_public: {
-    Tables: {
-      [_ in never]: never;
-    };
-    Views: {
-      [_ in never]: never;
-    };
-    Functions: {
-      graphql: {
-        Args: {
-          extensions?: Json;
-          operationName?: string;
-          query?: string;
-          variables?: Json;
-        };
-        Returns: Json;
-      };
-    };
-    Enums: {
-      [_ in never]: never;
-    };
-    CompositeTypes: {
-      [_ in never]: never;
-    };
-  };
   public: {
     Tables: {
       attempts: {
@@ -142,6 +117,49 @@ export type Database = {
           slow_audio_prompt_url?: string | null;
         };
         Relationships: [];
+      };
+      shadowing_attempts: {
+        Row: {
+          completed_at: string;
+          id: string;
+          sentence_id: string;
+          user_id: string;
+        };
+        Insert: {
+          completed_at?: string;
+          id?: string;
+          sentence_id: string;
+          user_id: string;
+        };
+        Update: {
+          completed_at?: string;
+          id?: string;
+          sentence_id?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "shadowing_attempts_sentence_id_fkey";
+            columns: ["sentence_id"];
+            isOneToOne: false;
+            referencedRelation: "recent_attempts";
+            referencedColumns: ["sentence_id"];
+          },
+          {
+            foreignKeyName: "shadowing_attempts_sentence_id_fkey";
+            columns: ["sentence_id"];
+            isOneToOne: false;
+            referencedRelation: "sentences";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "shadowing_attempts_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
       };
     };
     Views: {
@@ -330,9 +348,6 @@ export type CompositeTypes<
     : never;
 
 export const Constants = {
-  graphql_public: {
-    Enums: {},
-  },
   public: {
     Enums: {},
   },
