@@ -1,7 +1,8 @@
--- Local development fixture for Hibiki's three fake users.
+-- Local AI grading fixture for Hibiki's three fake users.
 --
 -- Run this only against the local Supabase database. It resolves users by
--- email and replaces their attempts, so it can be rerun without duplicates.
+-- email and replaces their AI grading attempts, so it can be rerun without
+-- duplicates.
 
 begin;
 
@@ -25,13 +26,13 @@ begin
 
   if missing_users is not null then
     raise exception
-      'Create these users in local Supabase Studio before loading attempts: %',
+      'Create these users in local Supabase Studio before loading AI grading attempts: %',
       missing_users;
   end if;
 end
 $$;
 
-delete from public.attempts
+delete from public.ai_grading_attempts
 where user_id in (
   select id
   from auth.users
@@ -72,7 +73,7 @@ fake_users as (
   ) as fixtures(email, sentence_offset, base_score)
     on fixtures.email = auth.users.email
 )
-insert into public.attempts (
+insert into public.ai_grading_attempts (
   user_id,
   sentence_id,
   accuracy_score,
@@ -98,13 +99,14 @@ join ranked_sentences
 
 commit;
 
--- Expected result: 3 attempts per fake user, 9 attempts total.
+-- Expected result: 3 AI grading attempts per fake user, 9 attempts total.
 select
   auth.users.email,
-  count(public.attempts.id) as attempt_count,
-  round(avg(public.attempts.accuracy_score)) as average_score
+  count(public.ai_grading_attempts.id) as attempt_count,
+  round(avg(public.ai_grading_attempts.accuracy_score)) as average_score
 from auth.users
-join public.attempts on public.attempts.user_id = auth.users.id
+join public.ai_grading_attempts
+  on public.ai_grading_attempts.user_id = auth.users.id
 where auth.users.email in (
   'alice@hibiki.local',
   'bob@hibiki.local',

@@ -6,7 +6,7 @@ import { BookOpenIcon } from "@phosphor-icons/react/dist/ssr";
 import { EmptyState } from "@/components/app/empty-state";
 
 type RecentAttemptsProps = {
-  attempts: Database["public"]["Views"]["recent_attempts"]["Row"][];
+  attempts: Database["public"]["Views"]["recent_ai_grading_attempts"]["Row"][];
   hasError: boolean;
 };
 

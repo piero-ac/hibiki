@@ -9,7 +9,7 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      attempts: {
+      ai_grading_attempts: {
         Row: {
           accuracy_score: number;
           audio_attempt_url: string | null;
@@ -39,21 +39,21 @@ export type Database = {
         };
         Relationships: [
           {
-            foreignKeyName: "attempts_sentence_id_fkey";
+            foreignKeyName: "ai_grading_attempts_sentence_id_fkey";
             columns: ["sentence_id"];
             isOneToOne: false;
-            referencedRelation: "recent_attempts";
+            referencedRelation: "recent_ai_grading_attempts";
             referencedColumns: ["sentence_id"];
           },
           {
-            foreignKeyName: "attempts_sentence_id_fkey";
+            foreignKeyName: "ai_grading_attempts_sentence_id_fkey";
             columns: ["sentence_id"];
             isOneToOne: false;
             referencedRelation: "sentences";
             referencedColumns: ["id"];
           },
           {
-            foreignKeyName: "attempts_user_id_fkey";
+            foreignKeyName: "ai_grading_attempts_user_id_fkey";
             columns: ["user_id"];
             isOneToOne: false;
             referencedRelation: "profiles";
@@ -142,7 +142,7 @@ export type Database = {
             foreignKeyName: "shadowing_attempts_sentence_id_fkey";
             columns: ["sentence_id"];
             isOneToOne: false;
-            referencedRelation: "recent_attempts";
+            referencedRelation: "recent_ai_grading_attempts";
             referencedColumns: ["sentence_id"];
           },
           {
@@ -163,7 +163,7 @@ export type Database = {
       };
     };
     Views: {
-      attempts_summary: {
+      ai_grading_attempts_summary: {
         Row: {
           average_score: number | null;
           days_practiced: number | null;
@@ -172,22 +172,7 @@ export type Database = {
         };
         Relationships: [];
       };
-      recent_attempts: {
-        Row: {
-          accuracy_score: number | null;
-          category: string | null;
-          created_at: string | null;
-          english_translation: string | null;
-          id: string | null;
-          japanese_text: string | null;
-          jlpt_level: string | null;
-          kana_text: string | null;
-          sentence_id: string | null;
-          user_audio_transcript: string | null;
-        };
-        Relationships: [];
-      };
-      sentence_progress: {
+      ai_grading_sentence_progress: {
         Row: {
           attempt_count: number | null;
           average_score: number | null;
@@ -202,20 +187,35 @@ export type Database = {
         };
         Relationships: [
           {
-            foreignKeyName: "attempts_sentence_id_fkey";
+            foreignKeyName: "ai_grading_attempts_sentence_id_fkey";
             columns: ["sentence_id"];
             isOneToOne: false;
-            referencedRelation: "recent_attempts";
+            referencedRelation: "recent_ai_grading_attempts";
             referencedColumns: ["sentence_id"];
           },
           {
-            foreignKeyName: "attempts_sentence_id_fkey";
+            foreignKeyName: "ai_grading_attempts_sentence_id_fkey";
             columns: ["sentence_id"];
             isOneToOne: false;
             referencedRelation: "sentences";
             referencedColumns: ["id"];
           },
         ];
+      };
+      recent_ai_grading_attempts: {
+        Row: {
+          accuracy_score: number | null;
+          category: string | null;
+          created_at: string | null;
+          english_translation: string | null;
+          id: string | null;
+          japanese_text: string | null;
+          jlpt_level: string | null;
+          kana_text: string | null;
+          sentence_id: string | null;
+          user_audio_transcript: string | null;
+        };
+        Relationships: [];
       };
     };
     Functions: {

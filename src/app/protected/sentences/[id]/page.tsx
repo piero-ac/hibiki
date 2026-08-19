@@ -56,7 +56,7 @@ export default async function ShadowingPage({ params }: PageProps) {
   }
 
   const { data: recentAttempts } = await supabase
-    .from("attempts")
+    .from("ai_grading_attempts")
     .select("id, accuracy_score, created_at")
     .eq("sentence_id", id)
     .order("created_at", { ascending: false })

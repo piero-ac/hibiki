@@ -7,7 +7,7 @@ import { PageContainer } from "@/components/app/page-container";
 export default async function ProgressPage() {
   const supabase = await createClient();
   const { data: summary, error: progressOverviewError } = await supabase
-    .from("attempts_summary")
+    .from("ai_grading_attempts_summary")
     .select("*")
     .single();
 
@@ -19,7 +19,7 @@ export default async function ProgressPage() {
     summary;
 
   const { data: recentAttempts, error: recentAttemptsError } = await supabase
-    .from("recent_attempts")
+    .from("recent_ai_grading_attempts")
     .select("*")
     .limit(10);
 
@@ -27,14 +27,14 @@ export default async function ProgressPage() {
 
   const { data: strongestSentences, error: strongestSentencesError } =
     await supabase
-      .from("sentence_progress")
+      .from("ai_grading_sentence_progress")
       .select("*")
       .order("average_score", { ascending: false })
       .limit(5);
 
   const { data: weakestSentences, error: weakestSentencesError } =
     await supabase
-      .from("sentence_progress")
+      .from("ai_grading_sentence_progress")
       .select("*")
       .order("average_score", { ascending: true })
       .limit(5);
