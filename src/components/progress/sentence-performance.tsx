@@ -2,7 +2,8 @@
 
 import { Database } from "@/types/database.types";
 
-type SentenceProgress = Database["public"]["Views"]["sentence_progress"]["Row"];
+type SentenceProgress =
+  Database["public"]["Views"]["ai_grading_sentence_progress"]["Row"];
 
 interface SentencePerformanceProps {
   weakest: SentenceProgress[];

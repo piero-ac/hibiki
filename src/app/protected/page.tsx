@@ -32,7 +32,7 @@ export default async function HomeDashboard() {
   }
 
   const { data: summary, error: summaryError } = await supabase
-    .from("attempts_summary")
+    .from("ai_grading_attempts_summary")
     .select("*")
     .single();
 

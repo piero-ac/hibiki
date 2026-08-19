@@ -32,8 +32,8 @@ VALUES (
     'Workplace'
 );
 
--- create test attempts
-INSERT INTO public.attempts (
+-- create test AI grading attempts
+INSERT INTO public.ai_grading_attempts (
     id,
     created_at,
     user_id,
@@ -98,22 +98,22 @@ select results_eq(
   'Alice can read the test sentence'
 );
 
--- 3: Alice sees her attempts
+-- 3: Alice sees her AI grading attempts
 select results_eq(
-  $$ select count(*) from public.attempts $$,
+  $$ select count(*) from public.ai_grading_attempts $$,
   array[2::bigint],
-  'Alice sees only her two attempts'
+  'Alice sees only her two AI grading attempts'
 );
 
 -- 4: Bob's rows are invisible to Alice
 select results_eq(
   $$
     select count(*)
-    from public.attempts
+    from public.ai_grading_attempts
     where user_id = '10000000-0000-0000-0000-000000000002'::uuid
   $$,
   array[0::bigint],
-  'Alice cannot see Bob attempts'
+  'Alice cannot see Bob AI grading attempts'
 );
 
 -- 5: Alice sees only her profile
@@ -124,10 +124,10 @@ select results_eq(
 );
 
 -- Authorization tests
--- 6: Alice can insert an attempt for herself
+-- 6: Alice can insert an AI grading attempt for herself
 select lives_ok(
   $$
-    insert into public.attempts (
+    insert into public.ai_grading_attempts (
       id,
       user_id,
       sentence_id,
@@ -142,13 +142,13 @@ select lives_ok(
       'Alice authorized insert'
     )
   $$,
-  'Alice can insert her own attempt'
+  'Alice can insert her own AI grading attempt'
 );
 
--- 7: Alice cannot insert an attempt owned by Bob
+-- 7: Alice cannot insert an AI grading attempt owned by Bob
 select throws_ok(
   $$
-    insert into public.attempts (
+    insert into public.ai_grading_attempts (
       id,
       user_id,
       sentence_id,
@@ -164,8 +164,8 @@ select throws_ok(
     )
   $$,
   '42501',
-  'new row violates row-level security policy for table "attempts"',
-  'Alice cannot insert an attempt for Bob'
+  'new row violates row-level security policy for table "ai_grading_attempts"',
+  'Alice cannot insert an AI grading attempt for Bob'
 );
 
 -- 8: Alice can update her own profile
@@ -198,35 +198,35 @@ select results_eq(
   'Alice cannot update Bob profile'
 );
 
--- 10: Alice cannot update an existing attempt
+-- 10: Alice cannot update an existing AI grading attempt
 select results_eq(
   $$
-    update public.attempts
+    update public.ai_grading_attempts
     set accuracy_score = 100
     where id = '30000000-0000-0000-0000-000000000001'::uuid
     returning id
   $$,
   $$
     select id
-    from public.attempts
+    from public.ai_grading_attempts
     where false
   $$,
-  'Alice cannot update an existing attempt'
+  'Alice cannot update an existing AI grading attempt'
 );
 
--- 11: Alice cannot delete an existing attempt
+-- 11: Alice cannot delete an existing AI grading attempt
 select results_eq(
   $$
-    delete from public.attempts
+    delete from public.ai_grading_attempts
     where id = '30000000-0000-0000-0000-000000000001'::uuid
     returning id
   $$,
   $$
     select id
-    from public.attempts
+    from public.ai_grading_attempts
     where false
   $$,
-  'Alice cannot delete an existing attempt'
+  'Alice cannot delete an existing AI grading attempt'
 );
 
 -- Switch from Alice to Bob
@@ -241,22 +241,22 @@ select ok(
   'Bob JWT resolves to Bob'
 );
 
--- 13: Bob sees only his attempt
+-- 13: Bob sees only his AI grading attempt
 select results_eq(
-  $$ select count(*) from public.attempts $$,
+  $$ select count(*) from public.ai_grading_attempts $$,
   array[1::bigint],
-  'Bob sees only his attempt'
+  'Bob sees only his AI grading attempt'
 );
 
--- 14: Bob cannot see Alice's attempts
+-- 14: Bob cannot see Alice's AI grading attempts
 select results_eq(
   $$
     select count(*)
-    from public.attempts
+    from public.ai_grading_attempts
     where user_id = '10000000-0000-0000-0000-000000000001'::uuid
   $$,
   array[0::bigint],
-  'Bob cannot see Alice attempts'
+  'Bob cannot see Alice AI grading attempts'
 );
 
 -- 15: Bob sees only his profile
@@ -266,25 +266,25 @@ select results_eq(
   'Bob sees only his profile'
 );
 
--- 16: Bob's summary includes only his attempt
+-- 16: Bob's summary includes only his AI grading attempt
 select results_eq(
-  $$ select total_attempts from public.attempts_summary $$,
+  $$ select total_attempts from public.ai_grading_attempts_summary $$,
   array[1::bigint],
-  'Bob summary includes only his attempt'
+  'Bob summary includes only his AI grading attempt'
 );
 
--- 17: Bob's recent-attempt view contains only his attempt
+-- 17: Bob's recent AI grading view contains only his attempt
 select results_eq(
-  $$ select count(*) from public.recent_attempts $$,
+  $$ select count(*) from public.recent_ai_grading_attempts $$,
   array[1::bigint],
-  'Bob recent attempts include only his attempt'
+  'Bob recent AI grading attempts include only his attempt'
 );
 
--- 18: Bob's sentence progress includes only his attempt
+-- 18: Bob's AI grading sentence progress includes only his attempt
 select results_eq(
-  $$ select attempt_count from public.sentence_progress $$,
+  $$ select attempt_count from public.ai_grading_sentence_progress $$,
   array[1::bigint],
-  'Bob sentence progress includes only his attempt'
+  'Bob AI grading sentence progress includes only his attempt'
 );
 
 -- Switch to a logged-out anonymous request
@@ -307,11 +307,11 @@ select results_eq(
   'Anonymous users cannot read sentences'
 );
 
--- 21: Anonymous users cannot read attempts
+-- 21: Anonymous users cannot read AI grading attempts
 select results_eq(
-  $$ select count(*) from public.attempts $$,
+  $$ select count(*) from public.ai_grading_attempts $$,
   array[0::bigint],
-  'Anonymous users cannot read attempts'
+  'Anonymous users cannot read AI grading attempts'
 );
 
 -- 22: Anonymous users cannot read profiles
@@ -321,34 +321,34 @@ select results_eq(
   'Anonymous users cannot read profiles'
 );
 
--- 23: Anonymous users cannot read attempt summaries
+-- 23: Anonymous users cannot read AI grading attempt summaries
 select throws_ok(
-  $$ select * from public.attempts_summary $$,
+  $$ select * from public.ai_grading_attempts_summary $$,
   '42501',
-  'permission denied for view attempts_summary',
-  'Anonymous users cannot read attempt summaries'
+  'permission denied for view ai_grading_attempts_summary',
+  'Anonymous users cannot read AI grading attempt summaries'
 );
 
--- 24: Anonymous users cannot read recent attempts
+-- 24: Anonymous users cannot read recent AI grading attempts
 select throws_ok(
-  $$ select * from public.recent_attempts $$,
+  $$ select * from public.recent_ai_grading_attempts $$,
   '42501',
-  'permission denied for view recent_attempts',
-  'Anonymous users cannot read recent attempts'
+  'permission denied for view recent_ai_grading_attempts',
+  'Anonymous users cannot read recent AI grading attempts'
 );
 
--- 25: Anonymous users cannot read sentence progress
+-- 25: Anonymous users cannot read AI grading sentence progress
 select throws_ok(
-  $$ select * from public.sentence_progress $$,
+  $$ select * from public.ai_grading_sentence_progress $$,
   '42501',
-  'permission denied for view sentence_progress',
-  'Anonymous users cannot read sentence progress'
+  'permission denied for view ai_grading_sentence_progress',
+  'Anonymous users cannot read AI grading sentence progress'
 );
 
--- 26: Anonymous users cannot insert attempts
+-- 26: Anonymous users cannot insert AI grading attempts
 select throws_ok(
   $$
-    insert into public.attempts (
+    insert into public.ai_grading_attempts (
       id,
       user_id,
       sentence_id,
@@ -364,8 +364,8 @@ select throws_ok(
     )
   $$,
   '42501',
-  'new row violates row-level security policy for table "attempts"',
-  'Anonymous users cannot insert attempts'
+  'new row violates row-level security policy for table "ai_grading_attempts"',
+  'Anonymous users cannot insert AI grading attempts'
 );
 
 reset role;

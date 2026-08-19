@@ -39,7 +39,7 @@ export default async function Sentences() {
 
   const { data: sentenceProgress, error: sentenceProgressError } =
     await supabase
-      .from("sentence_progress")
+      .from("ai_grading_sentence_progress")
       .select("sentence_id, average_score, attempt_count");
 
   const progressBySentenceId = sentenceProgressError

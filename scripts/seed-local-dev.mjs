@@ -61,7 +61,10 @@ for (const localUser of LOCAL_USERS) {
   console.log(`Created local user: ${localUser.email}`);
 }
 
-const attemptsSql = readFileSync("supabase/dev/fake_attempts.sql", "utf8");
+const aiGradingAttemptsSql = readFileSync(
+  "supabase/dev/fake_ai_grading_attempts.sql",
+  "utf8",
+);
 const sqlResult = spawnSync(
   "docker",
   [
@@ -77,17 +80,17 @@ const sqlResult = spawnSync(
     "postgres",
   ],
   {
-    input: attemptsSql,
+    input: aiGradingAttemptsSql,
     encoding: "utf8",
     stdio: ["pipe", "inherit", "inherit"],
   },
 );
 
 if (sqlResult.status !== 0) {
-  throw new Error("Failed to load local fake attempts.");
+  throw new Error("Failed to load local fake AI grading attempts.");
 }
 
-console.log("Local users and attempts are ready.");
+console.log("Local users and AI grading attempts are ready.");
 
 function parseEnvOutput(output) {
   return Object.fromEntries(

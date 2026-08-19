@@ -99,12 +99,14 @@ export async function checkPronunciation(
       userTranscript,
     );
 
-    const { error: dbError } = await supabase.from("attempts").insert({
-      user_id: user.id,
-      sentence_id: sentence.id,
-      accuracy_score: calculatedScore,
-      user_audio_transcript: userTranscript,
-    });
+    const { error: dbError } = await supabase
+      .from("ai_grading_attempts")
+      .insert({
+        user_id: user.id,
+        sentence_id: sentence.id,
+        accuracy_score: calculatedScore,
+        user_audio_transcript: userTranscript,
+      });
 
     if (dbError) {
       console.error("Supabase saving error:", dbError);
