@@ -199,33 +199,25 @@ select results_eq(
 );
 
 -- 10: Alice cannot update an existing AI grading attempt
-select results_eq(
+select throws_ok(
   $$
     update public.ai_grading_attempts
     set accuracy_score = 100
     where id = '30000000-0000-0000-0000-000000000001'::uuid
-    returning id
   $$,
-  $$
-    select id
-    from public.ai_grading_attempts
-    where false
-  $$,
+  '42501',
+  'permission denied for table ai_grading_attempts',
   'Alice cannot update an existing AI grading attempt'
 );
 
 -- 11: Alice cannot delete an existing AI grading attempt
-select results_eq(
+select throws_ok(
   $$
     delete from public.ai_grading_attempts
     where id = '30000000-0000-0000-0000-000000000001'::uuid
-    returning id
   $$,
-  $$
-    select id
-    from public.ai_grading_attempts
-    where false
-  $$,
+  '42501',
+  'permission denied for table ai_grading_attempts',
   'Alice cannot delete an existing AI grading attempt'
 );
 
@@ -301,23 +293,26 @@ select ok(
 );
 
 -- 20: Anonymous users cannot read sentences
-select results_eq(
+select throws_ok(
   $$ select count(*) from public.sentences $$,
-  array[0::bigint],
+  '42501',
+  'permission denied for table sentences',
   'Anonymous users cannot read sentences'
 );
 
 -- 21: Anonymous users cannot read AI grading attempts
-select results_eq(
+select throws_ok(
   $$ select count(*) from public.ai_grading_attempts $$,
-  array[0::bigint],
+  '42501',
+  'permission denied for table ai_grading_attempts',
   'Anonymous users cannot read AI grading attempts'
 );
 
 -- 22: Anonymous users cannot read profiles
-select results_eq(
+select throws_ok(
   $$ select count(*) from public.profiles $$,
-  array[0::bigint],
+  '42501',
+  'permission denied for table profiles',
   'Anonymous users cannot read profiles'
 );
 
@@ -364,7 +359,7 @@ select throws_ok(
     )
   $$,
   '42501',
-  'new row violates row-level security policy for table "ai_grading_attempts"',
+  'permission denied for table ai_grading_attempts',
   'Anonymous users cannot insert AI grading attempts'
 );
 
