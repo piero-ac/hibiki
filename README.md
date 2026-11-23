@@ -5,7 +5,7 @@
 **Demo Video**:https://youtu.be/H70_k8iyBIY
 **Project Link:** https://hibiki-mu.vercel.app/
 
-Hibiki helps advanced Japanese learners improve their pronunciation through shadowing. Users practice curated N2 and N1 sentences, record their voice, receive AI-powered transcription feedback, and track their progress over time.
+Hibiki helps advanced Japanese learners improve their pronunciation through shadowing. Learners practice curated sentences at every JLPT level (with a focus on N2 and N1), record their voice, receive AI-powered transcription feedback, and track their progress over time.
 
 ---
 
@@ -13,7 +13,7 @@ Hibiki helps advanced Japanese learners improve their pronunciation through shad
 
 - 🎤 Record Japanese shadowing attempts
 - 🤖 AI-powered pronunciation grading using OpenAI Whisper
-- 📚 Curated N2 and N1 sentence library
+- 📚 Curated sentence library across every JLPT level, focused on N2 and N1
 - 🎲 Random sentence practice
 - 📈 Progress dashboard with practice analytics
 - 🏆 Strongest and weakest sentence tracking
