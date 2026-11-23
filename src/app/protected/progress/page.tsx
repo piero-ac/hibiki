@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { getLearnerProgress } from "@/lib/progress";
 import ProgressOverview from "@/components/progress/progress-overview";
 import RecentAttempts from "@/components/progress/recent-attempts";
 import SentencePerformance from "@/components/progress/sentence-performance";
@@ -6,38 +7,13 @@ import { PageContainer } from "@/components/app/page-container";
 
 export default async function ProgressPage() {
   const supabase = await createClient();
-  const { data: summary, error: progressOverviewError } = await supabase
-    .from("ai_grading_attempts_summary")
-    .select("*")
-    .single();
+  const progress = await getLearnerProgress(supabase).catch(() => null);
 
-  if (progressOverviewError || !summary) {
+  if (!progress) {
     return <div>Error loading progress overview stats. </div>;
   }
 
-  const { total_attempts, average_score, sentences_practiced, days_practiced } =
-    summary;
-
-  const { data: recentAttempts, error: recentAttemptsError } = await supabase
-    .from("recent_ai_grading_attempts")
-    .select("*")
-    .limit(10);
-
-  const shouldShowSentencePerformance = (summary.sentences_practiced ?? 0) >= 2;
-
-  const { data: strongestSentences, error: strongestSentencesError } =
-    await supabase
-      .from("ai_grading_sentence_progress")
-      .select("*")
-      .order("average_score", { ascending: false })
-      .limit(5);
-
-  const { data: weakestSentences, error: weakestSentencesError } =
-    await supabase
-      .from("ai_grading_sentence_progress")
-      .select("*")
-      .order("average_score", { ascending: true })
-      .limit(5);
+  const { scores } = progress;
 
   return (
     <PageContainer>
@@ -50,23 +26,14 @@ export default async function ProgressPage() {
             Track your Japanese shadowing practice over time.
           </p>
         </div>
-        <ProgressOverview
-          totalAttempts={total_attempts ?? 0}
-          averageScore={average_score}
-          sentencesPracticed={sentences_practiced ?? 0}
-          daysPracticed={days_practiced ?? 0}
-        />
-        {shouldShowSentencePerformance && (
+        <ProgressOverview progress={progress} />
+        {scores?.lessonRanking && (
           <SentencePerformance
-            weakest={weakestSentences ?? []}
-            strongest={strongestSentences ?? []}
-            hasError={!!weakestSentencesError || !!strongestSentencesError}
+            weakest={scores.lessonRanking.weakest}
+            strongest={scores.lessonRanking.strongest}
           />
         )}
-        <RecentAttempts
-          attempts={recentAttempts ?? []}
-          hasError={!!recentAttemptsError}
-        />
+        <RecentAttempts attempts={scores?.recentGradedAttempts ?? []} />
       </div>
     </PageContainer>
   );

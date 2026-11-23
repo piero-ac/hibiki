@@ -1,33 +1,14 @@
-// components/sentence-performance.tsx
-
-import { Database } from "@/types/database.types";
-
-type SentenceProgress =
-  Database["public"]["Views"]["ai_grading_sentence_progress"]["Row"];
+import type { LessonScore } from "@/lib/progress";
 
 interface SentencePerformanceProps {
-  weakest: SentenceProgress[];
-  strongest: SentenceProgress[];
-  hasError: boolean;
+  weakest: LessonScore[];
+  strongest: LessonScore[];
 }
 
 export default function SentencePerformance({
   weakest,
   strongest,
-  hasError,
 }: SentencePerformanceProps) {
-  if (hasError) {
-    return (
-      <section className="space-y-2">
-        <h2 className="text-lg font-semibold text-white">
-          Sentence Performance
-        </h2>
-        <p className="text-sm text-red-400">
-          Unable to load sentence performance.
-        </p>
-      </section>
-    );
-  }
   return (
     <section className="space-y-4">
       <div>
@@ -54,7 +35,7 @@ function PerformanceColumn({
   sentences,
 }: {
   title: string;
-  sentences: SentenceProgress[];
+  sentences: LessonScore[];
 }) {
   return (
     <div className="rounded-xl border border-zinc-800 bg-zinc-900 p-4">
@@ -66,28 +47,28 @@ function PerformanceColumn({
         <div className="mt-4 space-y-3">
           {sentences.map((sentence) => (
             <div
-              key={sentence.sentence_id!}
+              key={sentence.lesson.id}
               className="rounded-lg border border-zinc-800 bg-zinc-950 p-3"
             >
               <p className="text-lg font-bold text-emerald-300">
-                {sentence.average_score ?? 0}%
+                {sentence.averageAccuracyScore}%
               </p>
 
               <p className="mt-2 text-sm font-medium text-white">
-                {sentence.japanese_text ?? "Unknown sentence"}
+                {sentence.lesson.sentence}
               </p>
 
               <p className="mt-2 text-xs text-zinc-400">
-                Attempts: {sentence.attempt_count ?? 0}
+                Attempts: {sentence.attemptCount}
               </p>
 
               <div className="mt-3 flex gap-2">
                 <span className="rounded bg-zinc-800 px-2 py-1 text-xs text-zinc-300">
-                  {sentence.jlpt_level ?? "—"}
+                  {sentence.lesson.jlptLevel}
                 </span>
 
                 <span className="rounded bg-zinc-800 px-2 py-1 text-xs text-zinc-300">
-                  {sentence.category ?? "General"}
+                  {sentence.lesson.category ?? "General"}
                 </span>
               </div>
             </div>

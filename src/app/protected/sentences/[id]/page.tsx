@@ -8,6 +8,7 @@ import PreviousAttemptsCard from "@/components/practice/practice-attempt-card";
 import { createClient } from "@/lib/supabase/server";
 import { isDemoUser } from "@/lib/demo";
 import { createLessonAudioUrl } from "@/lib/lesson-audio";
+import { getLessonProgress } from "@/lib/progress";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -55,12 +56,10 @@ export default async function ShadowingPage({ params }: PageProps) {
     throw new Error("Natural lesson audio is unavailable.");
   }
 
-  const { data: recentAttempts } = await supabase
-    .from("ai_grading_attempts")
-    .select("id, accuracy_score, created_at")
-    .eq("sentence_id", id)
-    .order("created_at", { ascending: false })
-    .limit(5);
+  // The sidebar is secondary: if it fails, the Lesson stays practicable.
+  const lessonProgress = await getLessonProgress(supabase, sentence.id).catch(
+    () => null,
+  );
 
   return (
     <main className="min-h-[calc(100vh-4rem)] bg-background px-4 py-4 text-foreground sm:px-6 lg:px-8">
@@ -108,7 +107,9 @@ export default async function ShadowingPage({ params }: PageProps) {
             </CardContent>
           </Card>
 
-          <PreviousAttemptsCard attempts={recentAttempts ?? []} />
+          <PreviousAttemptsCard
+            attempts={lessonProgress?.scores?.recentGradedAttempts ?? []}
+          />
         </div>
       </section>
     </main>

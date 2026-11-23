@@ -119,6 +119,26 @@ npm run update-types
 
 ---
 
+## Tests
+
+Unit tests run in Node and need nothing else:
+
+```bash
+npm test
+```
+
+Integration tests run against local Supabase (Docker required). They seed their own throwaway test Learners with the local service role key, sign in as them, and delete them afterwards. They also need the seeded Lessons from `supabase/seed.sql`.
+
+```bash
+npx supabase start             # start local Supabase
+npx supabase db reset --local  # apply migrations and seed the Lessons (first run, or after schema changes)
+npm run test:integration
+```
+
+The integration tests read the local URL and keys from `npx supabase status` and refuse to run against a non-local URL.
+
+---
+
 ## Project Structure
 
 ```
