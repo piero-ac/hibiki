@@ -1,8 +1,13 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useMemo } from "react";
 import { checkPronunciation } from "@/app/protected/sentences/actions";
 import { Button } from "@/components/ui/button";
+import {
+  createBrowserLessonMedia,
+  useLessonPlayer,
+  type GradeRecording,
+} from "@/lib/lesson-player";
 
 interface ShadowingPlayerProps {
   naturalAudioUrl: string;
@@ -17,216 +22,39 @@ export default function SimpleShadowingPlayer({
   sentenceId,
   isDemoUser,
 }: ShadowingPlayerProps) {
-  const [isRecording, setIsRecording] = useState(false);
-  const [recordingUrl, setRecordingUrl] = useState<string | null>(null);
-  const [error, setError] = useState("");
-  const [rawAudioBlob, setRawAudioBlob] = useState<Blob | null>(null);
-  const [isGrading, setIsGrading] = useState(false);
-  const [attemptScore, setAttemptScore] = useState<number | null>(null);
-  const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
-  const [receivedText, setReceivedText] = useState<string | null>(null);
-  const [countdown, setCountdown] = useState<number | null>(null);
-  const isCountingDown = countdown !== null;
+  const media = useMemo(
+    () =>
+      createBrowserLessonMedia({
+        naturalUrl: naturalAudioUrl,
+        slowUrl: slowAudioUrl,
+      }),
+    [naturalAudioUrl, slowAudioUrl],
+  );
+  const grade = useMemo(
+    () => (isDemoUser ? undefined : gradeWithServer(sentenceId)),
+    [isDemoUser, sentenceId],
+  );
+  const {
+    state,
+    gradingAvailable,
+    listen,
+    record,
+    playBoth,
+    submitForGrading,
+  } = useLessonPlayer({ media, grade });
 
-  const naturalAudioRef = useRef<HTMLAudioElement>(null);
-  const slowAudioRef = useRef<HTMLAudioElement>(null);
-  const userAudioRef = useRef<HTMLAudioElement>(null);
-  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
-  const chunksRef = useRef<Blob[]>([]);
-  const stopTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  useEffect(() => {
-    if (naturalAudioRef.current) {
-      naturalAudioRef.current.volume = isRecording ? 0.25 : 1.0;
-    }
-  }, [isRecording]);
-
-  useEffect(() => {
-    return () => {
-      if (stopTimeoutRef.current) clearTimeout(stopTimeoutRef.current);
-    };
-  }, []);
-
-  useEffect(() => {
-    return () => {
-      if (recordingUrl) {
-        URL.revokeObjectURL(recordingUrl);
-      }
-    };
-  }, [recordingUrl]);
-
-  function handlePlayNatural() {
-    slowAudioRef.current?.pause();
-
-    if (naturalAudioRef.current) {
-      naturalAudioRef.current.currentTime = 0;
-      naturalAudioRef.current.play();
-    }
-  }
-
-  function handlePlaySlow() {
-    naturalAudioRef.current?.pause();
-
-    if (slowAudioRef.current) {
-      slowAudioRef.current.currentTime = 0;
-      slowAudioRef.current.play();
-    }
-  }
-
-  async function startActualRecording() {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        audio: {
-          echoCancellation: false,
-          noiseSuppression: false,
-          autoGainControl: false,
-        },
-      });
-      const mimeType = MediaRecorder.isTypeSupported("audio/webm")
-        ? "audio/webm"
-        : "audio/mp4";
-
-      const mediaRecorder = new MediaRecorder(stream, {
-        mimeType,
-        audioBitsPerSecond: 96_000,
-      });
-      mediaRecorderRef.current = mediaRecorder;
-
-      mediaRecorder.ondataavailable = (e) => {
-        if (e.data.size > 0) chunksRef.current.push(e.data);
-      };
-
-      mediaRecorder.onstop = async () => {
-        const blob = new Blob(chunksRef.current, { type: mimeType });
-        setRawAudioBlob(blob);
-        setRecordingUrl(URL.createObjectURL(blob));
-        setIsRecording(false);
-        stream.getTracks().forEach((track) => track.stop());
-      };
-
-      mediaRecorder.start();
-      setIsRecording(true);
-
-      slowAudioRef.current?.pause();
-
-      if (naturalAudioRef.current) {
-        naturalAudioRef.current.currentTime = 0;
-        await naturalAudioRef.current.play();
-      }
-    } catch (err) {
-      setError("Microphone access denied.");
-      console.error(err);
-      setCountdown(null);
-    }
-  }
-
-  function handleRecordShadowing() {
-    setError("");
-    setRawAudioBlob(null);
-    setFeedbackMessage(null);
-    setAttemptScore(null);
-    setReceivedText(null);
-
-    if (recordingUrl) {
-      URL.revokeObjectURL(recordingUrl);
-    }
-
-    setRecordingUrl(null);
-    chunksRef.current = [];
-    naturalAudioRef.current?.pause();
-    slowAudioRef.current?.pause();
-
-    let currentCount = 3;
-    setCountdown(currentCount);
-
-    const interval = setInterval(() => {
-      currentCount -= 1;
-
-      if (currentCount > 0) {
-        setCountdown(currentCount);
-      } else {
-        clearInterval(interval);
-        setCountdown(null);
-        startActualRecording();
-      }
-    }, 1000);
-  }
-
-  function handleOriginalAudioEnded() {
-    if (isRecording && mediaRecorderRef.current?.state === "recording") {
-      stopTimeoutRef.current = setTimeout(() => {
-        if (mediaRecorderRef.current?.state === "recording") {
-          mediaRecorderRef.current.stop();
-        }
-      }, 600);
-    }
-  }
-
-  async function handleSubmitForGrading() {
-    if (!rawAudioBlob) return;
-
-    setIsGrading(true);
-    setError("");
-
-    try {
-      const formData = new FormData();
-      const filename = rawAudioBlob.type.startsWith("audio/mp4")
-        ? "recording.m4a"
-        : "recording.webm";
-
-      formData.append("audio", rawAudioBlob, filename);
-
-      const response = await checkPronunciation(formData, sentenceId);
-
-      if (response.success) {
-        setFeedbackMessage(getFeedbackMessage(response.score ?? 0));
-        setAttemptScore(response.score !== undefined ? response.score : 0);
-        setReceivedText(response.receivedText ?? null);
-      } else {
-        setError(
-          response.error || "Grading engine returned a processing error.",
-        );
-      }
-    } catch (err) {
-      setError("Failed to communicate with grading server.");
-      console.error(err);
-    } finally {
-      setIsGrading(false);
-    }
-  }
-
-  function handlePlayBothSync() {
-    if (naturalAudioRef.current && userAudioRef.current) {
-      slowAudioRef.current?.pause();
-      naturalAudioRef.current.currentTime = 0;
-      naturalAudioRef.current.volume = 0.05;
-      userAudioRef.current.currentTime = 0;
-
-      userAudioRef.current.onended = () => {
-        if (naturalAudioRef.current) naturalAudioRef.current.volume = 1.0;
-      };
-
-      naturalAudioRef.current.play();
-      userAudioRef.current.play();
-    }
-  }
+  const isBusy = state.status === "countdown" || state.status === "recording";
+  const recording = "recording" in state ? state.recording : null;
+  const error = "error" in state ? state.error : null;
+  const result = state.status === "graded" ? state.result : null;
+  const isGrading = state.status === "grading";
 
   return (
     <div className="w-full max-w-2xl space-y-4">
-      <audio
-        ref={naturalAudioRef}
-        src={naturalAudioUrl}
-        onEnded={handleOriginalAudioEnded}
-        className="hidden"
-      />
-      {slowAudioUrl && (
-        <audio ref={slowAudioRef} src={slowAudioUrl} className="hidden" />
-      )}
-
       <div className="grid gap-3 sm:grid-cols-2">
         <Button
-          onClick={handlePlaySlow}
-          disabled={!slowAudioUrl || isRecording || isCountingDown}
+          onClick={() => listen("slow")}
+          disabled={!slowAudioUrl || isBusy}
           variant="outline"
           size="lg"
           className="h-14"
@@ -235,8 +63,8 @@ export default function SimpleShadowingPlayer({
         </Button>
 
         <Button
-          onClick={handlePlayNatural}
-          disabled={isRecording || isCountingDown}
+          onClick={() => listen("natural")}
+          disabled={isBusy}
           variant="outline"
           size="lg"
           className="h-14"
@@ -244,29 +72,30 @@ export default function SimpleShadowingPlayer({
           Listen Natural
         </Button>
 
-        {isCountingDown ? (
+        {state.status === "countdown" ? (
           <Button
             disabled
             size="lg"
             className="h-14 animate-pulse sm:col-span-2"
           >
-            Starting in {countdown}...
+            Starting in {state.secondsLeft}...
           </Button>
-        ) : !isRecording ? (
-          <Button
-            onClick={handleRecordShadowing}
-            size="lg"
-            className="h-14 sm:col-span-2"
-          >
-            Record Shadowing
-          </Button>
-        ) : (
+        ) : state.status === "recording" ? (
           <Button
             disabled
             size="lg"
             className="h-14 animate-pulse sm:col-span-2"
           >
             Recording...
+          </Button>
+        ) : (
+          <Button
+            onClick={record}
+            disabled={isGrading}
+            size="lg"
+            className="h-14 sm:col-span-2"
+          >
+            Record Shadowing
           </Button>
         )}
       </div>
@@ -277,33 +106,24 @@ export default function SimpleShadowingPlayer({
         </div>
       )}
 
-      {recordingUrl && (
+      {recording && (
         <div className="space-y-4 rounded-2xl border bg-muted/40 p-4">
           <div className="space-y-2">
             <p className="text-sm font-medium">Your recording</p>
-            <audio
-              ref={userAudioRef}
-              controls
-              src={recordingUrl}
-              className="w-full"
-            />
+            <audio controls src={recording.url} className="w-full" />
           </div>
 
           <div className="grid gap-3 sm:grid-cols-2">
-            <Button
-              onClick={handlePlayBothSync}
-              disabled={isGrading}
-              variant="outline"
-            >
+            <Button onClick={playBoth} disabled={isGrading} variant="outline">
               Play Both
             </Button>
 
-            {isDemoUser ? (
+            {!gradingAvailable ? (
               <Button disabled variant="secondary">
                 Demo Mode · AI Grading Unavailable
               </Button>
-            ) : !feedbackMessage ? (
-              <Button onClick={handleSubmitForGrading} disabled={isGrading}>
+            ) : !result ? (
+              <Button onClick={submitForGrading} disabled={isGrading}>
                 {isGrading ? "Analyzing..." : "Submit Attempt"}
               </Button>
             ) : (
@@ -313,19 +133,17 @@ export default function SimpleShadowingPlayer({
             )}
           </div>
 
-          {feedbackMessage && (
+          {result && (
             <div className="rounded-xl border bg-background p-4">
-              {attemptScore !== null && (
-                <p className="text-2xl font-bold">Score: {attemptScore}%</p>
-              )}
+              <p className="text-2xl font-bold">Score: {result.score}%</p>
 
               <p className="mt-2 text-sm text-muted-foreground">
-                {feedbackMessage}
+                {getFeedbackMessage(result.score)}
               </p>
 
-              {receivedText && (
+              {result.receivedText && (
                 <p className="mt-3 text-xs leading-5 text-muted-foreground">
-                  Whisper heard: {receivedText}
+                  Whisper heard: {result.receivedText}
                 </p>
               )}
             </div>
@@ -334,6 +152,32 @@ export default function SimpleShadowingPlayer({
       )}
     </div>
   );
+}
+
+function gradeWithServer(sentenceId: string): GradeRecording {
+  return async ({ blob }) => {
+    const formData = new FormData();
+    const filename = blob.type.startsWith("audio/mp4")
+      ? "recording.m4a"
+      : "recording.webm";
+    formData.append("audio", blob, filename);
+
+    const response = await checkPronunciation(formData, sentenceId);
+
+    return response.success
+      ? {
+          ok: true,
+          result: {
+            score: response.score ?? 0,
+            receivedText: response.receivedText ?? null,
+          },
+        }
+      : {
+          ok: false,
+          error:
+            response.error || "Grading engine returned a processing error.",
+        };
+  };
 }
 
 function getFeedbackMessage(score: number): string {
