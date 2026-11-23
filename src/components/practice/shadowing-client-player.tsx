@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import {
   checkPronunciation,
   markLessonDone,
@@ -11,6 +11,12 @@ import {
   useLessonPlayer,
   type GradeRecording,
 } from "@/lib/lesson-player";
+
+/**
+ * AI grading is switched off while the app focuses on shadowing itself.
+ * Set to true to bring back Submit Attempt for signed-up Learners.
+ */
+const AI_GRADING_ENABLED = false;
 
 interface ShadowingPlayerProps {
   naturalAudioUrl: string;
@@ -34,12 +40,15 @@ export default function SimpleShadowingPlayer({
     }),
   );
   const grade = useMemo(
-    () => (isDemoUser ? undefined : gradeWithServer(sentenceId)),
+    () =>
+      AI_GRADING_ENABLED && !isDemoUser
+        ? gradeWithServer(sentenceId)
+        : undefined,
     [isDemoUser, sentenceId],
   );
-  const saveMarkDone = useCallback(
-    () => markLessonDone(sentenceId),
-    [sentenceId],
+  const saveMarkDone = useMemo(
+    () => (isDemoUser ? undefined : () => markLessonDone(sentenceId)),
+    [isDemoUser, sentenceId],
   );
   const {
     state,
@@ -51,6 +60,7 @@ export default function SimpleShadowingPlayer({
     playRecording,
     submitForGrading,
     markDone,
+    markDoneAvailable,
   } = useLessonPlayer({ media, grade, markDone: saveMarkDone });
 
   const isBusy = state.status === "countdown" || state.status === "recording";
@@ -133,11 +143,7 @@ export default function SimpleShadowingPlayer({
               Play Both
             </Button>
 
-            {!gradingAvailable ? (
-              <Button disabled variant="secondary" className="sm:col-span-2">
-                Demo Mode · AI Grading Unavailable
-              </Button>
-            ) : !result ? (
+            {!gradingAvailable ? null : !result ? (
               <Button
                 onClick={submitForGrading}
                 disabled={isGrading}
@@ -172,27 +178,33 @@ export default function SimpleShadowingPlayer({
         </div>
       )}
 
-      <div className="space-y-2">
-        <Button
-          onClick={markDone}
-          disabled={markDoneState.status !== "idle" || isBusy}
-          variant="secondary"
-          size="lg"
-          className="h-12 w-full"
-        >
-          {markDoneState.status === "saving"
-            ? "Saving..."
-            : markDoneState.status === "done"
-              ? "Marked done"
-              : "Mark Done"}
+      {!markDoneAvailable ? (
+        <Button disabled variant="secondary" size="lg" className="h-12 w-full">
+          Demo Mode · Mark Done Unavailable
         </Button>
+      ) : (
+        <div className="space-y-2">
+          <Button
+            onClick={markDone}
+            disabled={markDoneState.status !== "idle" || isBusy}
+            variant="secondary"
+            size="lg"
+            className="h-12 w-full"
+          >
+            {markDoneState.status === "saving"
+              ? "Saving..."
+              : markDoneState.status === "done"
+                ? "Marked done"
+                : "Mark Done"}
+          </Button>
 
-        {markDoneState.status === "idle" && markDoneState.error && (
-          <div className="rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
-            {markDoneState.error}
-          </div>
-        )}
-      </div>
+          {markDoneState.status === "idle" && markDoneState.error && (
+            <div className="rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+              {markDoneState.error}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

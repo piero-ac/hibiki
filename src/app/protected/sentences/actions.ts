@@ -141,12 +141,21 @@ export async function checkPronunciation(
   }
 }
 
-/** Mark Done: records a Shadowing Attempt. Allowed in Demo Mode. */
+/** Mark Done: records a Shadowing Attempt. Not allowed in Demo Mode. */
 export async function markLessonDone(
   lessonId: string,
 ): Promise<MarkDoneOutcome> {
   try {
     const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    // Demo Mode is a shared account, so it never creates data.
+    if (isDemoUser(user?.email)) {
+      return { ok: false, error: "Mark Done is disabled in Demo Mode." };
+    }
+
     await recordShadowingAttempt(supabase, lessonId);
   } catch (error) {
     console.error("Mark Done failed:", error);

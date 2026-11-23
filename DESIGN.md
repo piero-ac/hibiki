@@ -169,7 +169,7 @@ Authentication is handled by Supabase Auth.
 
 Protected routes verify the authenticated user before rendering application content.
 
-A shared demo account lets visitors try Hibiki without consuming OpenAI API credits. Demo Learners can Mark Done, but AI grading is unavailable.
+A shared demo account provides a read-only experience: it never creates data, so Mark Done and AI grading are unavailable in it.
 
 ---
 

@@ -34,7 +34,8 @@ interface UseLessonPlayerOptions {
   media: LessonMedia;
   /** Leave out to make AI grading unavailable, as in Demo Mode. */
   grade?: GradeRecording;
-  markDone: MarkDone;
+  /** Leave out to make Mark Done unavailable, as in Demo Mode. */
+  markDone?: MarkDone;
 }
 
 export function useLessonPlayer({
@@ -154,7 +155,7 @@ export function useLessonPlayer({
   }, [grade, state]);
 
   const markDone = useCallback(async () => {
-    if (markingDoneRef.current) return;
+    if (!saveMarkDone || markingDoneRef.current) return;
     markingDoneRef.current = true;
     dispatchMarkDone({ type: "markDoneRequested" });
 
@@ -187,6 +188,7 @@ export function useLessonPlayer({
     state,
     markDoneState,
     gradingAvailable: grade !== undefined,
+    markDoneAvailable: saveMarkDone !== undefined,
     playNativeAudio,
     record,
     playBoth,
