@@ -1,5 +1,6 @@
 "use server";
 
+import { refresh } from "next/cache";
 import { OpenAI, toFile } from "openai";
 import { createClient } from "@/lib/supabase/server";
 import { calculateSimilarityScore } from "@/lib/scoring";
@@ -7,6 +8,8 @@ import { isDemoUser } from "@/lib/demo";
 import { serverEnv } from "@/lib/server-env";
 import { validateAudioUpload } from "@/lib/audio-validation";
 import { validateAudioContent } from "@/lib/audio-content-validation";
+import { recordShadowingAttempt } from "@/lib/progress";
+import type { MarkDoneOutcome } from "@/lib/lesson-player";
 
 const openai = new OpenAI({
   apiKey: serverEnv.openaiApiKey,
@@ -136,4 +139,33 @@ export async function checkPronunciation(
       error: "An error occurred.",
     };
   }
+}
+
+/** Mark Done: records a Shadowing Attempt. Not allowed in Demo Mode. */
+export async function markLessonDone(
+  lessonId: string,
+): Promise<MarkDoneOutcome> {
+  try {
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    // Demo Mode is a shared account, so it never creates data.
+    if (isDemoUser(user?.email)) {
+      return { ok: false, error: "Mark Done is disabled in Demo Mode." };
+    }
+
+    await recordShadowingAttempt(supabase, lessonId);
+  } catch (error) {
+    console.error("Mark Done failed:", error);
+    return {
+      ok: false,
+      error: "Couldn't mark this Lesson done. Please try again.",
+    };
+  }
+
+  // Re-render the page so the sidebar shows the new Shadowing Attempt.
+  refresh();
+  return { ok: true };
 }

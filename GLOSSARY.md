@@ -83,5 +83,5 @@ A Learner's practice history in two parts. **Activity** comes from Shadowing Att
 _Avoid_: Stats, analytics
 
 **Demo Mode**:
-A shared Learner account for trying Hibiki without signing up. AI Grading Attempts are not available in it.
+A shared Learner account for trying Hibiki without signing up. It is read-only: it can't Mark Done or make AI Grading Attempts, so it never creates Shadowing Attempts or AI Grading Attempts.
 _Avoid_: Guest mode

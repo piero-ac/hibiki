@@ -4,7 +4,7 @@ import ShadowingPlayer from "@/components/practice/shadowing-client-player";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import PreviousAttemptsCard from "@/components/practice/practice-attempt-card";
+import LessonActivityCard from "@/components/practice/lesson-activity-card";
 import { createClient } from "@/lib/supabase/server";
 import { isDemoUser } from "@/lib/demo";
 import { createLessonAudioUrl } from "@/lib/lesson-audio";
@@ -104,9 +104,9 @@ export default async function ShadowingPage({ params }: PageProps) {
             </CardContent>
           </Card>
 
-          <PreviousAttemptsCard
-            attempts={lessonProgress?.scores?.recentGradedAttempts ?? []}
-          />
+          {lessonProgress && (
+            <LessonActivityCard activity={lessonProgress.activity} />
+          )}
         </div>
       </section>
     </main>

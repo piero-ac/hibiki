@@ -88,3 +88,44 @@ export function playerReducer(
       };
   }
 }
+
+/**
+ * Mark Done is separate from the Recording states: it doesn't need a
+ * Recording, and it can be pressed again once the confirmation has passed.
+ */
+export type MarkDoneState =
+  | { status: "idle"; error: string | null }
+  | { status: "saving" }
+  | { status: "done" };
+
+export type MarkDoneAction =
+  | { type: "markDoneRequested" }
+  | { type: "markDoneSucceeded" }
+  | { type: "markDoneFailed"; error: string }
+  | { type: "confirmationEnded" };
+
+export const initialMarkDoneState: MarkDoneState = {
+  status: "idle",
+  error: null,
+};
+
+export function markDoneReducer(
+  state: MarkDoneState,
+  action: MarkDoneAction,
+): MarkDoneState {
+  switch (action.type) {
+    case "markDoneRequested":
+      return state.status === "idle" ? { status: "saving" } : state;
+
+    case "markDoneSucceeded":
+      return state.status === "saving" ? { status: "done" } : state;
+
+    case "markDoneFailed":
+      return state.status === "saving"
+        ? { status: "idle", error: action.error }
+        : state;
+
+    case "confirmationEnded":
+      return state.status === "done" ? initialMarkDoneState : state;
+  }
+}
