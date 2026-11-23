@@ -34,13 +34,6 @@ describe("createLessonAudioUrl", () => {
     );
   });
 
-  it("returns null for a missing optional audio path", async () => {
-    const { from, supabase } = createMockSupabase();
-
-    await expect(createLessonAudioUrl(supabase, null)).resolves.toBeNull();
-    expect(from).not.toHaveBeenCalled();
-  });
-
   it("throws a stable error when Storage cannot sign the object", async () => {
     const { createSignedUrl, supabase } = createMockSupabase();
     createSignedUrl.mockResolvedValue({

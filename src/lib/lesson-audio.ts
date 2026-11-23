@@ -8,12 +8,8 @@ const SIGNED_URL_EXPIRES_IN_SECONDS = 60 * 60;
 
 export async function createLessonAudioUrl(
   supabase: SupabaseClient<Database>,
-  objectPath: string | null,
-): Promise<string | null> {
-  if (!objectPath) {
-    return null;
-  }
-
+  objectPath: string,
+): Promise<string> {
   const { data, error } = await supabase.storage
     .from(LESSON_AUDIO_BUCKET)
     .createSignedUrl(objectPath, SIGNED_URL_EXPIRES_IN_SECONDS);
