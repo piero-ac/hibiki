@@ -9,14 +9,10 @@ export type Speed = "slow" | "natural";
 export interface LessonMedia {
   /** Start buffering Native Audio. Safe to call again after `dispose`. */
   preload(): void;
-  /** Play one speed from the start, pausing the other. */
+  /** Each play method starts from the beginning and stops other playback. */
   play(speed: Speed, options: { volume: number }): void;
   stopPlayback(): void;
-  /**
-   * The on-screen player for the Recording. Play Both uses it, so the
-   * Recording never plays as two copies at once.
-   */
-  setRecordingPlayer(element: HTMLAudioElement | null): void;
+  playRecording(recording: Recording): void;
   /** Play the Recording together with quiet Natural Native Audio. */
   playWithRecording(recording: Recording): void;
   /** Returns an unsubscribe function. */

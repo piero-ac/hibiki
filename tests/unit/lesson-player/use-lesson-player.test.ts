@@ -200,15 +200,14 @@ describe("useLessonPlayer", () => {
     ]);
   });
 
-  it("plays both through the visible Recording player, so there is only one copy", async () => {
+  it("plays the Recording on its own", async () => {
     const { result } = renderHook(() => useLessonPlayer({ media }));
     await makeRecording(result);
-    const visiblePlayer = document.createElement("audio");
 
-    act(() => result.current.recordingPlayerRef(visiblePlayer));
-    expect(media.recordingPlayer).toBe(visiblePlayer);
+    act(() => result.current.playRecording());
 
-    act(() => result.current.recordingPlayerRef(null));
-    expect(media.recordingPlayer).toBeNull();
+    expect(media.playedRecording).toEqual([
+      expect.objectContaining({ url: "blob:recording-1" }),
+    ]);
   });
 });

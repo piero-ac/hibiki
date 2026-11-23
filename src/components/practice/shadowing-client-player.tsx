@@ -40,7 +40,7 @@ export default function SimpleShadowingPlayer({
     playNativeAudio,
     record,
     playBoth,
-    recordingPlayerRef,
+    playRecording,
     submitForGrading,
   } = useLessonPlayer({ media, grade });
 
@@ -109,31 +109,35 @@ export default function SimpleShadowingPlayer({
 
       {recording && (
         <div className="space-y-4 rounded-2xl border bg-muted/40 p-4">
-          <div className="space-y-2">
-            <p className="text-sm font-medium">Your recording</p>
-            <audio
-              ref={recordingPlayerRef}
-              controls
-              src={recording.url}
-              className="w-full"
-            />
-          </div>
+          <p className="text-sm font-medium">Your recording</p>
 
           <div className="grid gap-3 sm:grid-cols-2">
+            <Button
+              onClick={playRecording}
+              disabled={isGrading}
+              variant="outline"
+            >
+              Play My Recording
+            </Button>
+
             <Button onClick={playBoth} disabled={isGrading} variant="outline">
               Play Both
             </Button>
 
             {!gradingAvailable ? (
-              <Button disabled variant="secondary">
+              <Button disabled variant="secondary" className="sm:col-span-2">
                 Demo Mode · AI Grading Unavailable
               </Button>
             ) : !result ? (
-              <Button onClick={submitForGrading} disabled={isGrading}>
+              <Button
+                onClick={submitForGrading}
+                disabled={isGrading}
+                className="sm:col-span-2"
+              >
                 {isGrading ? "Analyzing..." : "Submit Attempt"}
               </Button>
             ) : (
-              <Button disabled variant="secondary">
+              <Button disabled variant="secondary" className="sm:col-span-2">
                 Attempt Graded
               </Button>
             )}

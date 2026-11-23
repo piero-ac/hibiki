@@ -102,11 +102,9 @@ export function useLessonPlayer({ media, grade }: UseLessonPlayerOptions) {
     }, 1000);
   }, [recordingAllowed, currentRecording, media, startRecording]);
 
-  /** Attach to the on-screen Recording player so Play Both reuses it. */
-  const recordingPlayerRef = useCallback(
-    (element: HTMLAudioElement | null) => media.setRecordingPlayer(element),
-    [media],
-  );
+  const playRecording = useCallback(() => {
+    if (currentRecording) media.playRecording(currentRecording);
+  }, [currentRecording, media]);
 
   const playBoth = useCallback(() => {
     if (currentRecording) media.playWithRecording(currentRecording);
@@ -139,7 +137,7 @@ export function useLessonPlayer({ media, grade }: UseLessonPlayerOptions) {
     playNativeAudio,
     record,
     playBoth,
-    recordingPlayerRef,
+    playRecording,
     submitForGrading,
   };
 }
