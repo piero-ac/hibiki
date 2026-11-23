@@ -78,6 +78,15 @@ DEMO_USER_EMAIL=
 DEMO_USER_PASSWORD=
 ```
 
+### Set up local Supabase
+
+```bash
+npx supabase start
+npm run db:reset-dev  # apply migrations, seed Lessons, users, attempts, and Lesson audio
+```
+
+`db:reset-dev` uploads the seeded Lessons' Native Audio from `supabase/dev/lesson-audio/`. A bare `npx supabase db reset` forgets Storage objects, so use `db:reset-dev` (or `npm run db:seed-dev` afterwards) to get the audio back.
+
 ### Start the development server
 
 ```bash

@@ -1,5 +1,5 @@
 import { execFileSync, spawnSync } from "node:child_process";
-import { readFileSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import { createClient } from "@supabase/supabase-js";
 
 const LOCAL_USERS = [
@@ -60,6 +60,27 @@ for (const localUser of LOCAL_USERS) {
   if (error) throw error;
   console.log(`Created local user: ${localUser.email}`);
 }
+
+// Native Audio for the seeded Lessons. A db reset forgets Storage objects, so
+// re-upload them every run. The files are raw MPEG frames with no ID3 tag, so
+// the content type is set explicitly (content sniffing would say octet-stream).
+const LESSON_AUDIO_DIR = "supabase/dev/lesson-audio";
+const lessonAudioPaths = readdirSync(LESSON_AUDIO_DIR, { recursive: true })
+  .filter((path) => path.endsWith(".mp3"))
+  .map((path) => path.split("\\").join("/"));
+
+for (const objectPath of lessonAudioPaths) {
+  const { error } = await supabase.storage
+    .from("lesson-audio")
+    .upload(objectPath, readFileSync(`${LESSON_AUDIO_DIR}/${objectPath}`), {
+      contentType: "audio/mpeg",
+      upsert: true,
+    });
+
+  if (error) throw error;
+}
+
+console.log(`Uploaded ${lessonAudioPaths.length} lesson audio files.`);
 
 const aiGradingAttemptsSql = readFileSync(
   "supabase/dev/fake_ai_grading_attempts.sql",
