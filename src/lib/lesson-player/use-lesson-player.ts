@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useReducer, useRef } from "react";
 import type { LessonMedia, Speed } from "./media";
 import {
+  canRecord,
   COUNTDOWN_SECONDS,
   initialPlayerState,
   playerReducer,
@@ -74,19 +75,16 @@ export function useLessonPlayer({ media, grade }: UseLessonPlayerOptions) {
     media.play("natural", { volume: RECORDING_VOLUME });
   }, [media]);
 
-  const listen = useCallback(
+  const playNativeAudio = useCallback(
     (speed: Speed) => media.play(speed, { volume: 1 }),
     [media],
   );
 
-  const canRecord =
-    state.status === "idle" ||
-    state.status === "recorded" ||
-    state.status === "graded";
+  const recordingAllowed = canRecord(state);
   const currentRecording = "recording" in state ? state.recording : null;
 
   const record = useCallback(() => {
-    if (!canRecord || countdownRef.current) return;
+    if (!recordingAllowed || countdownRef.current) return;
     // Recordings are thrown away when the Learner records again (ADR 0001).
     if (currentRecording) media.discard(currentRecording);
     media.stopPlayback();
@@ -102,7 +100,7 @@ export function useLessonPlayer({ media, grade }: UseLessonPlayerOptions) {
         void startRecording();
       }
     }, 1000);
-  }, [canRecord, currentRecording, media, startRecording]);
+  }, [recordingAllowed, currentRecording, media, startRecording]);
 
   const playBoth = useCallback(() => {
     if (currentRecording) media.playWithRecording(currentRecording);
@@ -132,7 +130,7 @@ export function useLessonPlayer({ media, grade }: UseLessonPlayerOptions) {
   return {
     state,
     gradingAvailable: grade !== undefined,
-    listen,
+    playNativeAudio,
     record,
     playBoth,
     submitForGrading,

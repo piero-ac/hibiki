@@ -8,8 +8,8 @@ export interface Recording {
 }
 
 export interface GradingResult {
-  score: number;
-  receivedText: string | null;
+  accuracyScore: number;
+  transcript: string | null;
 }
 
 export type PlayerState =
@@ -33,6 +33,15 @@ export const COUNTDOWN_SECONDS = 3;
 
 export const initialPlayerState: PlayerState = { status: "idle", error: null };
 
+/** Recording is possible when nothing is in progress; re-recording is allowed. */
+export function canRecord(state: PlayerState): boolean {
+  return (
+    state.status === "idle" ||
+    state.status === "recorded" ||
+    state.status === "graded"
+  );
+}
+
 export function playerReducer(
   state: PlayerState,
   action: PlayerAction,
@@ -40,14 +49,9 @@ export function playerReducer(
   switch (action.type) {
     case "recordRequested":
       // Re-recording throws away the previous Recording and its result.
-      if (
-        state.status === "idle" ||
-        state.status === "recorded" ||
-        state.status === "graded"
-      ) {
-        return { status: "countdown", secondsLeft: COUNTDOWN_SECONDS };
-      }
-      return state;
+      return canRecord(state)
+        ? { status: "countdown", secondsLeft: COUNTDOWN_SECONDS }
+        : state;
 
     case "countdownTicked":
       if (state.status !== "countdown") return state;

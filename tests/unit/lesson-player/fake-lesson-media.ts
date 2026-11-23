@@ -10,7 +10,7 @@ export class FakeLessonMedia implements LessonMedia {
   playedWithRecording: Recording[] = [];
   discarded: Recording[] = [];
   capturing = false;
-  private takes = 0;
+  private recordingCount = 0;
   private microphoneDenied = false;
   private naturalEndedListeners = new Set<() => void>();
 
@@ -48,10 +48,12 @@ export class FakeLessonMedia implements LessonMedia {
 
   async stopCapture(): Promise<Recording> {
     this.capturing = false;
-    this.takes += 1;
+    this.recordingCount += 1;
     return {
-      blob: new Blob([`take-${this.takes}`], { type: "audio/webm" }),
-      url: `blob:take-${this.takes}`,
+      blob: new Blob([`recording-${this.recordingCount}`], {
+        type: "audio/webm",
+      }),
+      url: `blob:recording-${this.recordingCount}`,
     };
   }
 

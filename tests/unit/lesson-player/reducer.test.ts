@@ -7,15 +7,15 @@ import {
 } from "@/lib/lesson-player/reducer";
 
 const recording: Recording = {
-  blob: new Blob(["take-1"], { type: "audio/webm" }),
-  url: "blob:take-1",
+  blob: new Blob(["recording-1"], { type: "audio/webm" }),
+  url: "blob:recording-1",
 };
 
 const recorded: PlayerState = { status: "recorded", recording, error: null };
 const graded: PlayerState = {
   status: "graded",
   recording,
-  result: { score: 92, receivedText: "今日は良い天気です" },
+  result: { accuracyScore: 92, transcript: "今日は良い天気です" },
 };
 
 describe("playerReducer", () => {
@@ -94,7 +94,7 @@ describe("playerReducer", () => {
         { status: "grading", recording },
         {
           type: "gradingSucceeded",
-          result: { score: 92, receivedText: "今日は良い天気です" },
+          result: { accuracyScore: 92, transcript: "今日は良い天気です" },
         },
       ),
     ).toEqual(graded);
@@ -121,7 +121,10 @@ describe("playerReducer", () => {
       [graded, { type: "gradingStarted" }],
       [
         recorded,
-        { type: "gradingSucceeded", result: { score: 1, receivedText: null } },
+        {
+          type: "gradingSucceeded",
+          result: { accuracyScore: 1, transcript: null },
+        },
       ],
       [recorded, { type: "gradingFailed", error: "x" }],
     ];

@@ -19,7 +19,7 @@ async function advance(ms: number) {
   await act(() => vi.advanceTimersByTimeAsync(ms));
 }
 
-async function recordOneTake(result: {
+async function makeRecording(result: {
   current: ReturnType<typeof useLessonPlayer>;
 }) {
   act(() => result.current.record());
@@ -71,7 +71,7 @@ describe("useLessonPlayer", () => {
     expect(media.capturing).toBe(false);
     expect(result.current.state).toEqual({
       status: "recorded",
-      recording: { blob: expect.any(Blob), url: "blob:take-1" },
+      recording: { blob: expect.any(Blob), url: "blob:recording-1" },
       error: null,
     });
   });
@@ -79,7 +79,7 @@ describe("useLessonPlayer", () => {
   it("ignores Natural ending when it isn't recording", async () => {
     const { result } = renderHook(() => useLessonPlayer({ media }));
 
-    act(() => result.current.listen("natural"));
+    act(() => result.current.playNativeAudio("natural"));
     act(() => media.endNatural());
     await advance(1000);
 
@@ -90,10 +90,10 @@ describe("useLessonPlayer", () => {
   it("puts the grading result in state", async () => {
     const grade = vi.fn(async () => ({
       ok: true as const,
-      result: { score: 88, receivedText: "今日は良い天気です" },
+      result: { accuracyScore: 88, transcript: "今日は良い天気です" },
     }));
     const { result } = renderHook(() => useLessonPlayer({ media, grade }));
-    await recordOneTake(result);
+    await makeRecording(result);
 
     expect(result.current.gradingAvailable).toBe(true);
     let submitted: Promise<void> | undefined;
@@ -104,11 +104,11 @@ describe("useLessonPlayer", () => {
 
     await act(() => submitted);
     expect(grade).toHaveBeenCalledWith(
-      expect.objectContaining({ url: "blob:take-1" }),
+      expect.objectContaining({ url: "blob:recording-1" }),
     );
     expect(result.current.state).toMatchObject({
       status: "graded",
-      result: { score: 88, receivedText: "今日は良い天気です" },
+      result: { accuracyScore: 88, transcript: "今日は良い天気です" },
     });
   });
 
@@ -118,13 +118,13 @@ describe("useLessonPlayer", () => {
       error: "Sentence could not be found.",
     });
     const { result } = renderHook(() => useLessonPlayer({ media, grade }));
-    await recordOneTake(result);
+    await makeRecording(result);
 
     await act(() => result.current.submitForGrading());
 
     expect(result.current.state).toMatchObject({
       status: "recorded",
-      recording: { url: "blob:take-1" },
+      recording: { url: "blob:recording-1" },
       error: "Sentence could not be found.",
     });
   });
@@ -135,7 +135,7 @@ describe("useLessonPlayer", () => {
     };
     vi.spyOn(console, "error").mockImplementation(() => {});
     const { result } = renderHook(() => useLessonPlayer({ media, grade }));
-    await recordOneTake(result);
+    await makeRecording(result);
 
     await act(() => result.current.submitForGrading());
 
@@ -147,7 +147,7 @@ describe("useLessonPlayer", () => {
 
   it("makes grading unavailable when no grading is passed in", async () => {
     const { result } = renderHook(() => useLessonPlayer({ media }));
-    await recordOneTake(result);
+    await makeRecording(result);
 
     expect(result.current.gradingAvailable).toBe(false);
     await act(() => result.current.submitForGrading());
@@ -157,10 +157,10 @@ describe("useLessonPlayer", () => {
   it("re-recording throws away the previous Recording and result", async () => {
     const grade = async () => ({
       ok: true as const,
-      result: { score: 70, receivedText: null },
+      result: { accuracyScore: 70, transcript: null },
     });
     const { result } = renderHook(() => useLessonPlayer({ media, grade }));
-    await recordOneTake(result);
+    await makeRecording(result);
     await act(() => result.current.submitForGrading());
 
     act(() => result.current.record());
@@ -170,7 +170,7 @@ describe("useLessonPlayer", () => {
       secondsLeft: 3,
     });
     expect(media.discarded).toEqual([
-      expect.objectContaining({ url: "blob:take-1" }),
+      expect.objectContaining({ url: "blob:recording-1" }),
     ]);
   });
 
@@ -191,12 +191,12 @@ describe("useLessonPlayer", () => {
 
   it("plays the Recording together with Natural", async () => {
     const { result } = renderHook(() => useLessonPlayer({ media }));
-    await recordOneTake(result);
+    await makeRecording(result);
 
     act(() => result.current.playBoth());
 
     expect(media.playedWithRecording).toEqual([
-      expect.objectContaining({ url: "blob:take-1" }),
+      expect.objectContaining({ url: "blob:recording-1" }),
     ]);
   });
 });

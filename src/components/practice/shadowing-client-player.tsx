@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { checkPronunciation } from "@/app/protected/sentences/actions";
 import { Button } from "@/components/ui/button";
 import {
@@ -22,13 +22,13 @@ export default function SimpleShadowingPlayer({
   sentenceId,
   isDemoUser,
 }: ShadowingPlayerProps) {
-  const media = useMemo(
-    () =>
-      createBrowserLessonMedia({
-        naturalUrl: naturalAudioUrl,
-        slowUrl: slowAudioUrl,
-      }),
-    [naturalAudioUrl, slowAudioUrl],
+  // One adapter per Lesson: recreating it would revoke the current Recording.
+  // The page keys this component by Lesson, so new props mean a new mount.
+  const [media] = useState(() =>
+    createBrowserLessonMedia({
+      naturalUrl: naturalAudioUrl,
+      slowUrl: slowAudioUrl,
+    }),
   );
   const grade = useMemo(
     () => (isDemoUser ? undefined : gradeWithServer(sentenceId)),
@@ -37,7 +37,7 @@ export default function SimpleShadowingPlayer({
   const {
     state,
     gradingAvailable,
-    listen,
+    playNativeAudio,
     record,
     playBoth,
     submitForGrading,
@@ -53,7 +53,7 @@ export default function SimpleShadowingPlayer({
     <div className="w-full max-w-2xl space-y-4">
       <div className="grid gap-3 sm:grid-cols-2">
         <Button
-          onClick={() => listen("slow")}
+          onClick={() => playNativeAudio("slow")}
           disabled={!slowAudioUrl || isBusy}
           variant="outline"
           size="lg"
@@ -63,7 +63,7 @@ export default function SimpleShadowingPlayer({
         </Button>
 
         <Button
-          onClick={() => listen("natural")}
+          onClick={() => playNativeAudio("natural")}
           disabled={isBusy}
           variant="outline"
           size="lg"
@@ -135,15 +135,17 @@ export default function SimpleShadowingPlayer({
 
           {result && (
             <div className="rounded-xl border bg-background p-4">
-              <p className="text-2xl font-bold">Score: {result.score}%</p>
-
-              <p className="mt-2 text-sm text-muted-foreground">
-                {getFeedbackMessage(result.score)}
+              <p className="text-2xl font-bold">
+                Score: {result.accuracyScore}%
               </p>
 
-              {result.receivedText && (
+              <p className="mt-2 text-sm text-muted-foreground">
+                {getFeedbackMessage(result.accuracyScore)}
+              </p>
+
+              {result.transcript && (
                 <p className="mt-3 text-xs leading-5 text-muted-foreground">
-                  Whisper heard: {result.receivedText}
+                  Whisper heard: {result.transcript}
                 </p>
               )}
             </div>
@@ -168,8 +170,8 @@ function gradeWithServer(sentenceId: string): GradeRecording {
       ? {
           ok: true,
           result: {
-            score: response.score ?? 0,
-            receivedText: response.receivedText ?? null,
+            accuracyScore: response.score ?? 0,
+            transcript: response.receivedText ?? null,
           },
         }
       : {

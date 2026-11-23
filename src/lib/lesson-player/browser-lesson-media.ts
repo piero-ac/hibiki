@@ -128,7 +128,15 @@ export function createBrowserLessonMedia(nativeAudio: {
         return Promise.reject(new Error("No recording in progress."));
       }
 
-      return new Promise<Recording>((resolve) => {
+      return new Promise<Recording>((resolve, reject) => {
+        current.recorder.addEventListener(
+          "error",
+          () => {
+            releaseCapture();
+            reject(new Error("The recording failed."));
+          },
+          { once: true },
+        );
         current.recorder.addEventListener(
           "stop",
           () => {
