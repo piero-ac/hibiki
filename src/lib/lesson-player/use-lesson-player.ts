@@ -5,7 +5,9 @@ import type { LessonMedia, Speed } from "./media";
 import {
   canRecord,
   COUNTDOWN_SECONDS,
+  initialMarkDoneState,
   initialPlayerState,
+  markDoneReducer,
   playerReducer,
   type GradingResult,
   type Recording,
@@ -14,6 +16,8 @@ import {
 const RECORDING_VOLUME = 0.25;
 /** Keep capturing briefly after Natural ends so the Learner's last mora isn't cut off. */
 const AUTO_STOP_DELAY_MS = 600;
+/** How long "Marked done" shows before Mark Done can be pressed again. */
+const MARKED_DONE_CONFIRMATION_MS = 2000;
 
 type GradeOutcome =
   { ok: true; result: GradingResult } | { ok: false; error: string };
@@ -21,22 +25,40 @@ type GradeOutcome =
 /** Submits a Recording for an AI Grading Attempt. */
 export type GradeRecording = (recording: Recording) => Promise<GradeOutcome>;
 
+export type MarkDoneOutcome = { ok: true } | { ok: false; error: string };
+
+/** Records a Shadowing Attempt for this Lesson. */
+export type MarkDone = () => Promise<MarkDoneOutcome>;
+
 interface UseLessonPlayerOptions {
   media: LessonMedia;
   /** Leave out to make AI grading unavailable, as in Demo Mode. */
   grade?: GradeRecording;
+  markDone: MarkDone;
 }
 
-export function useLessonPlayer({ media, grade }: UseLessonPlayerOptions) {
+export function useLessonPlayer({
+  media,
+  grade,
+  markDone: saveMarkDone,
+}: UseLessonPlayerOptions) {
   const [state, dispatch] = useReducer(playerReducer, initialPlayerState);
+  const [markDoneState, dispatchMarkDone] = useReducer(
+    markDoneReducer,
+    initialMarkDoneState,
+  );
   const countdownRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const autoStopRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const confirmationRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const capturingRef = useRef(false);
+  // Blocks a second press that lands before React re-renders.
+  const markingDoneRef = useRef(false);
 
   useEffect(() => {
     return () => {
       if (countdownRef.current) clearInterval(countdownRef.current);
       if (autoStopRef.current) clearTimeout(autoStopRef.current);
+      if (confirmationRef.current) clearTimeout(confirmationRef.current);
     };
   }, []);
 
@@ -131,13 +153,45 @@ export function useLessonPlayer({ media, grade }: UseLessonPlayerOptions) {
     }
   }, [grade, state]);
 
+  const markDone = useCallback(async () => {
+    if (markingDoneRef.current) return;
+    markingDoneRef.current = true;
+    dispatchMarkDone({ type: "markDoneRequested" });
+
+    try {
+      const outcome = await saveMarkDone();
+      if (!outcome.ok) {
+        markingDoneRef.current = false;
+        dispatchMarkDone({ type: "markDoneFailed", error: outcome.error });
+        return;
+      }
+    } catch (error) {
+      console.error(error);
+      markingDoneRef.current = false;
+      dispatchMarkDone({
+        type: "markDoneFailed",
+        error: "Couldn't mark this Lesson done. Please try again.",
+      });
+      return;
+    }
+
+    dispatchMarkDone({ type: "markDoneSucceeded" });
+    confirmationRef.current = setTimeout(() => {
+      confirmationRef.current = null;
+      markingDoneRef.current = false;
+      dispatchMarkDone({ type: "confirmationEnded" });
+    }, MARKED_DONE_CONFIRMATION_MS);
+  }, [saveMarkDone]);
+
   return {
     state,
+    markDoneState,
     gradingAvailable: grade !== undefined,
     playNativeAudio,
     record,
     playBoth,
     playRecording,
     submitForGrading,
+    markDone,
   };
 }

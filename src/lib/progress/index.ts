@@ -51,9 +51,10 @@ export type LearnerProgress = {
 };
 
 export type LessonProgress = {
+  /** From the Learner's Shadowing Attempts for this Lesson. */
   activity: {
-    attemptCount: number;
-    lastAttemptedAt: Date | null;
+    shadowingAttemptCount: number;
+    lastDoneAt: Date | null;
   };
   /** Null when the Learner has no AI Grading Attempts for this Lesson. */
   scores: {
@@ -136,33 +137,66 @@ export async function getLessonProgress(
   supabase: Client,
   lessonId: string,
 ): Promise<LessonProgress> {
-  // Row level security limits this to the signed-in Learner's attempts.
-  const result = await supabase
-    .from("ai_grading_attempts")
-    .select("id, accuracy_score, created_at", { count: "exact" })
-    .eq("sentence_id", lessonId)
-    .order("created_at", { ascending: false })
-    .limit(LESSON_RECENT_GRADED_ATTEMPTS_LIMIT);
+  // Row level security limits both queries to the signed-in Learner's attempts.
+  const [shadowingResult, gradedResult] = await Promise.all([
+    supabase
+      .from("shadowing_attempts")
+      .select("completed_at", { count: "exact" })
+      .eq("sentence_id", lessonId)
+      .order("completed_at", { ascending: false })
+      .limit(1),
+    supabase
+      .from("ai_grading_attempts")
+      .select("id, accuracy_score, created_at")
+      .eq("sentence_id", lessonId)
+      .order("created_at", { ascending: false })
+      .limit(LESSON_RECENT_GRADED_ATTEMPTS_LIMIT),
+  ]);
 
-  const attempts = unwrap(result);
-  const latest = attempts[0];
+  const lastDone = unwrap(shadowingResult)[0];
+  const graded = unwrap(gradedResult);
 
   return {
     activity: {
-      attemptCount: result.count ?? 0,
-      lastAttemptedAt: latest ? new Date(latest.created_at) : null,
+      shadowingAttemptCount: shadowingResult.count ?? 0,
+      lastDoneAt: lastDone ? new Date(lastDone.completed_at) : null,
     },
     scores:
-      attempts.length === 0
+      graded.length === 0
         ? null
         : {
-            recentGradedAttempts: attempts.map((attempt) => ({
+            recentGradedAttempts: graded.map((attempt) => ({
               id: attempt.id,
               accuracyScore: attempt.accuracy_score,
               gradedAt: new Date(attempt.created_at),
             })),
           },
   };
+}
+
+/** Marks a Lesson done for the Learner `supabase` is signed in as. */
+export async function recordShadowingAttempt(
+  supabase: Client,
+  lessonId: string,
+): Promise<void> {
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+  if (authError || !user) {
+    throw new Error("Only a signed-in Learner can Mark Done.", {
+      cause: authError,
+    });
+  }
+
+  const { error } = await supabase
+    .from("shadowing_attempts")
+    .insert({ user_id: user.id, sentence_id: lessonId });
+  if (error) {
+    throw new Error("Failed to record the Shadowing Attempt.", {
+      cause: error,
+    });
+  }
 }
 
 /** Both AI grading progress views carry the same Lesson columns. */

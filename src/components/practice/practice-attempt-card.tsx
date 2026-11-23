@@ -13,12 +13,25 @@ type RecentLessonGradedAttempts = NonNullable<
 >["recentGradedAttempts"];
 
 export default function PreviousAttemptsCard({
+  activity,
   attempts,
 }: {
+  activity: LessonProgress["activity"] | null;
   attempts: RecentLessonGradedAttempts;
 }) {
   return (
     <Card className="h-fit shadow-sm lg:sticky lg:top-4">
+      {activity && (
+        <CardHeader className="border-b pb-4">
+          <CardTitle className="text-base">Marked done</CardTitle>
+          <CardDescription>
+            {activity.shadowingAttemptCount === 0 || !activity.lastDoneAt
+              ? "You haven't marked this Lesson done yet."
+              : `${formatTimes(activity.shadowingAttemptCount)} · last done ${formatAttemptDate(activity.lastDoneAt)}`}
+          </CardDescription>
+        </CardHeader>
+      )}
+
       <CardHeader>
         <CardTitle className="text-base">Previous attempts</CardTitle>
         <CardDescription>
@@ -71,6 +84,10 @@ function formatAttemptDate(date: Date) {
     month: "short",
     day: "numeric",
   }).format(date);
+}
+
+function formatTimes(count: number) {
+  return count === 1 ? "1 time" : `${count} times`;
 }
 
 function getScoreLabel(score: number) {

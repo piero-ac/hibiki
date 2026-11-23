@@ -1,7 +1,10 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { checkPronunciation } from "@/app/protected/sentences/actions";
+import { useCallback, useMemo, useState } from "react";
+import {
+  checkPronunciation,
+  markLessonDone,
+} from "@/app/protected/sentences/actions";
 import { Button } from "@/components/ui/button";
 import {
   createBrowserLessonMedia,
@@ -34,15 +37,21 @@ export default function SimpleShadowingPlayer({
     () => (isDemoUser ? undefined : gradeWithServer(sentenceId)),
     [isDemoUser, sentenceId],
   );
+  const saveMarkDone = useCallback(
+    () => markLessonDone(sentenceId),
+    [sentenceId],
+  );
   const {
     state,
+    markDoneState,
     gradingAvailable,
     playNativeAudio,
     record,
     playBoth,
     playRecording,
     submitForGrading,
-  } = useLessonPlayer({ media, grade });
+    markDone,
+  } = useLessonPlayer({ media, grade, markDone: saveMarkDone });
 
   const isBusy = state.status === "countdown" || state.status === "recording";
   const recording = "recording" in state ? state.recording : null;
@@ -162,6 +171,28 @@ export default function SimpleShadowingPlayer({
           )}
         </div>
       )}
+
+      <div className="space-y-2">
+        <Button
+          onClick={markDone}
+          disabled={markDoneState.status !== "idle" || isBusy}
+          variant="secondary"
+          size="lg"
+          className="h-12 w-full"
+        >
+          {markDoneState.status === "saving"
+            ? "Saving..."
+            : markDoneState.status === "done"
+              ? "Marked done"
+              : "Mark Done"}
+        </Button>
+
+        {markDoneState.status === "idle" && markDoneState.error && (
+          <div className="rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+            {markDoneState.error}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

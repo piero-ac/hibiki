@@ -1,5 +1,9 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { getLearnerProgress, getLessonProgress } from "@/lib/progress";
+import {
+  getLearnerProgress,
+  getLessonProgress,
+  recordShadowingAttempt,
+} from "@/lib/progress";
 import {
   createTestLearner,
   deleteTestLearners,
@@ -161,12 +165,42 @@ describe("getLessonProgress", () => {
     const progress = await getLessonProgress(learner.client, lessonA.id);
 
     expect(progress).toEqual({
-      activity: { attemptCount: 0, lastAttemptedAt: null },
+      activity: { shadowingAttemptCount: 0, lastDoneAt: null },
       scores: null,
     });
   });
 
-  it("returns only this Lesson's attempts, newest first", async () => {
+  it("counts a recorded Shadowing Attempt as Activity", async () => {
+    const learner = await createTestLearner();
+    const before = new Date();
+
+    await recordShadowingAttempt(learner.client, lessonA.id);
+    const progress = await getLessonProgress(learner.client, lessonA.id);
+
+    expect(progress.activity.shadowingAttemptCount).toBe(1);
+    expect(progress.activity.lastDoneAt).toBeInstanceOf(Date);
+    expect(progress.activity.lastDoneAt!.getTime()).toBeGreaterThanOrEqual(
+      before.getTime() - 5_000,
+    );
+    expect(progress.scores).toBeNull();
+  });
+
+  it("counts each repeat Shadowing Attempt and keeps the latest date", async () => {
+    const learner = await createTestLearner();
+
+    await recordShadowingAttempt(learner.client, lessonA.id);
+    const first = await getLessonProgress(learner.client, lessonA.id);
+    await recordShadowingAttempt(learner.client, lessonA.id);
+    await recordShadowingAttempt(learner.client, lessonB.id);
+    const progress = await getLessonProgress(learner.client, lessonA.id);
+
+    expect(progress.activity.shadowingAttemptCount).toBe(2);
+    expect(progress.activity.lastDoneAt!.getTime()).toBeGreaterThanOrEqual(
+      first.activity.lastDoneAt!.getTime(),
+    );
+  });
+
+  it("returns only this Lesson's graded attempts, newest first", async () => {
     const learner = await createTestLearner();
     await seedAiGradingAttempts(learner, [
       {
@@ -189,10 +223,7 @@ describe("getLessonProgress", () => {
     const progress = await getLessonProgress(learner.client, lessonA.id);
 
     expect(progress).toEqual({
-      activity: {
-        attemptCount: 2,
-        lastAttemptedAt: new Date("2026-03-02T10:00:00Z"),
-      },
+      activity: { shadowingAttemptCount: 0, lastDoneAt: null },
       scores: {
         recentGradedAttempts: [
           {
@@ -223,7 +254,6 @@ describe("getLessonProgress", () => {
 
     const progress = await getLessonProgress(learner.client, lessonA.id);
 
-    expect(progress.activity.attemptCount).toBe(6);
     expect(
       progress.scores?.recentGradedAttempts.map((a) => a.accuracyScore),
     ).toEqual([100, 90, 80, 70, 60]);
@@ -231,6 +261,32 @@ describe("getLessonProgress", () => {
 });
 
 describe("one Learner's Progress", () => {
+  it("never includes another Learner's Shadowing Attempts", async () => {
+    const otherLearner = await createTestLearner();
+    await recordShadowingAttempt(otherLearner.client, lessonA.id);
+    await recordShadowingAttempt(otherLearner.client, lessonA.id);
+    const learner = await createTestLearner();
+    await recordShadowingAttempt(learner.client, lessonA.id);
+
+    const learnerProgress = await getLessonProgress(learner.client, lessonA.id);
+    const otherProgress = await getLessonProgress(
+      otherLearner.client,
+      lessonA.id,
+    );
+
+    expect(learnerProgress.activity.shadowingAttemptCount).toBe(1);
+    expect(otherProgress.activity.shadowingAttemptCount).toBe(2);
+  });
+
+  it("refuses to record a Shadowing Attempt without a signed-in Learner", async () => {
+    const learner = await createTestLearner();
+    await learner.client.auth.signOut();
+
+    await expect(
+      recordShadowingAttempt(learner.client, lessonA.id),
+    ).rejects.toThrow("Only a signed-in Learner can Mark Done.");
+  });
+
   it("never includes another Learner's attempts", async () => {
     const otherLearner = await createTestLearner();
     await seedAiGradingAttempts(otherLearner, [
@@ -268,10 +324,9 @@ describe("one Learner's Progress", () => {
       learnerProgress.scores?.recentGradedAttempts.map((a) => a.accuracyScore),
     ).toEqual([70]);
     expect(lessonAProgress).toEqual({
-      activity: { attemptCount: 0, lastAttemptedAt: null },
+      activity: { shadowingAttemptCount: 0, lastDoneAt: null },
       scores: null,
     });
-    expect(lessonBProgress.activity.attemptCount).toBe(1);
     expect(
       lessonBProgress.scores?.recentGradedAttempts.map((a) => a.accuracyScore),
     ).toEqual([70]);

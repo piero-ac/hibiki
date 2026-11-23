@@ -1,7 +1,10 @@
 import { describe, expect, it } from "vitest";
 import {
+  initialMarkDoneState,
   initialPlayerState,
+  markDoneReducer,
   playerReducer,
+  type MarkDoneState,
   type PlayerState,
   type Recording,
 } from "@/lib/lesson-player/reducer";
@@ -131,6 +134,60 @@ describe("playerReducer", () => {
 
     it.each(cases)("from %o on %o", (state, action) => {
       expect(playerReducer(state, action)).toBe(state);
+    });
+  });
+});
+
+describe("markDoneReducer", () => {
+  it("saves the Shadowing Attempt when Mark Done is pressed", () => {
+    expect(initialMarkDoneState).toEqual({ status: "idle", error: null });
+    expect(
+      markDoneReducer(initialMarkDoneState, { type: "markDoneRequested" }),
+    ).toEqual({ status: "saving" });
+  });
+
+  it("shows the Marked done confirmation once it's saved", () => {
+    expect(
+      markDoneReducer({ status: "saving" }, { type: "markDoneSucceeded" }),
+    ).toEqual({ status: "done" });
+  });
+
+  it("can be pressed again once the confirmation has passed", () => {
+    const again = markDoneReducer(
+      { status: "done" },
+      { type: "confirmationEnded" },
+    );
+
+    expect(again).toEqual({ status: "idle", error: null });
+    expect(markDoneReducer(again, { type: "markDoneRequested" })).toEqual({
+      status: "saving",
+    });
+  });
+
+  it("shows an error and allows another try when saving fails", () => {
+    const failed = markDoneReducer(
+      { status: "saving" },
+      { type: "markDoneFailed", error: "Couldn't save." },
+    );
+
+    expect(failed).toEqual({ status: "idle", error: "Couldn't save." });
+    expect(markDoneReducer(failed, { type: "markDoneRequested" })).toEqual({
+      status: "saving",
+    });
+  });
+
+  describe("ignores actions that don't apply", () => {
+    const cases: Array<[MarkDoneState, Parameters<typeof markDoneReducer>[1]]> =
+      [
+        [{ status: "saving" }, { type: "markDoneRequested" }],
+        [{ status: "done" }, { type: "markDoneRequested" }],
+        [initialMarkDoneState, { type: "markDoneSucceeded" }],
+        [{ status: "done" }, { type: "markDoneFailed", error: "x" }],
+        [{ status: "saving" }, { type: "confirmationEnded" }],
+      ];
+
+    it.each(cases)("from %o on %o", (state, action) => {
+      expect(markDoneReducer(state, action)).toBe(state);
     });
   });
 });
