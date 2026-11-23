@@ -13,8 +13,9 @@
     "db:reset-dev": "npx supabase db reset --local && node scripts/seed-local-dev.mjs",
     "update-types": "npx supabase gen types typescript --project-id 'chycityeoaprvneuoxkd' > src/types/database.types.ts",
     "knip": "knip",
-    "test": "vitest run",
-    "test:watch": "vitest",
+    "test": "vitest run --project unit",
+    "test:watch": "vitest --project unit",
+    "test:integration": "vitest run --project integration",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

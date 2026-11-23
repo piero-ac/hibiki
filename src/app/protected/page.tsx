@@ -8,6 +8,7 @@ import {
   Dices,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
+import { getLearnerProgress } from "@/lib/progress";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -31,12 +32,9 @@ export default async function HomeDashboard() {
     redirect("/auth/login");
   }
 
-  const { data: summary, error: summaryError } = await supabase
-    .from("ai_grading_attempts_summary")
-    .select("*")
-    .single();
+  const progress = await getLearnerProgress(supabase).catch(() => null);
 
-  if (summaryError || !summary) {
+  if (!progress) {
     return <div>Error loading dashboard.</div>;
   }
 
@@ -102,12 +100,7 @@ export default async function HomeDashboard() {
 
         {/* Snapshot */}
         <div className="space-y-4">
-          <ProgressOverview
-            totalAttempts={summary.total_attempts ?? 0}
-            averageScore={summary.average_score}
-            sentencesPracticed={summary.sentences_practiced ?? 0}
-            daysPracticed={summary.days_practiced ?? 0}
-          />
+          <ProgressOverview progress={progress} />
         </div>
       </div>
     </PageContainer>

@@ -6,16 +6,15 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import type { LessonProgress } from "@/lib/progress";
 
 export default function PreviousAttemptsCard({
-  attempts,
+  progress,
 }: {
-  attempts: {
-    id: string;
-    accuracy_score: number | null;
-    created_at: string | null;
-  }[];
+  progress: LessonProgress | null;
 }) {
+  const attempts = progress?.scores?.recentGradedAttempts ?? [];
+
   return (
     <Card className="h-fit shadow-sm lg:sticky lg:top-4">
       <CardHeader>
@@ -35,7 +34,7 @@ export default function PreviousAttemptsCard({
         ) : (
           <div className="space-y-1">
             {attempts.map((attempt) => {
-              const score = Math.round(attempt.accuracy_score ?? 0);
+              const score = Math.round(attempt.accuracyScore);
 
               return (
                 <div
@@ -47,7 +46,7 @@ export default function PreviousAttemptsCard({
                     <div>
                       <p className="text-sm font-semibold">{score}%</p>
                       <p className="text-xs text-muted-foreground">
-                        {formatAttemptDate(attempt.created_at)}
+                        {formatAttemptDate(attempt.gradedAt)}
                       </p>
                     </div>
                   </div>
@@ -65,13 +64,11 @@ export default function PreviousAttemptsCard({
   );
 }
 
-function formatAttemptDate(date: string | null) {
-  if (!date) return "Unknown date";
-
+function formatAttemptDate(date: Date) {
   return new Intl.DateTimeFormat("en-US", {
     month: "short",
     day: "numeric",
-  }).format(new Date(date));
+  }).format(date);
 }
 
 function getScoreLabel(score: number) {
