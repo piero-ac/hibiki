@@ -8,13 +8,15 @@ import {
 import { Badge } from "@/components/ui/badge";
 import type { LessonProgress } from "@/lib/progress";
 
-export default function PreviousAttemptsCard({
-  progress,
-}: {
-  progress: LessonProgress | null;
-}) {
-  const attempts = progress?.scores?.recentGradedAttempts ?? [];
+type RecentLessonGradedAttempts = NonNullable<
+  LessonProgress["scores"]
+>["recentGradedAttempts"];
 
+export default function PreviousAttemptsCard({
+  attempts,
+}: {
+  attempts: RecentLessonGradedAttempts;
+}) {
   return (
     <Card className="h-fit shadow-sm lg:sticky lg:top-4">
       <CardHeader>

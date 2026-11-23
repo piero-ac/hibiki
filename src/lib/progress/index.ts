@@ -57,11 +57,10 @@ export type LessonProgress = {
   };
   /** Null when the Learner has no AI Grading Attempts for this Lesson. */
   scores: {
-    recentGradedAttempts: {
-      id: string;
-      accuracyScore: number;
-      gradedAt: Date;
-    }[];
+    recentGradedAttempts: Pick<
+      GradedAttempt,
+      "id" | "accuracyScore" | "gradedAt"
+    >[];
   } | null;
 };
 
@@ -104,12 +103,7 @@ export async function getLearnerProgress(
         accuracyScore: required(row.accuracy_score),
         transcript: row.user_audio_transcript,
         gradedAt: new Date(required(row.created_at)),
-        lesson: {
-          id: required(row.sentence_id),
-          sentence: required(row.japanese_text),
-          jlptLevel: required(row.jlpt_level),
-          category: row.category,
-        },
+        lesson: toProgressLesson(row),
       })),
       lessonRanking,
     },
@@ -128,12 +122,7 @@ async function getLessonRanking(supabase: Client) {
     await Promise.all([rankedBy(false), rankedBy(true)])
   ).map((result) =>
     unwrap(result).map((row): LessonScore => ({
-      lesson: {
-        id: required(row.sentence_id),
-        sentence: required(row.japanese_text),
-        jlptLevel: required(row.jlpt_level),
-        category: row.category,
-      },
+      lesson: toProgressLesson(row),
       averageAccuracyScore: required(row.average_score),
       attemptCount: required(row.attempt_count),
     })),
@@ -173,6 +162,21 @@ export async function getLessonProgress(
               gradedAt: new Date(attempt.created_at),
             })),
           },
+  };
+}
+
+/** Both AI grading progress views carry the same Lesson columns. */
+function toProgressLesson(row: {
+  sentence_id: string | null;
+  japanese_text: string | null;
+  jlpt_level: string | null;
+  category: string | null;
+}): ProgressLesson {
+  return {
+    id: required(row.sentence_id),
+    sentence: required(row.japanese_text),
+    jlptLevel: required(row.jlpt_level),
+    category: row.category,
   };
 }
 

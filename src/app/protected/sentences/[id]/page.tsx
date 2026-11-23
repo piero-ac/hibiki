@@ -107,7 +107,9 @@ export default async function ShadowingPage({ params }: PageProps) {
             </CardContent>
           </Card>
 
-          <PreviousAttemptsCard progress={lessonProgress} />
+          <PreviousAttemptsCard
+            attempts={lessonProgress?.scores?.recentGradedAttempts ?? []}
+          />
         </div>
       </section>
     </main>
