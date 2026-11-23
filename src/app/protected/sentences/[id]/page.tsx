@@ -99,6 +99,7 @@ export default async function ShadowingPage({ params }: PageProps) {
 
             <CardContent className="flex flex-1 items-center justify-center">
               <ShadowingPlayer
+                key={sentence.id}
                 naturalAudioUrl={naturalAudioUrl}
                 slowAudioUrl={slowAudioUrl}
                 sentenceId={sentence.id}
