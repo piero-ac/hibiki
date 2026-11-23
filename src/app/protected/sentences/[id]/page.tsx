@@ -56,6 +56,10 @@ export default async function ShadowingPage({ params }: PageProps) {
     throw new Error("Natural lesson audio is unavailable.");
   }
 
+  if (!slowAudioUrl) {
+    throw new Error("Slow lesson audio is unavailable.");
+  }
+
   // The sidebar is secondary: if it fails, the Lesson stays practicable.
   const lessonProgress = await getLessonProgress(supabase, sentence.id).catch(
     () => null,

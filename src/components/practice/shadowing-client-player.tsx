@@ -11,7 +11,7 @@ import {
 
 interface ShadowingPlayerProps {
   naturalAudioUrl: string;
-  slowAudioUrl: string | null;
+  slowAudioUrl: string;
   sentenceId: string;
   isDemoUser?: boolean;
 }
@@ -55,7 +55,7 @@ export default function SimpleShadowingPlayer({
       <div className="grid gap-3 sm:grid-cols-2">
         <Button
           onClick={() => playNativeAudio("slow")}
-          disabled={!slowAudioUrl || isBusy}
+          disabled={isBusy}
           variant="outline"
           size="lg"
           className="h-14"

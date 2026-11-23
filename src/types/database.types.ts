@@ -12,7 +12,6 @@ export type Database = {
       ai_grading_attempts: {
         Row: {
           accuracy_score: number;
-          audio_attempt_url: string | null;
           created_at: string;
           id: string;
           sentence_id: string;
@@ -21,7 +20,6 @@ export type Database = {
         };
         Insert: {
           accuracy_score: number;
-          audio_attempt_url?: string | null;
           created_at?: string;
           id?: string;
           sentence_id: string;
@@ -30,7 +28,6 @@ export type Database = {
         };
         Update: {
           accuracy_score?: number;
-          audio_attempt_url?: string | null;
           created_at?: string;
           id?: string;
           sentence_id?: string;
@@ -92,7 +89,7 @@ export type Database = {
           japanese_text: string;
           jlpt_level: string;
           kana_text: string;
-          slow_audio_prompt_url: string | null;
+          slow_audio_prompt_url: string;
         };
         Insert: {
           audio_prompt_url: string;
@@ -103,7 +100,7 @@ export type Database = {
           japanese_text: string;
           jlpt_level: string;
           kana_text: string;
-          slow_audio_prompt_url?: string | null;
+          slow_audio_prompt_url: string;
         };
         Update: {
           audio_prompt_url?: string;
@@ -114,7 +111,7 @@ export type Database = {
           japanese_text?: string;
           jlpt_level?: string;
           kana_text?: string;
-          slow_audio_prompt_url?: string | null;
+          slow_audio_prompt_url?: string;
         };
         Relationships: [];
       };
