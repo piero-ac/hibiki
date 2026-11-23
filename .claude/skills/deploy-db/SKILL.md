@@ -42,7 +42,7 @@ Run `npx supabase db push`. If it asks for the database password, have the user 
 - `npx supabase migration list --linked`: every local migration now has a remote version.
 - `npm run update-types`, then `npx prettier --write src/types/database.types.ts`, because the generator's output isn't Prettier-formatted.
 - `npm run typecheck`.
-- If the types changed, commit them as `chore(types): regenerate database types`. An empty diff is the expected outcome when the types were already regenerated locally alongside the migrations.
+- If the types changed, commit them as `chore(types): regenerate database types`. Expect an empty diff when the types were already regenerated locally alongside the migrations, which works only if they were generated the way `update-types` does it: `npx supabase gen types typescript --local > src/types/database.types.ts` (all schemas, never `--schema public`), then Prettier. A diff confined to `__InternalSupabase` or `graphql_public` means the local run was narrowed. The remote version is canonical, so commit it.
 
 ## 7. Report
 
