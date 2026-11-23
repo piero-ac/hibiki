@@ -24,15 +24,41 @@ _Avoid_: Topic, tag
 ### Audio
 
 **Native Audio**:
-A native speaker's reference recording of a Lesson's Sentence. Every Lesson has Native Audio at Natural speed, and may also have it at Slow speed.
+A native speaker's reference recording of a Lesson's Sentence. Every Lesson has Native Audio at both Natural and Slow speed.
 _Avoid_: Audio prompt, lesson audio, original audio
 
 **Natural** / **Slow**:
 The two speeds of Native Audio.
 
 **Recording**:
-The audio a Learner captures while shadowing a Lesson. Recordings are never stored.
+The audio a Learner captures in the Final Recording Step. Recordings are never stored.
 _Avoid_: User audio, attempt audio
+
+### Steps
+
+**Step**:
+One of the seven stages a Learner goes through in a Lesson, in order. A Learner moves forward one Step at a time and can go back only to Steps they have already reached.
+_Avoid_: Stage, phase, screen
+
+**Slow Round** / **Natural Round**:
+Steps 1–3 use Slow Native Audio and Steps 4–6 use Natural Native Audio. Each Round has the same three Steps: Listen, Shadow with Transcript, Shadow without Transcript.
+_Avoid_: Pass, cycle
+
+**Listen**:
+The first Step of a Round. The Learner hears the Native Audio with the Sentence, its kana reading and its translation on screen.
+
+**Shadow with Transcript**:
+The second Step of a Round. The Learner speaks along with the Native Audio while reading the Sentence and its kana reading. Nothing is recorded.
+
+**Shadow without Transcript**:
+The third Step of a Round. The Learner speaks along with the Native Audio with no text on screen. Nothing is recorded.
+
+**Final Recording**:
+Step 7. The Learner shadows the Natural Native Audio while making a Recording, can play the Recording back together with the Native Audio, and can Mark Done.
+_Avoid_: Final step, test
+
+**Mark Done**:
+The Learner's action in the Final Recording Step that creates a Shadowing Attempt. It doesn't require a Recording.
 
 ### Practice
 
@@ -51,6 +77,10 @@ _Avoid_: Attempt (unqualified), practice attempt
 **Accuracy Score**:
 A score from 0 to 100 for how closely the transcript of a Recording matches the Lesson's Sentence.
 _Avoid_: Pronunciation score, similarity score
+
+**Progress**:
+A Learner's practice history in two parts. **Activity** comes from Shadowing Attempts and is always shown. **Scores** come from AI Grading Attempts and are optional.
+_Avoid_: Stats, analytics
 
 **Demo Mode**:
 A shared Learner account for trying Hibiki without signing up. AI Grading Attempts are not available in it.
