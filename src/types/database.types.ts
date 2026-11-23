@@ -7,12 +7,41 @@ export type Json =
   | Json[];
 
 export type Database = {
+  // Allows to automatically instantiate createClient with right options
+  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
+  __InternalSupabase: {
+    PostgrestVersion: "14.18";
+  };
+  graphql_public: {
+    Tables: {
+      [_ in never]: never;
+    };
+    Views: {
+      [_ in never]: never;
+    };
+    Functions: {
+      graphql: {
+        Args: {
+          extensions?: Json;
+          operationName?: string;
+          query?: string;
+          variables?: Json;
+        };
+        Returns: Json;
+      };
+    };
+    Enums: {
+      [_ in never]: never;
+    };
+    CompositeTypes: {
+      [_ in never]: never;
+    };
+  };
   public: {
     Tables: {
       ai_grading_attempts: {
         Row: {
           accuracy_score: number;
-          audio_attempt_url: string | null;
           created_at: string;
           id: string;
           sentence_id: string;
@@ -21,7 +50,6 @@ export type Database = {
         };
         Insert: {
           accuracy_score: number;
-          audio_attempt_url?: string | null;
           created_at?: string;
           id?: string;
           sentence_id: string;
@@ -30,7 +58,6 @@ export type Database = {
         };
         Update: {
           accuracy_score?: number;
-          audio_attempt_url?: string | null;
           created_at?: string;
           id?: string;
           sentence_id?: string;
@@ -92,7 +119,7 @@ export type Database = {
           japanese_text: string;
           jlpt_level: string;
           kana_text: string;
-          slow_audio_prompt_url: string | null;
+          slow_audio_prompt_url: string;
         };
         Insert: {
           audio_prompt_url: string;
@@ -103,7 +130,7 @@ export type Database = {
           japanese_text: string;
           jlpt_level: string;
           kana_text: string;
-          slow_audio_prompt_url?: string | null;
+          slow_audio_prompt_url: string;
         };
         Update: {
           audio_prompt_url?: string;
@@ -114,7 +141,7 @@ export type Database = {
           japanese_text?: string;
           jlpt_level?: string;
           kana_text?: string;
-          slow_audio_prompt_url?: string | null;
+          slow_audio_prompt_url?: string;
         };
         Relationships: [];
       };
@@ -348,6 +375,9 @@ export type CompositeTypes<
     : never;
 
 export const Constants = {
+  graphql_public: {
+    Enums: {},
+  },
   public: {
     Enums: {},
   },

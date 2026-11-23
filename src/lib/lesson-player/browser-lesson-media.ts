@@ -17,9 +17,9 @@ interface Capture {
  */
 export function createBrowserLessonMedia(nativeAudio: {
   naturalUrl: string;
-  slowUrl: string | null;
+  slowUrl: string;
 }): LessonMedia {
-  let players: Record<Speed, HTMLAudioElement | null> | null = null;
+  let players: Record<Speed, HTMLAudioElement> | null = null;
   let recordingPlayer: HTMLAudioElement | null = null;
   let capture: Capture | null = null;
   const naturalEndedListeners = new Set<() => void>();
@@ -33,7 +33,7 @@ export function createBrowserLessonMedia(nativeAudio: {
       );
       players = {
         natural,
-        slow: nativeAudio.slowUrl ? new Audio(nativeAudio.slowUrl) : null,
+        slow: new Audio(nativeAudio.slowUrl),
       };
     }
     return players;
@@ -56,8 +56,8 @@ export function createBrowserLessonMedia(nativeAudio: {
   function stopPlayback() {
     recordingPlayer?.pause();
     if (!players) return;
-    players.natural?.pause();
-    players.slow?.pause();
+    players.natural.pause();
+    players.slow.pause();
   }
 
   function releaseCapture() {
@@ -73,7 +73,6 @@ export function createBrowserLessonMedia(nativeAudio: {
     play(speed, { volume }) {
       stopPlayback();
       const element = getPlayers()[speed];
-      if (!element) return;
       element.volume = volume;
       playFromStart(element);
     },
@@ -89,7 +88,6 @@ export function createBrowserLessonMedia(nativeAudio: {
       stopPlayback();
       const { natural } = getPlayers();
       const player = getRecordingPlayer(recording);
-      if (!natural) return;
 
       natural.volume = PLAY_BOTH_NATURAL_VOLUME;
       player.onended = () => {

@@ -18,6 +18,7 @@ INSERT INTO public.sentences (
     kana_text,
     english_translation,
     audio_prompt_url,
+    slow_audio_prompt_url,
     jlpt_level,
     category
 )
@@ -28,6 +29,7 @@ VALUES (
     'もんだいのげんいんをとくていするまでによそういじょうのじかんがかかりました。',
     'It took longer than expected to identify the cause of the problem.',
     'https://example.com/audio/test-sentence-001.mp3',
+    'https://example.com/audio/test-sentence-001-slow.mp3',
     'N2',
     'Workplace'
 );
@@ -38,7 +40,6 @@ INSERT INTO public.ai_grading_attempts (
     created_at,
     user_id,
     sentence_id,
-    audio_attempt_url,
     accuracy_score,
     user_audio_transcript
 )
@@ -48,7 +49,6 @@ VALUES
     '2026-06-28 00:01:23.828714+00',
     '10000000-0000-0000-0000-000000000001',
     '20000000-0000-0000-0000-000000000001',
-    NULL,
     88.00,
     'この機能を実装することで、業務効率の向上が期待できます。'
 ),
@@ -57,7 +57,6 @@ VALUES
     '2026-07-14 02:01:23.828714+00',
     '10000000-0000-0000-0000-000000000001',
     '20000000-0000-0000-0000-000000000001',
-    NULL,
     74.00,
     '何か困ったことがあったら遠慮せずに相談してください。'
 ),
@@ -66,7 +65,6 @@ VALUES
     '2026-07-11 02:01:23.828714+00',
     '10000000-0000-0000-0000-000000000002',
     '20000000-0000-0000-0000-000000000001',
-    NULL,
     95.00,
     '昨日は夜遅くまで起きていたせいで、朝なかなか起きられなかった。'
 );
