@@ -21,6 +21,7 @@ export function createBrowserLessonMedia(nativeAudio: {
 }): LessonMedia {
   let players: Record<Speed, HTMLAudioElement | null> | null = null;
   let recordingPlayer: HTMLAudioElement | null = null;
+  let endPlayBoth: (() => void) | null = null;
   let capture: Capture | null = null;
   const naturalEndedListeners = new Set<() => void>();
   const recordingUrls = new Set<string>();
@@ -45,6 +46,7 @@ export function createBrowserLessonMedia(nativeAudio: {
   }
 
   function stopPlayback() {
+    endPlayBoth?.();
     if (!players) return;
     players.natural?.pause();
     players.slow?.pause();
@@ -62,6 +64,7 @@ export function createBrowserLessonMedia(nativeAudio: {
     },
 
     play(speed, { volume }) {
+      endPlayBoth?.();
       const current = getPlayers();
       const other = speed === "natural" ? current.slow : current.natural;
       other?.pause();
@@ -74,19 +77,37 @@ export function createBrowserLessonMedia(nativeAudio: {
 
     stopPlayback,
 
+    setRecordingPlayer(element) {
+      endPlayBoth?.();
+      recordingPlayer = element;
+    },
+
     playWithRecording(recording) {
       const { natural, slow } = getPlayers();
       if (!natural) return;
       slow?.pause();
-      recordingPlayer?.pause();
+      endPlayBoth?.();
 
-      const player = new Audio(recording.url);
-      recordingPlayer = player;
-      natural.volume = PLAY_BOTH_NATURAL_VOLUME;
-      player.addEventListener("ended", () => {
+      recordingPlayer ??= new Audio(recording.url);
+      const player = recordingPlayer;
+
+      // When the Recording pauses or ends, Natural stops with it and returns
+      // to full volume.
+      const listening = new AbortController();
+      endPlayBoth = () => {
+        listening.abort();
+        endPlayBoth = null;
+        natural.pause();
         natural.volume = 1;
+      };
+      player.addEventListener("pause", () => endPlayBoth?.(), {
+        signal: listening.signal,
+      });
+      player.addEventListener("ended", () => endPlayBoth?.(), {
+        signal: listening.signal,
       });
 
+      natural.volume = PLAY_BOTH_NATURAL_VOLUME;
       playFromStart(natural);
       playFromStart(player);
     },
@@ -164,7 +185,6 @@ export function createBrowserLessonMedia(nativeAudio: {
       recordingUrls.forEach((url) => URL.revokeObjectURL(url));
       recordingUrls.clear();
       players = null;
-      recordingPlayer = null;
     },
   };
 }

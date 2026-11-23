@@ -12,6 +12,11 @@ export interface LessonMedia {
   /** Play one speed from the start, pausing the other. */
   play(speed: Speed, options: { volume: number }): void;
   stopPlayback(): void;
+  /**
+   * The on-screen player for the Recording. Play Both uses it, so the
+   * Recording never plays as two copies at once.
+   */
+  setRecordingPlayer(element: HTMLAudioElement | null): void;
   /** Play the Recording together with quiet Natural Native Audio. */
   playWithRecording(recording: Recording): void;
   /** Returns an unsubscribe function. */

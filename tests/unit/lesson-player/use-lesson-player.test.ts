@@ -199,4 +199,16 @@ describe("useLessonPlayer", () => {
       expect.objectContaining({ url: "blob:recording-1" }),
     ]);
   });
+
+  it("plays both through the visible Recording player, so there is only one copy", async () => {
+    const { result } = renderHook(() => useLessonPlayer({ media }));
+    await makeRecording(result);
+    const visiblePlayer = document.createElement("audio");
+
+    act(() => result.current.recordingPlayerRef(visiblePlayer));
+    expect(media.recordingPlayer).toBe(visiblePlayer);
+
+    act(() => result.current.recordingPlayerRef(null));
+    expect(media.recordingPlayer).toBeNull();
+  });
 });

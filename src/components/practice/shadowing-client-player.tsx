@@ -40,6 +40,7 @@ export default function SimpleShadowingPlayer({
     playNativeAudio,
     record,
     playBoth,
+    recordingPlayerRef,
     submitForGrading,
   } = useLessonPlayer({ media, grade });
 
@@ -110,7 +111,12 @@ export default function SimpleShadowingPlayer({
         <div className="space-y-4 rounded-2xl border bg-muted/40 p-4">
           <div className="space-y-2">
             <p className="text-sm font-medium">Your recording</p>
-            <audio controls src={recording.url} className="w-full" />
+            <audio
+              ref={recordingPlayerRef}
+              controls
+              src={recording.url}
+              className="w-full"
+            />
           </div>
 
           <div className="grid gap-3 sm:grid-cols-2">

@@ -10,6 +10,7 @@ export class FakeLessonMedia implements LessonMedia {
   playedWithRecording: Recording[] = [];
   discarded: Recording[] = [];
   capturing = false;
+  recordingPlayer: HTMLAudioElement | null = null;
   private recordingCount = 0;
   private microphoneDenied = false;
   private naturalEndedListeners = new Set<() => void>();
@@ -29,6 +30,10 @@ export class FakeLessonMedia implements LessonMedia {
   }
 
   stopPlayback() {}
+
+  setRecordingPlayer(element: HTMLAudioElement | null) {
+    this.recordingPlayer = element;
+  }
 
   playWithRecording(recording: Recording) {
     this.playedWithRecording.push(recording);
