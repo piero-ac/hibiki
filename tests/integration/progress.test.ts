@@ -33,7 +33,7 @@ function lessonOf(lesson: SeededLesson) {
 }
 
 describe("getLearnerProgress", () => {
-  it("returns empty Activity and no Scores for a new Learner", async () => {
+  it("returns empty Activity for a new Learner", async () => {
     const learner = await createTestLearner();
 
     const progress = await getLearnerProgress(learner.client);
@@ -45,7 +45,6 @@ describe("getLearnerProgress", () => {
         daysPracticed: 0,
         recentShadowingAttempts: [],
       },
-      scores: null,
     });
   });
 
@@ -83,7 +82,7 @@ describe("getLearnerProgress", () => {
     });
   });
 
-  it("shows Activity without Scores for a Learner who never used AI grading", async () => {
+  it("counts a recorded Shadowing Attempt as Activity", async () => {
     const learner = await createTestLearner();
     await recordShadowingAttempt(learner.client, lessonA.id);
 
@@ -101,122 +100,28 @@ describe("getLearnerProgress", () => {
         lesson: lessonOf(lessonA),
       },
     ]);
-    expect(progress.scores).toBeNull();
   });
 
-  it("shows Scores from AI Grading Attempts, which don't count as Activity", async () => {
+  it("doesn't count AI Grading Attempts as Activity", async () => {
     const learner = await createTestLearner();
     await seedAiGradingAttempts(learner, [
       {
         lessonId: lessonA.id,
         accuracyScore: 80,
-        transcript: "first try",
         createdAt: "2026-03-01T10:00:00Z",
-      },
-      {
-        lessonId: lessonA.id,
-        accuracyScore: 90,
-        transcript: "second try",
-        createdAt: "2026-03-02T10:00:00Z",
-      },
-      {
-        lessonId: lessonB.id,
-        accuracyScore: 61,
-        createdAt: "2026-03-02T12:00:00Z",
       },
     ]);
 
     const progress = await getLearnerProgress(learner.client);
 
-    expect(progress.activity).toEqual({
-      lessonsCompleted: 0,
-      lessonsPracticed: 0,
-      daysPracticed: 0,
-      recentShadowingAttempts: [],
+    expect(progress).toEqual({
+      activity: {
+        lessonsCompleted: 0,
+        lessonsPracticed: 0,
+        daysPracticed: 0,
+        recentShadowingAttempts: [],
+      },
     });
-    expect(progress.scores?.averageAccuracyScore).toBe(77);
-    expect(progress.scores?.recentGradedAttempts).toEqual([
-      {
-        id: expect.any(String),
-        accuracyScore: 61,
-        transcript: null,
-        gradedAt: new Date("2026-03-02T12:00:00Z"),
-        lesson: lessonOf(lessonB),
-      },
-      {
-        id: expect.any(String),
-        accuracyScore: 90,
-        transcript: "second try",
-        gradedAt: new Date("2026-03-02T10:00:00Z"),
-        lesson: lessonOf(lessonA),
-      },
-      {
-        id: expect.any(String),
-        accuracyScore: 80,
-        transcript: "first try",
-        gradedAt: new Date("2026-03-01T10:00:00Z"),
-        lesson: lessonOf(lessonA),
-      },
-    ]);
-  });
-
-  it("ranks strongest and weakest Lessons once two Lessons are graded", async () => {
-    const learner = await createTestLearner();
-    await seedAiGradingAttempts(learner, [
-      {
-        lessonId: lessonA.id,
-        accuracyScore: 80,
-        createdAt: "2026-03-01T10:00:00Z",
-      },
-      {
-        lessonId: lessonA.id,
-        accuracyScore: 90,
-        createdAt: "2026-03-02T10:00:00Z",
-      },
-      {
-        lessonId: lessonB.id,
-        accuracyScore: 61,
-        createdAt: "2026-03-02T12:00:00Z",
-      },
-    ]);
-
-    const progress = await getLearnerProgress(learner.client);
-
-    const lessonAScore = {
-      lesson: lessonOf(lessonA),
-      averageAccuracyScore: 85,
-      attemptCount: 2,
-    };
-    const lessonBScore = {
-      lesson: lessonOf(lessonB),
-      averageAccuracyScore: 61,
-      attemptCount: 1,
-    };
-    expect(progress.scores?.lessonRanking).toEqual({
-      strongest: [lessonAScore, lessonBScore],
-      weakest: [lessonBScore, lessonAScore],
-    });
-  });
-
-  it("doesn't rank Lessons when only one Lesson is graded", async () => {
-    const learner = await createTestLearner();
-    await seedAiGradingAttempts(learner, [
-      {
-        lessonId: lessonA.id,
-        accuracyScore: 80,
-        createdAt: "2026-03-01T10:00:00Z",
-      },
-      {
-        lessonId: lessonA.id,
-        accuracyScore: 70,
-        createdAt: "2026-03-02T10:00:00Z",
-      },
-    ]);
-
-    const progress = await getLearnerProgress(learner.client);
-
-    expect(progress.scores?.averageAccuracyScore).toBe(75);
-    expect(progress.scores?.lessonRanking).toBeNull();
   });
 });
 
@@ -375,14 +280,9 @@ describe("one Learner's Progress", () => {
       },
     ]);
 
-    const learnerProgress = await getLearnerProgress(learner.client);
     const lessonAProgress = await getLessonProgress(learner.client, lessonA.id);
     const lessonBProgress = await getLessonProgress(learner.client, lessonB.id);
 
-    expect(learnerProgress.scores?.averageAccuracyScore).toBe(70);
-    expect(
-      learnerProgress.scores?.recentGradedAttempts.map((a) => a.accuracyScore),
-    ).toEqual([70]);
     expect(lessonAProgress).toEqual({
       activity: { shadowingAttemptCount: 0, lastDoneAt: null },
       scores: null,

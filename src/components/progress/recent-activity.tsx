@@ -1,7 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { BookOpenIcon } from "@phosphor-icons/react/dist/ssr";
-import { EmptyState } from "@/components/app/empty-state";
+import NoActivityYet from "@/components/progress/no-activity-yet";
 import type { ShadowingAttempt } from "@/lib/progress";
 
 /** The Learner's latest Shadowing Attempts. */
@@ -22,11 +21,7 @@ export default function RecentActivity({
       </div>
 
       {attempts.length === 0 ? (
-        <EmptyState
-          icon={<BookOpenIcon className="h-10 w-10" />}
-          title="No Lessons completed yet"
-          description="Work through a Lesson and press Mark Done in the Final Recording step. Your practice will show up here."
-        />
+        <NoActivityYet />
       ) : (
         <div className="max-w-4xl space-y-3">
           {attempts.map((attempt) => (

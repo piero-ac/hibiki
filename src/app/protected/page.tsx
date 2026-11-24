@@ -22,6 +22,7 @@ import ActionCard from "@/components/dashboard/action-card";
 
 import { PageContainer } from "@/components/app/page-container";
 import ProgressOverview from "@/components/progress/progress-overview";
+import NoActivityYet from "@/components/progress/no-activity-yet";
 
 export default async function HomeDashboard() {
   const supabase = await createClient();
@@ -101,6 +102,7 @@ export default async function HomeDashboard() {
         {/* Snapshot */}
         <div className="space-y-4">
           <ProgressOverview activity={progress.activity} />
+          {progress.activity.lessonsCompleted === 0 && <NoActivityYet />}
         </div>
       </div>
     </PageContainer>
