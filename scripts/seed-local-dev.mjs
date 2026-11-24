@@ -82,36 +82,39 @@ for (const objectPath of lessonAudioPaths) {
 
 console.log(`Uploaded ${lessonAudioPaths.length} lesson audio files.`);
 
-const aiGradingAttemptsSql = readFileSync(
-  "supabase/dev/fake_ai_grading_attempts.sql",
-  "utf8",
-);
-const sqlResult = spawnSync(
-  "docker",
-  [
-    "exec",
-    "-i",
-    "supabase_db_hibiki-nextjs-supabase",
-    "psql",
-    "-v",
-    "ON_ERROR_STOP=1",
-    "-U",
-    "postgres",
-    "-d",
-    "postgres",
-  ],
-  {
-    input: aiGradingAttemptsSql,
-    encoding: "utf8",
-    stdio: ["pipe", "inherit", "inherit"],
-  },
+runLocalSql("supabase/dev/fake_ai_grading_attempts.sql");
+runLocalSql("supabase/dev/fake_shadowing_attempts.sql");
+
+console.log(
+  "Local users, AI grading attempts and Shadowing Attempts are ready.",
 );
 
-if (sqlResult.status !== 0) {
-  throw new Error("Failed to load local fake AI grading attempts.");
+function runLocalSql(path) {
+  const result = spawnSync(
+    "docker",
+    [
+      "exec",
+      "-i",
+      "supabase_db_hibiki-nextjs-supabase",
+      "psql",
+      "-v",
+      "ON_ERROR_STOP=1",
+      "-U",
+      "postgres",
+      "-d",
+      "postgres",
+    ],
+    {
+      input: readFileSync(path, "utf8"),
+      encoding: "utf8",
+      stdio: ["pipe", "inherit", "inherit"],
+    },
+  );
+
+  if (result.status !== 0) {
+    throw new Error(`Failed to load ${path}.`);
+  }
 }
-
-console.log("Local users and AI grading attempts are ready.");
 
 function parseEnvOutput(output) {
   return Object.fromEntries(

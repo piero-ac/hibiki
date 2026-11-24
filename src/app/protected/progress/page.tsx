@@ -1,8 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { getLearnerProgress } from "@/lib/progress";
 import ProgressOverview from "@/components/progress/progress-overview";
-import RecentAttempts from "@/components/progress/recent-attempts";
-import SentencePerformance from "@/components/progress/sentence-performance";
+import RecentActivity from "@/components/progress/recent-activity";
 import { PageContainer } from "@/components/app/page-container";
 
 export default async function ProgressPage() {
@@ -13,7 +12,8 @@ export default async function ProgressPage() {
     return <div>Error loading progress overview stats. </div>;
   }
 
-  const { scores } = progress;
+  // Scores are hidden for now, so only Activity is shown.
+  const { activity } = progress;
 
   return (
     <PageContainer>
@@ -26,14 +26,8 @@ export default async function ProgressPage() {
             Track your Japanese shadowing practice over time.
           </p>
         </div>
-        <ProgressOverview progress={progress} />
-        {scores?.lessonRanking && (
-          <SentencePerformance
-            weakest={scores.lessonRanking.weakest}
-            strongest={scores.lessonRanking.strongest}
-          />
-        )}
-        <RecentAttempts attempts={scores?.recentGradedAttempts ?? []} />
+        <ProgressOverview activity={activity} />
+        <RecentActivity attempts={activity.recentShadowingAttempts} />
       </div>
     </PageContainer>
   );

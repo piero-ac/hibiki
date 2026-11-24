@@ -22,6 +22,7 @@ import ActionCard from "@/components/dashboard/action-card";
 
 import { PageContainer } from "@/components/app/page-container";
 import ProgressOverview from "@/components/progress/progress-overview";
+import NoActivityYet from "@/components/progress/no-activity-yet";
 
 export default async function HomeDashboard() {
   const supabase = await createClient();
@@ -84,7 +85,7 @@ export default async function HomeDashboard() {
           <ActionCard
             icon={<BarChart3 className="h-5 w-5" />}
             title="Progress"
-            description="Review your attempts, scores and practice history."
+            description="Review the Lessons you have completed and your practice history."
             href="/protected/progress"
             buttonText="View Progress"
           />
@@ -100,7 +101,8 @@ export default async function HomeDashboard() {
 
         {/* Snapshot */}
         <div className="space-y-4">
-          <ProgressOverview progress={progress} />
+          <ProgressOverview activity={progress.activity} />
+          {progress.activity.lessonsCompleted === 0 && <NoActivityYet />}
         </div>
       </div>
     </PageContainer>

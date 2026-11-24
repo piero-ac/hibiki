@@ -108,3 +108,20 @@ export async function seedAiGradingAttempts(
     );
   if (error) throw error;
 }
+
+/** Inserts Shadowing Attempts directly, so tests can pick when they happened. */
+export async function seedShadowingAttempts(
+  learner: TestLearner,
+  attempts: { lessonId: string; completedAt: string }[],
+) {
+  const { error } = await adminClient()
+    .from("shadowing_attempts")
+    .insert(
+      attempts.map((attempt) => ({
+        user_id: learner.id,
+        sentence_id: attempt.lessonId,
+        completed_at: attempt.completedAt,
+      })),
+    );
+  if (error) throw error;
+}
