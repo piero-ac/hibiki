@@ -5,12 +5,18 @@ import {
   checkPronunciation,
   markLessonDone,
 } from "@/app/protected/sentences/actions";
+import { ArrowLeft, ArrowRight, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   createBrowserLessonMedia,
+  getStep,
+  STEP_COUNT,
   useLessonPlayer,
   type GradeRecording,
+  type Step,
+  type StepNumber,
 } from "@/lib/lesson-player";
+import { cn } from "@/lib/utils";
 
 /**
  * AI grading is switched off while the app focuses on shadowing itself.
@@ -18,10 +24,30 @@ import {
  */
 const AI_GRADING_ENABLED = false;
 
+const STEP_TITLES: Record<Step["type"], string> = {
+  listen: "Listen",
+  shadowWithTranscript: "Shadow with Transcript",
+  shadowWithoutTranscript: "Shadow without Transcript",
+  finalRecording: "Final Recording",
+};
+
+const STEP_INSTRUCTIONS: Record<Step["type"], string> = {
+  listen: "Listen to the Native Audio while reading along.",
+  shadowWithTranscript:
+    "Speak along with the Native Audio while reading the Sentence and its kana. Nothing is recorded.",
+  shadowWithoutTranscript:
+    "Speak along with the Native Audio from memory. Nothing is recorded.",
+  finalRecording:
+    "Record yourself shadowing the Natural Native Audio, then compare.",
+};
+
 interface ShadowingPlayerProps {
   naturalAudioUrl: string;
   slowAudioUrl: string;
   sentenceId: string;
+  japaneseText: string;
+  kanaText: string;
+  englishTranslation: string;
   isDemoUser?: boolean;
 }
 
@@ -29,6 +55,9 @@ export default function SimpleShadowingPlayer({
   naturalAudioUrl,
   slowAudioUrl,
   sentenceId,
+  japaneseText,
+  kanaText,
+  englishTranslation,
   isDemoUser,
 }: ShadowingPlayerProps) {
   // One adapter per Lesson: recreating it would revoke the current Recording.
@@ -50,75 +79,215 @@ export default function SimpleShadowingPlayer({
     () => (isDemoUser ? undefined : () => markLessonDone(sentenceId)),
     [isDemoUser, sentenceId],
   );
-  const {
-    state,
-    markDoneState,
-    gradingAvailable,
-    playNativeAudio,
-    record,
-    playBoth,
-    playRecording,
-    submitForGrading,
-    markDone,
-    markDoneAvailable,
-  } = useLessonPlayer({ media, grade, markDone: saveMarkDone });
-
-  const isBusy = state.status === "countdown" || state.status === "recording";
-  const recording = "recording" in state ? state.recording : null;
-  const error = "error" in state ? state.error : null;
-  const result = state.status === "graded" ? state.result : null;
-  const isGrading = state.status === "grading";
+  const player = useLessonPlayer({ media, grade, markDone: saveMarkDone });
+  const { state, step, recordingBusy } = player;
 
   return (
-    <div className="w-full max-w-2xl space-y-4">
-      <div className="grid gap-3 sm:grid-cols-2">
+    <div className="w-full max-w-2xl space-y-6">
+      <StepIndicator
+        current={state.step}
+        furthest={state.furthestStep}
+        round={step.round}
+        disabled={recordingBusy}
+        onSelect={player.goTo}
+      />
+
+      <div className="space-y-1 text-center">
+        <h2 className="text-lg font-semibold">{STEP_TITLES[step.type]}</h2>
+        <p className="text-sm text-muted-foreground">
+          {STEP_INSTRUCTIONS[step.type]}
+        </p>
+      </div>
+
+      <LessonText
+        step={step}
+        japaneseText={japaneseText}
+        kanaText={kanaText}
+        englishTranslation={englishTranslation}
+      />
+
+      {step.records ? (
+        <FinalRecording player={player} />
+      ) : (
         <Button
-          onClick={() => playNativeAudio("slow")}
-          disabled={isBusy}
+          onClick={player.play}
+          disabled={state.playback.status === "countdown"}
+          size="lg"
+          className={cn(
+            "h-14 w-full",
+            state.playback.status === "countdown" && "animate-pulse",
+          )}
+        >
+          {state.playback.status === "countdown"
+            ? `Starting in ${state.playback.secondsLeft}...`
+            : `Play ${step.speed === "slow" ? "Slow" : "Natural"} Native Audio`}
+        </Button>
+      )}
+
+      <div className="flex gap-3">
+        <Button
+          onClick={player.previous}
+          disabled={state.step === 1 || recordingBusy}
           variant="outline"
           size="lg"
-          className="h-14"
+          className="h-12 flex-1"
         >
-          Listen Slow
+          <ArrowLeft />
+          Previous step
         </Button>
 
-        <Button
-          onClick={() => playNativeAudio("natural")}
-          disabled={isBusy}
-          variant="outline"
-          size="lg"
-          className="h-14"
-        >
-          Listen Natural
-        </Button>
-
-        {state.status === "countdown" ? (
+        {state.step < STEP_COUNT ? (
           <Button
-            disabled
+            onClick={player.next}
+            variant="outline"
             size="lg"
-            className="h-14 animate-pulse sm:col-span-2"
+            className="h-12 flex-1"
           >
-            Starting in {state.secondsLeft}...
-          </Button>
-        ) : state.status === "recording" ? (
-          <Button
-            disabled
-            size="lg"
-            className="h-14 animate-pulse sm:col-span-2"
-          >
-            Recording...
+            Next step
+            <ArrowRight />
           </Button>
         ) : (
           <Button
-            onClick={record}
-            disabled={isGrading}
+            onClick={player.restart}
+            disabled={
+              recordingBusy || state.finalRecording.status === "grading"
+            }
+            variant="outline"
             size="lg"
-            className="h-14 sm:col-span-2"
+            className="h-12 flex-1"
           >
-            Record Shadowing
+            <RotateCcw />
+            Restart
           </Button>
         )}
       </div>
+    </div>
+  );
+}
+
+function StepIndicator({
+  current,
+  furthest,
+  round,
+  disabled,
+  onSelect,
+}: {
+  current: StepNumber;
+  furthest: StepNumber;
+  round: Step["round"];
+  disabled: boolean;
+  onSelect: (step: number) => void;
+}) {
+  const roundLabel =
+    round === "slow"
+      ? "Slow Round"
+      : round === "natural"
+        ? "Natural Round"
+        : "Final Recording";
+
+  return (
+    <nav aria-label="Lesson Steps" className="space-y-2">
+      <p className="text-center text-xs font-medium tracking-wide text-muted-foreground uppercase">
+        Step {current} of {STEP_COUNT} · {roundLabel}
+      </p>
+      <ol className="grid grid-cols-7 gap-1">
+        {Array.from({ length: STEP_COUNT }, (_, index) => {
+          const number = (index + 1) as StepNumber;
+          return (
+            <li key={number}>
+              <Button
+                onClick={() => onSelect(number)}
+                disabled={disabled || number > furthest}
+                variant={number === current ? "default" : "outline"}
+                size="sm"
+                className="w-full"
+                aria-current={number === current ? "step" : undefined}
+                aria-label={`Step ${number}: ${STEP_TITLES[getStep(number).type]}`}
+              >
+                {number}
+              </Button>
+            </li>
+          );
+        })}
+      </ol>
+    </nav>
+  );
+}
+
+function LessonText({
+  step,
+  japaneseText,
+  kanaText,
+  englishTranslation,
+}: {
+  step: Step;
+  japaneseText: string;
+  kanaText: string;
+  englishTranslation: string;
+}) {
+  const { shows } = step;
+
+  if (!shows.sentence && !shows.kana && !shows.translation) {
+    return (
+      <div className="flex min-h-32 items-center justify-center rounded-2xl border border-dashed p-6 text-center text-sm text-muted-foreground">
+        No text in this Step. Shadow from listening.
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex min-h-32 flex-col items-center justify-center space-y-3 text-center">
+      {shows.sentence && (
+        <p className="text-3xl leading-relaxed font-bold tracking-tight sm:text-4xl">
+          {japaneseText}
+        </p>
+      )}
+      {shows.kana && (
+        <p className="text-base text-muted-foreground sm:text-lg">{kanaText}</p>
+      )}
+      {shows.translation && (
+        <p className="max-w-xl text-sm leading-6 text-muted-foreground sm:text-base">
+          {englishTranslation}
+        </p>
+      )}
+    </div>
+  );
+}
+
+function FinalRecording({
+  player,
+}: {
+  player: ReturnType<typeof useLessonPlayer>;
+}) {
+  const { finalRecording } = player.state;
+  const { markDoneState, recordingBusy } = player;
+  const recording =
+    "recording" in finalRecording ? finalRecording.recording : null;
+  const error = "error" in finalRecording ? finalRecording.error : null;
+  const result =
+    finalRecording.status === "graded" ? finalRecording.result : null;
+  const isGrading = finalRecording.status === "grading";
+
+  return (
+    <div className="space-y-4">
+      {finalRecording.status === "countdown" ? (
+        <Button disabled size="lg" className="h-14 w-full animate-pulse">
+          Starting in {finalRecording.secondsLeft}...
+        </Button>
+      ) : finalRecording.status === "recording" ? (
+        <Button disabled size="lg" className="h-14 w-full animate-pulse">
+          Recording...
+        </Button>
+      ) : (
+        <Button
+          onClick={player.record}
+          disabled={isGrading}
+          size="lg"
+          className="h-14 w-full"
+        >
+          {recording ? "Record Again" : "Record Shadowing"}
+        </Button>
+      )}
 
       {error && (
         <div className="rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
@@ -132,20 +301,24 @@ export default function SimpleShadowingPlayer({
 
           <div className="grid gap-3 sm:grid-cols-2">
             <Button
-              onClick={playRecording}
+              onClick={player.playRecording}
               disabled={isGrading}
               variant="outline"
             >
               Play My Recording
             </Button>
 
-            <Button onClick={playBoth} disabled={isGrading} variant="outline">
+            <Button
+              onClick={player.playBoth}
+              disabled={isGrading}
+              variant="outline"
+            >
               Play Both
             </Button>
 
-            {!gradingAvailable ? null : !result ? (
+            {!player.gradingAvailable ? null : !result ? (
               <Button
-                onClick={submitForGrading}
+                onClick={player.submitForGrading}
                 disabled={isGrading}
                 className="sm:col-span-2"
               >
@@ -161,7 +334,7 @@ export default function SimpleShadowingPlayer({
           {result && (
             <div className="rounded-xl border bg-background p-4">
               <p className="text-2xl font-bold">
-                Score: {result.accuracyScore}%
+                Accuracy Score: {result.accuracyScore}%
               </p>
 
               <p className="mt-2 text-sm text-muted-foreground">
@@ -178,15 +351,15 @@ export default function SimpleShadowingPlayer({
         </div>
       )}
 
-      {!markDoneAvailable ? (
+      {!player.markDoneAvailable ? (
         <Button disabled variant="secondary" size="lg" className="h-12 w-full">
           Demo Mode · Mark Done Unavailable
         </Button>
       ) : (
         <div className="space-y-2">
           <Button
-            onClick={markDone}
-            disabled={markDoneState.status !== "idle" || isBusy}
+            onClick={player.markDone}
+            disabled={markDoneState.status !== "idle" || recordingBusy}
             variant="secondary"
             size="lg"
             className="h-12 w-full"

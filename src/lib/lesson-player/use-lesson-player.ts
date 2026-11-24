@@ -1,17 +1,20 @@
 "use client";
 
 import { useCallback, useEffect, useReducer, useRef } from "react";
-import type { LessonMedia, Speed } from "./media";
+import type { LessonMedia } from "./media";
 import {
   canRecord,
   COUNTDOWN_SECONDS,
+  initialLessonState,
   initialMarkDoneState,
-  initialPlayerState,
+  isRecordingBusy,
+  lessonReducer,
   markDoneReducer,
-  playerReducer,
   type GradingResult,
+  type LessonAction,
   type Recording,
 } from "./reducer";
+import { getStep } from "./steps";
 
 const RECORDING_VOLUME = 0.25;
 /** Keep capturing briefly after Natural ends so the Learner's last mora isn't cut off. */
@@ -43,12 +46,13 @@ export function useLessonPlayer({
   grade,
   markDone: saveMarkDone,
 }: UseLessonPlayerOptions) {
-  const [state, dispatch] = useReducer(playerReducer, initialPlayerState);
+  const [state, dispatch] = useReducer(lessonReducer, initialLessonState);
   const [markDoneState, dispatchMarkDone] = useReducer(
     markDoneReducer,
     initialMarkDoneState,
   );
   const countdownRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const playCountdownRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const autoStopRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const confirmationRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const capturingRef = useRef(false);
@@ -58,6 +62,7 @@ export function useLessonPlayer({
   useEffect(() => {
     return () => {
       if (countdownRef.current) clearInterval(countdownRef.current);
+      if (playCountdownRef.current) clearInterval(playCountdownRef.current);
       if (autoStopRef.current) clearTimeout(autoStopRef.current);
       if (confirmationRef.current) clearTimeout(confirmationRef.current);
     };
@@ -98,13 +103,68 @@ export function useLessonPlayer({
     media.play("natural", { volume: RECORDING_VOLUME });
   }, [media]);
 
-  const playNativeAudio = useCallback(
-    (speed: Speed) => media.play(speed, { volume: 1 }),
-    [media],
+  const step = getStep(state.step);
+  const recordingAllowed = canRecord(state);
+  const currentRecording =
+    "recording" in state.finalRecording ? state.finalRecording.recording : null;
+
+  const clearPlayCountdown = useCallback(() => {
+    if (playCountdownRef.current) clearInterval(playCountdownRef.current);
+    playCountdownRef.current = null;
+  }, []);
+
+  /** Plays the Step's Native Audio: at once in Listen, after 3-2-1 otherwise. */
+  const play = useCallback(() => {
+    if (step.records || playCountdownRef.current) return;
+    if (!step.countdown) {
+      media.play(step.speed, { volume: 1 });
+      return;
+    }
+
+    media.stopPlayback();
+    dispatch({ type: "playRequested" });
+    let secondsLeft = COUNTDOWN_SECONDS;
+    playCountdownRef.current = setInterval(() => {
+      secondsLeft -= 1;
+      dispatch({ type: "playCountdownTicked" });
+      if (secondsLeft === 0) {
+        clearPlayCountdown();
+        media.play(step.speed, { volume: 1 });
+      }
+    }, 1000);
+  }, [step, media, clearPlayCountdown]);
+
+  /** Changing Step stops the audio and any countdown that hasn't finished. */
+  const move = useCallback(
+    (action: LessonAction) => {
+      // The reducer is pure, so it says up front whether the move is allowed.
+      if (lessonReducer(state, action) === state) return;
+      clearPlayCountdown();
+      media.stopPlayback();
+      dispatch(action);
+    },
+    [state, media, clearPlayCountdown],
   );
 
-  const recordingAllowed = canRecord(state);
-  const currentRecording = "recording" in state ? state.recording : null;
+  const next = useCallback(() => move({ type: "next" }), [move]);
+  const previous = useCallback(() => move({ type: "previous" }), [move]);
+  const goTo = useCallback(
+    (step: number) => move({ type: "goTo", step }),
+    [move],
+  );
+
+  const restart = useCallback(() => {
+    if (lessonReducer(state, { type: "restart" }) === state) return;
+    // Recordings are thrown away when the Learner starts over (ADR 0001).
+    if (currentRecording) media.discard(currentRecording);
+    move({ type: "restart" });
+    if (markDoneState.status !== "saving") {
+      if (confirmationRef.current) clearTimeout(confirmationRef.current);
+      confirmationRef.current = null;
+      markingDoneRef.current = false;
+    }
+    dispatchMarkDone({ type: "restarted" });
+  }, [state, currentRecording, media, move, markDoneState]);
 
   const record = useCallback(() => {
     if (!recordingAllowed || countdownRef.current) return;
@@ -134,8 +194,8 @@ export function useLessonPlayer({
   }, [currentRecording, media]);
 
   const submitForGrading = useCallback(async () => {
-    if (!grade || state.status !== "recorded") return;
-    const { recording } = state;
+    if (!grade || state.finalRecording.status !== "recorded") return;
+    const { recording } = state.finalRecording;
     dispatch({ type: "gradingStarted" });
 
     try {
@@ -155,7 +215,7 @@ export function useLessonPlayer({
   }, [grade, state]);
 
   const markDone = useCallback(async () => {
-    if (!saveMarkDone || markingDoneRef.current) return;
+    if (!saveMarkDone || !step.records || markingDoneRef.current) return;
     markingDoneRef.current = true;
     dispatchMarkDone({ type: "markDoneRequested" });
 
@@ -182,14 +242,22 @@ export function useLessonPlayer({
       markingDoneRef.current = false;
       dispatchMarkDone({ type: "confirmationEnded" });
     }, MARKED_DONE_CONFIRMATION_MS);
-  }, [saveMarkDone]);
+  }, [saveMarkDone, step]);
 
   return {
     state,
+    /** What the current Step plays and shows. */
+    step,
+    /** A Final Recording countdown or Recording is running; Steps are locked. */
+    recordingBusy: isRecordingBusy(state),
     markDoneState,
     gradingAvailable: grade !== undefined,
     markDoneAvailable: saveMarkDone !== undefined,
-    playNativeAudio,
+    play,
+    next,
+    previous,
+    goTo,
+    restart,
     record,
     playBoth,
     playRecording,
