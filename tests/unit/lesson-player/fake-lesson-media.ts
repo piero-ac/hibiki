@@ -10,6 +10,8 @@ export class FakeLessonMedia implements LessonMedia {
   playedWithRecording: Recording[] = [];
   discarded: Recording[] = [];
   capturing = false;
+  /** How many times the microphone was asked for. */
+  captureRequests = 0;
   playedRecording: Recording[] = [];
   private recordingCount = 0;
   private microphoneDenied = false;
@@ -47,6 +49,7 @@ export class FakeLessonMedia implements LessonMedia {
   }
 
   async startCapture() {
+    this.captureRequests += 1;
     if (this.microphoneDenied) throw new Error("NotAllowedError");
     this.capturing = true;
   }

@@ -71,7 +71,7 @@ export default async function ShadowingPage({ params }: PageProps) {
 
         <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_320px] xl:grid-cols-[minmax(0,1fr)_360px]">
           <Card className="flex min-h-[calc(100vh-7rem)] flex-col shadow-sm">
-            <CardHeader className="space-y-3 text-center">
+            <CardHeader className="text-center">
               <div className="flex items-center justify-center gap-2">
                 {sentence.jlpt_level && (
                   <Badge variant="secondary">{sentence.jlpt_level}</Badge>
@@ -81,16 +81,6 @@ export default async function ShadowingPage({ params }: PageProps) {
                   <Badge variant="outline">{sentence.category}</Badge>
                 )}
               </div>
-
-              <CardTitle className="mx-auto max-w-4xl text-3xl font-bold leading-relaxed tracking-tight sm:text-4xl lg:text-5xl">
-                {sentence.japanese_text}
-              </CardTitle>
-
-              {sentence.english_translation && (
-                <p className="mx-auto max-w-2xl text-sm leading-6 text-muted-foreground sm:text-base">
-                  {sentence.english_translation}
-                </p>
-              )}
             </CardHeader>
 
             <CardContent className="flex flex-1 items-center justify-center">
@@ -99,6 +89,9 @@ export default async function ShadowingPage({ params }: PageProps) {
                 naturalAudioUrl={naturalAudioUrl}
                 slowAudioUrl={slowAudioUrl}
                 sentenceId={sentence.id}
+                japaneseText={sentence.japanese_text}
+                kanaText={sentence.kana_text}
+                englishTranslation={sentence.english_translation}
                 isDemoUser={demoUser}
               />
             </CardContent>
