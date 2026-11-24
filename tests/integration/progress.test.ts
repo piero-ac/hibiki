@@ -2,6 +2,7 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import {
   getLearnerProgress,
   getLessonProgress,
+  getShadowingAttemptCounts,
   recordShadowingAttempt,
 } from "@/lib/progress";
 import {
@@ -180,6 +181,41 @@ describe("getLessonProgress", () => {
     expect(progress).toEqual({
       activity: { shadowingAttemptCount: 0, lastDoneAt: null },
     });
+  });
+});
+
+describe("getShadowingAttemptCounts", () => {
+  it("counts each Lesson's Shadowing Attempts", async () => {
+    const learner = await createTestLearner();
+    await recordShadowingAttempt(learner.client, lessonA.id);
+    await recordShadowingAttempt(learner.client, lessonA.id);
+    await recordShadowingAttempt(learner.client, lessonB.id);
+
+    const counts = await getShadowingAttemptCounts(learner.client);
+
+    expect(counts).toEqual(
+      new Map([
+        [lessonA.id, 2],
+        [lessonB.id, 1],
+      ]),
+    );
+  });
+
+  it("ignores AI Grading Attempts and other Learners", async () => {
+    const otherLearner = await createTestLearner();
+    await recordShadowingAttempt(otherLearner.client, lessonA.id);
+    const learner = await createTestLearner();
+    await seedAiGradingAttempts(learner, [
+      {
+        lessonId: lessonA.id,
+        accuracyScore: 80,
+        createdAt: "2026-03-01T10:00:00Z",
+      },
+    ]);
+
+    const counts = await getShadowingAttemptCounts(learner.client);
+
+    expect(counts).toEqual(new Map());
   });
 });
 

@@ -18,18 +18,12 @@ type Sentence = {
   category?: string | null;
 };
 
-export type SentenceProgress = {
-  sentence_id: string | null;
-  average_score: number | null;
-  attempt_count: number | null;
-};
-
 export default function SentenceCard({
   sentence,
-  progress,
+  shadowingAttemptCount,
 }: {
   sentence: Sentence;
-  progress?: SentenceProgress;
+  shadowingAttemptCount: number;
 }) {
   return (
     <Card className="flex flex-col shadow-sm transition-all hover:-translate-y-1 hover:shadow-md">
@@ -47,10 +41,10 @@ export default function SentenceCard({
             </Badge>
           )}
 
-          {progress ? (
+          {shadowingAttemptCount > 0 ? (
             <Badge variant="default" className="ml-auto">
-              Avg {Math.round(progress.average_score ?? 0)}% ·{" "}
-              {progress.attempt_count ?? 0} attempts
+              Done {shadowingAttemptCount}{" "}
+              {shadowingAttemptCount === 1 ? "time" : "times"}
             </Badge>
           ) : (
             <Badge variant="outline" className="ml-auto">

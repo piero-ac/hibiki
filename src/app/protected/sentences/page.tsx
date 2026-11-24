@@ -9,9 +9,8 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { createClient } from "@/lib/supabase/server";
-import SentenceCard, {
-  type SentenceProgress,
-} from "@/components/sentences/sentence-card";
+import SentenceCard from "@/components/sentences/sentence-card";
+import { getShadowingAttemptCounts } from "@/lib/progress";
 
 export default async function Sentences() {
   const supabase = await createClient();
@@ -37,18 +36,12 @@ export default async function Sentences() {
     );
   }
 
-  const { data: sentenceProgress, error: sentenceProgressError } =
-    await supabase
-      .from("ai_grading_sentence_progress")
-      .select("sentence_id, average_score, attempt_count");
-
-  const progressBySentenceId = sentenceProgressError
-    ? new Map<string, SentenceProgress>()
-    : new Map(
-        sentenceProgress
-          ?.filter((progress) => progress.sentence_id !== null)
-          .map((progress) => [progress.sentence_id as string, progress]) ?? [],
-      );
+  let shadowingAttemptCounts: Map<string, number> | null;
+  try {
+    shadowingAttemptCounts = await getShadowingAttemptCounts(supabase);
+  } catch {
+    shadowingAttemptCounts = null;
+  }
 
   return (
     <PageContainer>
@@ -68,7 +61,7 @@ export default async function Sentences() {
           </Badge>
         </div>
 
-        {sentenceProgressError && (
+        {!shadowingAttemptCounts && (
           <Card className="border-dashed">
             <CardContent className="py-4 text-sm text-muted-foreground">
               Sentence progress could not be loaded, but your practice library
@@ -97,7 +90,9 @@ export default async function Sentences() {
               <SentenceCard
                 key={sentence.id}
                 sentence={sentence}
-                progress={progressBySentenceId.get(sentence.id)}
+                shadowingAttemptCount={
+                  shadowingAttemptCounts?.get(sentence.id) ?? 0
+                }
               />
             ))}
           </div>
