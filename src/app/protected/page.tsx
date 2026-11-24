@@ -84,7 +84,7 @@ export default async function HomeDashboard() {
           <ActionCard
             icon={<BarChart3 className="h-5 w-5" />}
             title="Progress"
-            description="Review your attempts, scores and practice history."
+            description="Review the Lessons you have completed and your practice history."
             href="/protected/progress"
             buttonText="View Progress"
           />
@@ -100,7 +100,7 @@ export default async function HomeDashboard() {
 
         {/* Snapshot */}
         <div className="space-y-4">
-          <ProgressOverview progress={progress} />
+          <ProgressOverview activity={progress.activity} />
         </div>
       </div>
     </PageContainer>

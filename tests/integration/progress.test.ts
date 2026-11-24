@@ -9,6 +9,7 @@ import {
   deleteTestLearners,
   getSeededLessons,
   seedAiGradingAttempts,
+  seedShadowingAttempts,
 } from "./test-learners";
 
 type SeededLesson = Awaited<ReturnType<typeof getSeededLessons>>[number];
@@ -38,12 +39,72 @@ describe("getLearnerProgress", () => {
     const progress = await getLearnerProgress(learner.client);
 
     expect(progress).toEqual({
-      activity: { totalAttempts: 0, lessonsPracticed: 0, daysPracticed: 0 },
+      activity: {
+        lessonsCompleted: 0,
+        lessonsPracticed: 0,
+        daysPracticed: 0,
+        recentShadowingAttempts: [],
+      },
       scores: null,
     });
   });
 
-  it("counts Activity and Scores from the Learner's AI Grading Attempts", async () => {
+  it("counts Activity from the Learner's Shadowing Attempts", async () => {
+    const learner = await createTestLearner();
+    await seedShadowingAttempts(learner, [
+      { lessonId: lessonA.id, completedAt: "2026-03-01T09:00:00Z" },
+      { lessonId: lessonA.id, completedAt: "2026-03-01T18:00:00Z" },
+      { lessonId: lessonB.id, completedAt: "2026-03-02T09:00:00Z" },
+    ]);
+
+    const progress = await getLearnerProgress(learner.client);
+
+    expect(progress.activity).toEqual({
+      lessonsCompleted: 3,
+      lessonsPracticed: 2,
+      daysPracticed: 2,
+      recentShadowingAttempts: [
+        {
+          id: expect.any(String),
+          completedAt: new Date("2026-03-02T09:00:00Z"),
+          lesson: lessonOf(lessonB),
+        },
+        {
+          id: expect.any(String),
+          completedAt: new Date("2026-03-01T18:00:00Z"),
+          lesson: lessonOf(lessonA),
+        },
+        {
+          id: expect.any(String),
+          completedAt: new Date("2026-03-01T09:00:00Z"),
+          lesson: lessonOf(lessonA),
+        },
+      ],
+    });
+  });
+
+  it("shows Activity without Scores for a Learner who never used AI grading", async () => {
+    const learner = await createTestLearner();
+    await recordShadowingAttempt(learner.client, lessonA.id);
+
+    const progress = await getLearnerProgress(learner.client);
+
+    expect(progress.activity).toMatchObject({
+      lessonsCompleted: 1,
+      lessonsPracticed: 1,
+      daysPracticed: 1,
+    });
+    expect(progress.activity.recentShadowingAttempts).toEqual([
+      {
+        id: expect.any(String),
+        completedAt: expect.any(Date),
+        lesson: lessonOf(lessonA),
+      },
+    ]);
+    expect(progress.scores).toBeNull();
+  });
+
+  it("shows Scores from AI Grading Attempts, which don't count as Activity", async () => {
     const learner = await createTestLearner();
     await seedAiGradingAttempts(learner, [
       {
@@ -68,9 +129,10 @@ describe("getLearnerProgress", () => {
     const progress = await getLearnerProgress(learner.client);
 
     expect(progress.activity).toEqual({
-      totalAttempts: 3,
-      lessonsPracticed: 2,
-      daysPracticed: 2,
+      lessonsCompleted: 0,
+      lessonsPracticed: 0,
+      daysPracticed: 0,
+      recentShadowingAttempts: [],
     });
     expect(progress.scores?.averageAccuracyScore).toBe(77);
     expect(progress.scores?.recentGradedAttempts).toEqual([
@@ -273,9 +335,12 @@ describe("one Learner's Progress", () => {
       otherLearner.client,
       lessonA.id,
     );
+    const learnerActivity = (await getLearnerProgress(learner.client)).activity;
 
     expect(learnerProgress.activity.shadowingAttemptCount).toBe(1);
     expect(otherProgress.activity.shadowingAttemptCount).toBe(2);
+    expect(learnerActivity.lessonsCompleted).toBe(1);
+    expect(learnerActivity.recentShadowingAttempts).toHaveLength(1);
   });
 
   it("refuses to record a Shadowing Attempt without a signed-in Learner", async () => {
@@ -314,11 +379,6 @@ describe("one Learner's Progress", () => {
     const lessonAProgress = await getLessonProgress(learner.client, lessonA.id);
     const lessonBProgress = await getLessonProgress(learner.client, lessonB.id);
 
-    expect(learnerProgress.activity).toEqual({
-      totalAttempts: 1,
-      lessonsPracticed: 1,
-      daysPracticed: 1,
-    });
     expect(learnerProgress.scores?.averageAccuracyScore).toBe(70);
     expect(
       learnerProgress.scores?.recentGradedAttempts.map((a) => a.accuracyScore),

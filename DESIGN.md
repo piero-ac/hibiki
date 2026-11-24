@@ -121,9 +121,11 @@ Instead of calculating dashboard statistics inside React, PostgreSQL views gener
 
 Current views:
 
-- attempts_summary
-- recent_attempts
-- sentence_progress
+- shadowing_activity_summary (Activity)
+- recent_shadowing_attempts (Activity)
+- ai_grading_attempts_summary (Scores)
+- recent_ai_grading_attempts (Scores)
+- ai_grading_sentence_progress (Scores)
 
 Benefits:
 
@@ -205,15 +207,18 @@ Demo users bypass the Whisper step and cannot submit grading requests.
 
 ## Tables
 
-- users
+- profiles
 - sentences
-- attempts
+- shadowing_attempts
+- ai_grading_attempts
 
 ## Views
 
-- attempts_summary
-- recent_attempts
-- sentence_progress
+- shadowing_activity_summary (Activity)
+- recent_shadowing_attempts (Activity)
+- ai_grading_attempts_summary (Scores)
+- recent_ai_grading_attempts (Scores)
+- ai_grading_sentence_progress (Scores)
 
 Database schema changes should be managed using Supabase migrations.
 

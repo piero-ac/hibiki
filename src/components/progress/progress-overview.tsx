@@ -3,9 +3,9 @@ import { StatCard } from "@/components/app/stat-card";
 import type { LearnerProgress } from "@/lib/progress";
 
 export default function ProgressOverview({
-  progress: { activity, scores },
+  activity,
 }: {
-  progress: LearnerProgress;
+  activity: LearnerProgress["activity"];
 }) {
   return (
     <section className="space-y-5 sm:space-y-6">
@@ -14,19 +14,14 @@ export default function ProgressOverview({
         description="A quick snapshot of your shadowing practice."
       />
 
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-3 sm:grid-cols-3">
         <StatCard
-          label="Total Attempts"
-          value={activity.totalAttempts}
+          label="Lessons Completed"
+          value={activity.lessonsCompleted}
           emoji="🎯"
         />
         <StatCard
-          label="Average Score"
-          value={scores ? `${scores.averageAccuracyScore}%` : "0%"}
-          emoji="📈"
-        />
-        <StatCard
-          label="Sentences Practiced"
+          label="Lessons Practiced"
           value={activity.lessonsPracticed}
           emoji="📚"
         />

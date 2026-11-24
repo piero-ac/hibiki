@@ -5,6 +5,7 @@ import type { Database } from "@/types/database.types";
 
 type Client = SupabaseClient<Database>;
 
+const RECENT_SHADOWING_ATTEMPTS_LIMIT = 10;
 const RECENT_GRADED_ATTEMPTS_LIMIT = 10;
 const RANKED_LESSONS_LIMIT = 5;
 const LESSON_RECENT_GRADED_ATTEMPTS_LIMIT = 5;
@@ -18,7 +19,13 @@ type ProgressLesson = {
   category: string | null;
 };
 
-export type GradedAttempt = {
+export type ShadowingAttempt = {
+  id: string;
+  completedAt: Date;
+  lesson: ProgressLesson;
+};
+
+type GradedAttempt = {
   id: string;
   accuracyScore: number;
   transcript: string | null;
@@ -26,17 +33,22 @@ export type GradedAttempt = {
   lesson: ProgressLesson;
 };
 
-export type LessonScore = {
+type LessonScore = {
   lesson: ProgressLesson;
   averageAccuracyScore: number;
   attemptCount: number;
 };
 
 export type LearnerProgress = {
+  /** From the Learner's Shadowing Attempts. */
   activity: {
-    totalAttempts: number;
+    /** Every Shadowing Attempt, including repeats of the same Lesson. */
+    lessonsCompleted: number;
+    /** Distinct Lessons with at least one Shadowing Attempt. */
     lessonsPracticed: number;
+    /** Distinct days with at least one Shadowing Attempt. */
     daysPracticed: number;
+    recentShadowingAttempts: ShadowingAttempt[];
   };
   /** Null when the Learner has no AI Grading Attempts. */
   scores: {
@@ -69,6 +81,40 @@ export type LessonProgress = {
 export async function getLearnerProgress(
   supabase: Client,
 ): Promise<LearnerProgress> {
+  const [activity, scores] = await Promise.all([
+    getActivity(supabase),
+    getScores(supabase),
+  ]);
+  return { activity, scores };
+}
+
+async function getActivity(
+  supabase: Client,
+): Promise<LearnerProgress["activity"]> {
+  const [summaryResult, recentResult] = await Promise.all([
+    supabase.from("shadowing_activity_summary").select("*").single(),
+    supabase
+      .from("recent_shadowing_attempts")
+      .select("*")
+      .limit(RECENT_SHADOWING_ATTEMPTS_LIMIT),
+  ]);
+
+  const summary = unwrap(summaryResult);
+  const recent = unwrap(recentResult);
+
+  return {
+    lessonsCompleted: summary.lessons_completed ?? 0,
+    lessonsPracticed: summary.lessons_practiced ?? 0,
+    daysPracticed: summary.days_practiced ?? 0,
+    recentShadowingAttempts: recent.map((row) => ({
+      id: required(row.id),
+      completedAt: new Date(required(row.completed_at)),
+      lesson: toProgressLesson(row),
+    })),
+  };
+}
+
+async function getScores(supabase: Client): Promise<LearnerProgress["scores"]> {
   const [summaryResult, recentResult] = await Promise.all([
     supabase.from("ai_grading_attempts_summary").select("*").single(),
     supabase
@@ -80,34 +126,25 @@ export async function getLearnerProgress(
   const summary = unwrap(summaryResult);
   const recent = unwrap(recentResult);
 
-  const activity = {
-    totalAttempts: summary.total_attempts ?? 0,
-    lessonsPracticed: summary.sentences_practiced ?? 0,
-    daysPracticed: summary.days_practiced ?? 0,
-  };
-
-  if (activity.totalAttempts === 0 || summary.average_score === null) {
-    return { activity, scores: null };
+  if (!summary.total_attempts || summary.average_score === null) {
+    return null;
   }
 
   const lessonRanking =
-    activity.lessonsPracticed >= MIN_GRADED_LESSONS_FOR_RANKING
+    (summary.sentences_practiced ?? 0) >= MIN_GRADED_LESSONS_FOR_RANKING
       ? await getLessonRanking(supabase)
       : null;
 
   return {
-    activity,
-    scores: {
-      averageAccuracyScore: summary.average_score,
-      recentGradedAttempts: recent.map((row) => ({
-        id: required(row.id),
-        accuracyScore: required(row.accuracy_score),
-        transcript: row.user_audio_transcript,
-        gradedAt: new Date(required(row.created_at)),
-        lesson: toProgressLesson(row),
-      })),
-      lessonRanking,
-    },
+    averageAccuracyScore: summary.average_score,
+    recentGradedAttempts: recent.map((row) => ({
+      id: required(row.id),
+      accuracyScore: required(row.accuracy_score),
+      transcript: row.user_audio_transcript,
+      gradedAt: new Date(required(row.created_at)),
+      lesson: toProgressLesson(row),
+    })),
+    lessonRanking,
   };
 }
 
@@ -199,7 +236,7 @@ export async function recordShadowingAttempt(
   }
 }
 
-/** Both AI grading progress views carry the same Lesson columns. */
+/** Every Progress view that lists Lessons carries the same Lesson columns. */
 function toProgressLesson(row: {
   sentence_id: string | null;
   japanese_text: string | null;

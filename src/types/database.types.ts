@@ -76,6 +76,13 @@ export type Database = {
             foreignKeyName: "ai_grading_attempts_sentence_id_fkey";
             columns: ["sentence_id"];
             isOneToOne: false;
+            referencedRelation: "recent_shadowing_attempts";
+            referencedColumns: ["sentence_id"];
+          },
+          {
+            foreignKeyName: "ai_grading_attempts_sentence_id_fkey";
+            columns: ["sentence_id"];
+            isOneToOne: false;
             referencedRelation: "sentences";
             referencedColumns: ["id"];
           },
@@ -176,6 +183,13 @@ export type Database = {
             foreignKeyName: "shadowing_attempts_sentence_id_fkey";
             columns: ["sentence_id"];
             isOneToOne: false;
+            referencedRelation: "recent_shadowing_attempts";
+            referencedColumns: ["sentence_id"];
+          },
+          {
+            foreignKeyName: "shadowing_attempts_sentence_id_fkey";
+            columns: ["sentence_id"];
+            isOneToOne: false;
             referencedRelation: "sentences";
             referencedColumns: ["id"];
           },
@@ -224,6 +238,13 @@ export type Database = {
             foreignKeyName: "ai_grading_attempts_sentence_id_fkey";
             columns: ["sentence_id"];
             isOneToOne: false;
+            referencedRelation: "recent_shadowing_attempts";
+            referencedColumns: ["sentence_id"];
+          },
+          {
+            foreignKeyName: "ai_grading_attempts_sentence_id_fkey";
+            columns: ["sentence_id"];
+            isOneToOne: false;
             referencedRelation: "sentences";
             referencedColumns: ["id"];
           },
@@ -241,6 +262,25 @@ export type Database = {
           kana_text: string | null;
           sentence_id: string | null;
           user_audio_transcript: string | null;
+        };
+        Relationships: [];
+      };
+      recent_shadowing_attempts: {
+        Row: {
+          category: string | null;
+          completed_at: string | null;
+          id: string | null;
+          japanese_text: string | null;
+          jlpt_level: string | null;
+          sentence_id: string | null;
+        };
+        Relationships: [];
+      };
+      shadowing_activity_summary: {
+        Row: {
+          days_practiced: number | null;
+          lessons_completed: number | null;
+          lessons_practiced: number | null;
         };
         Relationships: [];
       };
