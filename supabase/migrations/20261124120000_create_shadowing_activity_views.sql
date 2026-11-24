@@ -1,4 +1,4 @@
--- Activity views over Shadowing Attempts, following the AI grading views:
+-- Activity views over Shadowing Attempts, shaped like the AI grading views:
 -- invoker security, filtered to the current Learner, readable only by
 -- authenticated users.
 

@@ -16,7 +16,6 @@ Hibiki helps advanced Japanese learners improve their pronunciation through shad
 - 📚 Curated sentence library across every JLPT level, focused on N2 and N1
 - 🎲 Random sentence practice
 - 📈 Progress dashboard with practice analytics
-- 🏆 Strongest and weakest sentence tracking
 - 📝 Previous attempt history per sentence
 - 🔐 Secure authentication with Supabase Auth
 - 🎭 Demo mode with seeded practice data
