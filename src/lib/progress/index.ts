@@ -99,6 +99,25 @@ export async function getLessonProgress(
   };
 }
 
+/**
+ * How many Shadowing Attempts the Learner `supabase` is signed in as has for
+ * each Lesson, keyed by Lesson id. Lessons never marked done are absent.
+ */
+export async function getShadowingAttemptCounts(
+  supabase: Client,
+): Promise<Map<string, number>> {
+  // Row level security limits this to the signed-in Learner's attempts.
+  const rows = unwrap(
+    await supabase.from("shadowing_attempts").select("sentence_id"),
+  );
+
+  const counts = new Map<string, number>();
+  for (const { sentence_id } of rows) {
+    counts.set(sentence_id, (counts.get(sentence_id) ?? 0) + 1);
+  }
+  return counts;
+}
+
 /** Marks a Lesson done for the Learner `supabase` is signed in as. */
 export async function recordShadowingAttempt(
   supabase: Client,
