@@ -6,7 +6,6 @@ import type { Database } from "@/types/database.types";
 type Client = SupabaseClient<Database>;
 
 const RECENT_SHADOWING_ATTEMPTS_LIMIT = 10;
-const LESSON_RECENT_GRADED_ATTEMPTS_LIMIT = 5;
 
 type ProgressLesson = {
   id: string;
@@ -21,10 +20,12 @@ export type ShadowingAttempt = {
   lesson: ProgressLesson;
 };
 
-/**
- * Activity only. Scores are hidden for now, so their AI grading views aren't
- * queried; showing them again means adding a `scores` part here.
+/*
+ * Progress is Activity only. Scores (from AI Grading Attempts) are hidden for
+ * now, so nothing here queries AI grading; showing Scores again means adding
+ * a `scores` part to these types.
  */
+
 export type LearnerProgress = {
   /** From the Learner's Shadowing Attempts. */
   activity: {
@@ -44,14 +45,6 @@ export type LessonProgress = {
     shadowingAttemptCount: number;
     lastDoneAt: Date | null;
   };
-  /** Null when the Learner has no AI Grading Attempts for this Lesson. */
-  scores: {
-    recentGradedAttempts: {
-      id: string;
-      accuracyScore: number;
-      gradedAt: Date;
-    }[];
-  } | null;
 };
 
 /** Progress for the Learner `supabase` is signed in as. */
@@ -88,40 +81,21 @@ export async function getLessonProgress(
   supabase: Client,
   lessonId: string,
 ): Promise<LessonProgress> {
-  // Row level security limits both queries to the signed-in Learner's attempts.
-  const [shadowingResult, gradedResult] = await Promise.all([
-    supabase
-      .from("shadowing_attempts")
-      .select("completed_at", { count: "exact" })
-      .eq("sentence_id", lessonId)
-      .order("completed_at", { ascending: false })
-      .limit(1),
-    supabase
-      .from("ai_grading_attempts")
-      .select("id, accuracy_score, created_at")
-      .eq("sentence_id", lessonId)
-      .order("created_at", { ascending: false })
-      .limit(LESSON_RECENT_GRADED_ATTEMPTS_LIMIT),
-  ]);
+  // Row level security limits this to the signed-in Learner's attempts.
+  const shadowingResult = await supabase
+    .from("shadowing_attempts")
+    .select("completed_at", { count: "exact" })
+    .eq("sentence_id", lessonId)
+    .order("completed_at", { ascending: false })
+    .limit(1);
 
   const lastDone = unwrap(shadowingResult)[0];
-  const graded = unwrap(gradedResult);
 
   return {
     activity: {
       shadowingAttemptCount: shadowingResult.count ?? 0,
       lastDoneAt: lastDone ? new Date(lastDone.completed_at) : null,
     },
-    scores:
-      graded.length === 0
-        ? null
-        : {
-            recentGradedAttempts: graded.map((attempt) => ({
-              id: attempt.id,
-              accuracyScore: attempt.accuracy_score,
-              gradedAt: new Date(attempt.created_at),
-            })),
-          },
   };
 }
 
