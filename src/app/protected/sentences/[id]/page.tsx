@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import LessonActivityCard from "@/components/practice/lesson-activity-card";
 import { createClient } from "@/lib/supabase/server";
-import { isDemoUser } from "@/lib/demo";
 import { createLessonAudioUrl } from "@/lib/lesson-audio";
 import { getLessonProgress } from "@/lib/progress";
 
@@ -17,12 +16,6 @@ interface PageProps {
 export default async function ShadowingPage({ params }: PageProps) {
   const { id } = await params;
   const supabase = await createClient();
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  const demoUser = isDemoUser(user?.email);
 
   const { data: sentence, error } = await supabase
     .from("sentences")
@@ -92,7 +85,6 @@ export default async function ShadowingPage({ params }: PageProps) {
                 japaneseText={sentence.japanese_text}
                 kanaText={sentence.kana_text}
                 englishTranslation={sentence.english_translation}
-                isDemoUser={demoUser}
               />
             </CardContent>
           </Card>

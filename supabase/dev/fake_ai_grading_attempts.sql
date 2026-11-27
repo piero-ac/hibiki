@@ -1,4 +1,4 @@
--- Local AI grading fixture for Hibiki's three fake users.
+-- Local AI grading fixture for Hibiki's two fake users.
 --
 -- Run this only against the local Supabase database. It resolves users by
 -- email and replaces their AI grading attempts, so it can be rerun without
@@ -15,8 +15,7 @@ begin
   from (
     values
       ('alice@hibiki.local'),
-      ('bob@hibiki.local'),
-      ('demo@hibiki.local')
+      ('bob@hibiki.local')
   ) as expected(email)
   where not exists (
     select 1
@@ -38,8 +37,7 @@ where user_id in (
   from auth.users
   where email in (
     'alice@hibiki.local',
-    'bob@hibiki.local',
-    'demo@hibiki.local'
+    'bob@hibiki.local'
   )
 );
 
@@ -64,11 +62,6 @@ fake_users as (
         'bob@hibiki.local',
         0,
         52
-      ),
-      (
-        'demo@hibiki.local',
-        0,
-        76
       )
   ) as fixtures(email, sentence_offset, base_score)
     on fixtures.email = auth.users.email
@@ -99,7 +92,7 @@ join ranked_sentences
 
 commit;
 
--- Expected result: 3 AI grading attempts per fake user, 9 attempts total.
+-- Expected result: 3 AI grading attempts per fake user, 6 attempts total.
 select
   auth.users.email,
   count(public.ai_grading_attempts.id) as attempt_count,
@@ -109,8 +102,7 @@ join public.ai_grading_attempts
   on public.ai_grading_attempts.user_id = auth.users.id
 where auth.users.email in (
   'alice@hibiki.local',
-  'bob@hibiki.local',
-  'demo@hibiki.local'
+  'bob@hibiki.local'
 )
 group by auth.users.email
 order by auth.users.email;

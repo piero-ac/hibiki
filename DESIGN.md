@@ -156,7 +156,6 @@ src/
 ├── lib/
 │   ├── supabase/
 │   ├── scoring.ts
-│   └── demo.ts
 │   └── utils.ts
 │
 ├── types/
@@ -170,8 +169,6 @@ src/
 Authentication is handled by Supabase Auth.
 
 Protected routes verify the authenticated user before rendering application content.
-
-A shared demo account provides a read-only experience: it never creates data, so Mark Done and AI grading are unavailable in it.
 
 ---
 
@@ -198,8 +195,6 @@ Save Attempt
         ▼
 Dashboard Updates
 ```
-
-Demo users bypass the Whisper step and cannot submit grading requests.
 
 ---
 

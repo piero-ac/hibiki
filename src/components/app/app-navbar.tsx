@@ -2,14 +2,12 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { Separator } from "@/components/ui/separator";
 import { AuthButton } from "@/components/auth/auth-button";
-import { Badge } from "@/components/ui/badge";
 
 type AppNavbarProps = {
   email?: string | null;
-  isDemoUser?: boolean;
 };
 
-export function AppNavbar({ email, isDemoUser }: AppNavbarProps) {
+export function AppNavbar({ email }: AppNavbarProps) {
   return (
     <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur">
       <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-4 sm:px-6 lg:px-8">
@@ -36,7 +34,6 @@ export function AppNavbar({ email, isDemoUser }: AppNavbarProps) {
         </div>
 
         <div className="flex items-center gap-3">
-          {isDemoUser && <Badge>Demo Mode</Badge>}
           {email && (
             <span className="hidden max-w-48 truncate text-sm text-muted-foreground md:block">
               {email}

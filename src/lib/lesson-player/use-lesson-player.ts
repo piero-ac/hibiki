@@ -35,10 +35,9 @@ export type MarkDone = () => Promise<MarkDoneOutcome>;
 
 interface UseLessonPlayerOptions {
   media: LessonMedia;
-  /** Leave out to make AI grading unavailable, as in Demo Mode. */
+  /** Leave out to make AI grading unavailable. */
   grade?: GradeRecording;
-  /** Leave out to make Mark Done unavailable, as in Demo Mode. */
-  markDone?: MarkDone;
+  markDone: MarkDone;
 }
 
 export function useLessonPlayer({
@@ -215,7 +214,7 @@ export function useLessonPlayer({
   }, [grade, state]);
 
   const markDone = useCallback(async () => {
-    if (!saveMarkDone || !step.records || markingDoneRef.current) return;
+    if (!step.records || markingDoneRef.current) return;
     markingDoneRef.current = true;
     dispatchMarkDone({ type: "markDoneRequested" });
 
@@ -252,7 +251,6 @@ export function useLessonPlayer({
     recordingBusy: isRecordingBusy(state),
     markDoneState,
     gradingAvailable: grade !== undefined,
-    markDoneAvailable: saveMarkDone !== undefined,
     play,
     next,
     previous,

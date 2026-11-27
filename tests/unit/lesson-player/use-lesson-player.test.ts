@@ -388,23 +388,6 @@ describe("useLessonPlayer: Final Recording", () => {
     expect(markDone).not.toHaveBeenCalled();
   });
 
-  it("makes Mark Done unavailable when none is passed in", async () => {
-    const { result } = renderAtFinalRecording({});
-
-    expect(result.current.markDoneAvailable).toBe(false);
-    await act(() => result.current.markDone());
-    expect(result.current.markDoneState).toEqual({
-      status: "idle",
-      error: null,
-    });
-  });
-
-  it("makes Mark Done available when it's passed in", () => {
-    const { result } = renderAtFinalRecording();
-
-    expect(result.current.markDoneAvailable).toBe(true);
-  });
-
   it("saves once when Mark Done is pressed twice quickly", async () => {
     const { result } = renderAtFinalRecording();
 

@@ -18,7 +18,6 @@ Hibiki helps advanced Japanese learners improve their pronunciation through shad
 - 📈 Progress dashboard with practice analytics
 - 📝 Previous attempt history per sentence
 - 🔐 Secure authentication with Supabase Auth
-- 🎭 Demo mode with seeded practice data
 - 📱 Fully responsive design
 
 ---
@@ -72,9 +71,6 @@ NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=
 
 OPENAI_API_KEY=
-
-DEMO_USER_EMAIL=
-DEMO_USER_PASSWORD=
 ```
 
 ### Set up local Supabase
@@ -97,23 +93,6 @@ Open:
 ```
 http://localhost:3000
 ```
-
----
-
-## Demo Mode
-
-Hibiki includes a shared demo account for exploring the application without creating an account.
-
-Demo users can:
-
-- Browse the sentence library
-- Practice any sentence
-- Record and play back audio
-- Explore the dashboard
-- View progress analytics
-- Review previous attempts
-
-To prevent abuse of the OpenAI API, AI pronunciation grading is disabled in demo mode.
 
 ---
 

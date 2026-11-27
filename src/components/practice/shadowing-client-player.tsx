@@ -48,7 +48,6 @@ interface ShadowingPlayerProps {
   japaneseText: string;
   kanaText: string;
   englishTranslation: string;
-  isDemoUser?: boolean;
 }
 
 export default function SimpleShadowingPlayer({
@@ -58,7 +57,6 @@ export default function SimpleShadowingPlayer({
   japaneseText,
   kanaText,
   englishTranslation,
-  isDemoUser,
 }: ShadowingPlayerProps) {
   // One adapter per Lesson: recreating it would revoke the current Recording.
   // The page keys this component by Lesson, so new props mean a new mount.
@@ -69,15 +67,12 @@ export default function SimpleShadowingPlayer({
     }),
   );
   const grade = useMemo(
-    () =>
-      AI_GRADING_ENABLED && !isDemoUser
-        ? gradeWithServer(sentenceId)
-        : undefined,
-    [isDemoUser, sentenceId],
+    () => (AI_GRADING_ENABLED ? gradeWithServer(sentenceId) : undefined),
+    [sentenceId],
   );
   const saveMarkDone = useMemo(
-    () => (isDemoUser ? undefined : () => markLessonDone(sentenceId)),
-    [isDemoUser, sentenceId],
+    () => () => markLessonDone(sentenceId),
+    [sentenceId],
   );
   const player = useLessonPlayer({ media, grade, markDone: saveMarkDone });
   const { state, step, recordingBusy } = player;
@@ -351,33 +346,27 @@ function FinalRecording({
         </div>
       )}
 
-      {!player.markDoneAvailable ? (
-        <Button disabled variant="secondary" size="lg" className="h-12 w-full">
-          Demo Mode · Mark Done Unavailable
+      <div className="space-y-2">
+        <Button
+          onClick={player.markDone}
+          disabled={markDoneState.status !== "idle" || recordingBusy}
+          variant="secondary"
+          size="lg"
+          className="h-12 w-full"
+        >
+          {markDoneState.status === "saving"
+            ? "Saving..."
+            : markDoneState.status === "done"
+              ? "Marked done"
+              : "Mark Done"}
         </Button>
-      ) : (
-        <div className="space-y-2">
-          <Button
-            onClick={player.markDone}
-            disabled={markDoneState.status !== "idle" || recordingBusy}
-            variant="secondary"
-            size="lg"
-            className="h-12 w-full"
-          >
-            {markDoneState.status === "saving"
-              ? "Saving..."
-              : markDoneState.status === "done"
-                ? "Marked done"
-                : "Mark Done"}
-          </Button>
 
-          {markDoneState.status === "idle" && markDoneState.error && (
-            <div className="rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
-              {markDoneState.error}
-            </div>
-          )}
-        </div>
-      )}
+        {markDoneState.status === "idle" && markDoneState.error && (
+          <div className="rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+            {markDoneState.error}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
