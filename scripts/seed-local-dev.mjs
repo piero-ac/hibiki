@@ -5,7 +5,6 @@ import { createClient } from "@supabase/supabase-js";
 const LOCAL_USERS = [
   { email: "alice@hibiki.local", password: "HibikiLocal123!" },
   { email: "bob@hibiki.local", password: "HibikiLocal123!" },
-  { email: "demo@hibiki.local", password: "HibikiLocal123!" },
 ];
 
 const status = parseEnvOutput(

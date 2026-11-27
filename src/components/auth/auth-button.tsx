@@ -3,7 +3,6 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/server";
 import { LogoutButton } from "./logout-button";
-import { DemoLoginButton } from "./demo-login-button";
 
 type AuthButtonProps = {
   showOpenApp?: boolean;
@@ -38,8 +37,6 @@ export async function AuthButton({ showOpenApp = false }: AuthButtonProps) {
       {/* <Button asChild size="sm">
 				<Link href="/auth/sign-up">Sign up</Link>
 			</Button> */}
-
-      <DemoLoginButton />
     </div>
   );
 }

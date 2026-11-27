@@ -81,7 +81,3 @@ _Avoid_: Pronunciation score, similarity score
 **Progress**:
 A Learner's practice history in two parts. **Activity** comes from Shadowing Attempts and is always shown. **Scores** come from AI Grading Attempts and are optional.
 _Avoid_: Stats, analytics
-
-**Demo Mode**:
-A shared Learner account for trying Hibiki without signing up. It is read-only: it can't Mark Done or make AI Grading Attempts, so it never creates Shadowing Attempts or AI Grading Attempts.
-_Avoid_: Guest mode

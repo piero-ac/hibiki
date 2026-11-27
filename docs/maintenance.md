@@ -36,7 +36,7 @@ deployable product. Timing is directional and can shift around work on Tomowa.
 - [ ] Add per-user and per-IP rate limiting to AI grading requests
 - [ ] Add grading timeouts, usage limits, and OpenAI failure handling
 - [ ] Review and rotate production API keys before a public launch
-- [ ] Review authentication redirects, session handling, and demo-account access
+- [ ] Review authentication redirects, and session handling
 
 ### CI/CD
 
