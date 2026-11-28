@@ -11,6 +11,7 @@ import {
 import { createClient } from "@/lib/supabase/server";
 import SentenceCard from "@/components/sentences/sentence-card";
 import { getShadowingAttemptCounts } from "@/lib/progress";
+import { buildCatalogue, toCatalogueLesson } from "@/lib/lesson-catalogue";
 
 export default async function Sentences() {
   const supabase = await createClient();
@@ -86,14 +87,11 @@ export default async function Sentences() {
           </Card>
         ) : (
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-            {sentences.map((sentence) => (
-              <SentenceCard
-                key={sentence.id}
-                sentence={sentence}
-                shadowingAttemptCount={
-                  shadowingAttemptCounts?.get(sentence.id) ?? 0
-                }
-              />
+            {buildCatalogue(
+              sentences.map(toCatalogueLesson),
+              shadowingAttemptCounts,
+            ).map((entry) => (
+              <SentenceCard key={entry.lesson.id} entry={entry} />
             ))}
           </div>
         )}
