@@ -17,7 +17,7 @@ deployable product. Timing is directional and can shift around work on Tomowa.
 
 - [x] Add focused tests for audio upload validation
 - [x] Consolidate duplicated environment-variable validation
-- [x] Make production builds independent of downloading Google Fonts
+- [ ] Make production builds independent of downloading Google Fonts (reopened: the UI redo, #66, loads Caprasimo, Figtree and Zen Maru Gothic through `next/font/google`, so `next build` fetches them from Google again and needs network access. Self-hosting them with `next/font/local` would restore offline builds.)
 - [ ] Review dependency updates and keep the lockfile current
 
 ## August Product Readiness
