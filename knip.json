@@ -4,6 +4,7 @@
   "ignore": ["docs/design/**"],
   "ignoreIssues": {
     "src/types/database.types.ts": ["exports", "types"],
+    "src/components/ui/alert-dialog.tsx": ["exports"],
     "src/components/ui/badge.tsx": ["exports"],
     "src/components/ui/button.tsx": ["exports"],
     "src/components/ui/card.tsx": ["exports"],

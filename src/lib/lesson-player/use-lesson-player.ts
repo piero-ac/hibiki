@@ -261,6 +261,11 @@ export function useLessonPlayer({
     markDoneState,
     /** Mark Done was saved in this run of the Lesson; cleared by restart. */
     lessonShadowed,
+    /**
+     * Leaving would throw away the Learner's place, since Steps aren't saved.
+     * Once Mark Done is saved there's nothing left to lose.
+     */
+    needsLeaveConfirmation: state.furthestStep >= 2 && !lessonShadowed,
     gradingAvailable: grade !== undefined,
     play,
     next,

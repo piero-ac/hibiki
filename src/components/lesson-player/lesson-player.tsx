@@ -79,12 +79,14 @@ export function LessonPlayer({
   );
   const player = useLessonPlayer({ media, grade, markDone: saveMarkDone });
   const { state, step, lessonShadowed } = player;
+  const confirmLeave = player.needsLeaveConfirmation && { step: state.step };
 
   return (
     <div className="mx-auto flex w-full max-w-7xl flex-1 flex-col">
       <header className="flex items-center gap-2 px-4 pt-3 pb-1 md:gap-3.5 md:px-8 md:pt-4.5">
         <LessonExit
           href={LESSONS_HREF}
+          confirm={confirmLeave}
           aria-label="Back to Lessons"
           variant="secondary"
           size="icon-lg"
@@ -95,6 +97,7 @@ export function LessonPlayer({
         </LessonExit>
         <LessonExit
           href={LESSONS_HREF}
+          confirm={confirmLeave}
           variant="ghost"
           size="lg"
           shape="pill"
@@ -118,6 +121,7 @@ export function LessonPlayer({
         </p>
         <LessonExit
           href={HOME_HREF}
+          confirm={confirmLeave}
           aria-label="Close Lesson"
           variant="secondary"
           size="icon-lg"

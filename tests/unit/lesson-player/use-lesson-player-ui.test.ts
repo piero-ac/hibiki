@@ -85,3 +85,52 @@ describe("useLessonPlayer: which Steps the trail can go to", () => {
     expect(result.current.canGoTo(6)).toBe(false);
   });
 });
+
+describe("useLessonPlayer: leave confirmation", () => {
+  it("isn't needed on a fresh Lesson, and is once the Learner reaches Step 2", () => {
+    const { result } = renderHook(() => useLessonPlayer({ media, markDone }));
+    expect(result.current.needsLeaveConfirmation).toBe(false);
+
+    act(() => result.current.next());
+
+    expect(result.current.needsLeaveConfirmation).toBe(true);
+  });
+
+  it("is still needed after going back to Step 1 from a later Step", () => {
+    const { result } = renderHook(() => useLessonPlayer({ media, markDone }));
+    act(() => result.current.next());
+    act(() => result.current.next());
+
+    act(() => result.current.goTo(1));
+
+    expect(result.current.state.step).toBe(1);
+    expect(result.current.needsLeaveConfirmation).toBe(true);
+  });
+
+  it("is needed in the Final Recording without a Recording", () => {
+    const { result } = renderAtFinalRecording();
+
+    expect(result.current.needsLeaveConfirmation).toBe(true);
+  });
+
+  it("is needed in the Final Recording with a Recording", async () => {
+    const { result } = renderAtFinalRecording();
+
+    act(() => result.current.record());
+    await act(() => vi.advanceTimersByTimeAsync(3000));
+    act(() => media.endNatural());
+    await act(() => vi.advanceTimersByTimeAsync(600));
+
+    expect(result.current.state.finalRecording.status).toBe("recorded");
+    expect(result.current.needsLeaveConfirmation).toBe(true);
+  });
+
+  it("isn't needed once Mark Done is saved, since nothing would be lost", async () => {
+    const { result } = renderAtFinalRecording();
+
+    await act(() => result.current.markDone());
+
+    expect(result.current.lessonShadowed).toBe(true);
+    expect(result.current.needsLeaveConfirmation).toBe(false);
+  });
+});
