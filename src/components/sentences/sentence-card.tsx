@@ -53,7 +53,7 @@ export default function SentenceCard({
           )}
         </div>
 
-        <CardTitle className="line-clamp-3 text-xl leading-relaxed">
+        <CardTitle className="line-clamp-3 font-japanese text-xl leading-relaxed">
           {sentence.japanese_text}
         </CardTitle>
 

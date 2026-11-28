@@ -12,21 +12,28 @@ export function AppNavbar({ email }: AppNavbarProps) {
     <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur">
       <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-4 sm:px-6 lg:px-8">
         <div className="flex items-center gap-6">
-          <Link href="/protected" className="text-lg font-bold tracking-tight">
+          <Link href="/protected" className="font-heading text-lg">
             Hibiki
           </Link>
 
           <nav className="hidden items-center gap-4 sm:flex">
             <Link
-              href="/protected/sentences"
-              className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+              href="/protected"
+              className="text-sm text-muted-foreground transition-colors hover:text-primary"
             >
-              Practice
+              Home
+            </Link>
+
+            <Link
+              href="/protected/sentences"
+              className="text-sm text-muted-foreground transition-colors hover:text-primary"
+            >
+              Lessons
             </Link>
 
             <Link
               href="/protected/progress"
-              className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+              className="text-sm text-muted-foreground transition-colors hover:text-primary"
             >
               Progress
             </Link>
@@ -53,17 +60,26 @@ export function AppNavbar({ email }: AppNavbarProps) {
       <div className="border-t sm:hidden">
         <nav className="mx-auto flex max-w-6xl items-center gap-4 px-4 py-2">
           <Link
-            href="/protected/sentences"
-            className="text-sm text-muted-foreground hover:text-foreground"
+            href="/protected"
+            className="text-sm text-muted-foreground hover:text-primary"
           >
-            Practice
+            Home
+          </Link>
+
+          <Separator orientation="vertical" className="h-4" />
+
+          <Link
+            href="/protected/sentences"
+            className="text-sm text-muted-foreground hover:text-primary"
+          >
+            Lessons
           </Link>
 
           <Separator orientation="vertical" className="h-4" />
 
           <Link
             href="/protected/progress"
-            className="text-sm text-muted-foreground hover:text-foreground"
+            className="text-sm text-muted-foreground hover:text-primary"
           >
             Progress
           </Link>
