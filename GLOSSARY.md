@@ -70,6 +70,10 @@ _Avoid_: User, profile, student
 A Learner marking a Lesson as done, which is their own claim that they shadowed it. A Learner can mark the same Lesson done again, and each time is a new Shadowing Attempt. Shadowing Attempts measure practice activity.
 _Avoid_: Completion, session
 
+**Lesson Status**:
+How much a particular Learner has practiced a Lesson, counted only from their Shadowing Attempts on it. The values are **New** (no Shadowing Attempts), **Shadowed** (one or two), and **Shadowed 3×+** (three or more). AI Grading Attempts and Accuracy Scores never affect it.
+_Avoid_: Progress (for a single Lesson), completion status, mastery
+
 **AI Grading Attempt**:
 An optional submission of a Recording for automatic grading. It produces a transcript and an Accuracy Score. It is independent of Shadowing Attempts: grading doesn't mark a Lesson done, and marking a Lesson done doesn't require grading. AI Grading Attempts measure scores.
 _Avoid_: Attempt (unqualified), practice attempt

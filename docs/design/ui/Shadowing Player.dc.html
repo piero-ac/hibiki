@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/organic-7dd48171-9387-4ca4-aa81-ff354d49bdfe/styles.css">
+<script src="_ds/organic-7dd48171-9387-4ca4-aa81-ff354d49bdfe/_ds_bundle.js"></script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700&amp;display=swap">
+</helmet>
+<div style="width:100%;height:100%;background:var(--color-bg);color:var(--color-text);font-family:var(--font-body);display:flex;flex-direction:column;overflow:hidden">
+  <div style="display:flex;align-items:center;gap:14px;padding:18px 32px 6px">
+    <button class="btn btn-ghost" style="font-size:15px"><svg width="18" height="18" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:2.75;stroke-linecap:round;stroke-linejoin:round"><path d="m15 18-6-6 6-6"></path></svg>Lessons</button>
+    <div style="display:flex;gap:6px"><span class="tag tag-accent">{{ lvTag }}</span><span class="tag tag-accent-2">{{ catTag }}</span></div>
+    <div style="margin-left:auto;font-size:13px;color:var(--color-neutral-700)">{{ stepCounter }}</div>
+    <button class="btn btn-secondary btn-icon"><svg width="18" height="18" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:2.75;stroke-linecap:round;stroke-linejoin:round"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg></button>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));padding:6px 40px 0;row-gap:12px">
+    <div style="grid-column:1/4;display:flex;justify-content:center"><span class="tag tag-accent-2" style="font-weight:600">Slow Round</span></div>
+    <div style="grid-column:4/7;display:flex;justify-content:center"><span class="tag tag-accent" style="font-weight:600">Natural Round</span></div>
+    <div style="grid-column:7/8;display:flex;justify-content:center"><span class="tag tag-neutral" style="font-weight:600">Final</span></div>
+    <sc-for list="{{ trail }}" as="t" hint-placeholder-count="7">
+      <div style="position:relative;display:flex;flex-direction:column;align-items:center;gap:8px">
+        <span style="position:absolute;top:21px;left:calc(50% + 30px);right:calc(-50% + 30px);height:4px;border-radius:4px;background:{{ t.line }};display:{{ t.lineDisplay }}"></span>
+        <button onClick="{{ t.go }}" disabled="{{ t.locked }}" style="width:46px;height:46px;border-radius:50%;border:0;display:grid;place-items:center;background:{{ t.bg }};color:{{ t.fg }};box-shadow:{{ t.ring }};font-family:var(--font-heading);font-size:18px;cursor:{{ t.cursor }}">
+          <sc-if value="{{ t.done }}"><svg width="20" height="20" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:3.25;stroke-linecap:round;stroke-linejoin:round"><path d="M20 6 9 17l-5-5"></path></svg></sc-if>
+          <sc-if value="{{ t.notDone }}">{{ t.n }}</sc-if>
+        </button>
+        <span style="font-size:12px;line-height:1.3;text-align:center;max-width:110px;text-wrap:balance;color:{{ t.labelColor }};font-weight:{{ t.weight }}">{{ t.name }}</span>
+      </div>
+    </sc-for>
+  </div>
+
+  <div style="flex:1;min-height:0;padding:22px 32px 30px;display:flex">
+    <div style="flex:1;position:relative;overflow:hidden;background:var(--color-surface);border-radius:36px;padding:36px 44px;display:flex;flex-direction:column;gap:24px">
+      <span style="position:absolute;right:-90px;top:-110px;width:300px;height:300px;border-radius:50%;background:var(--color-accent-2-200);opacity:0.55"></span>
+      <span style="position:absolute;right:120px;top:-50px;width:110px;height:110px;border-radius:50%;background:var(--color-accent-200);opacity:0.6"></span>
+
+      <sc-if value="{{ notDone }}">
+        <div style="position:relative;display:flex;flex-direction:column;gap:6px;max-width:620px">
+          <div style="font-size:12px;letter-spacing:0.1em;text-transform:uppercase;color:var(--color-accent-700);font-weight:700">{{ kicker }}</div>
+          <h2 style="margin:0">{{ stepName }}</h2>
+          <p style="margin:0;font-size:15px;color:var(--color-neutral-800);text-wrap:pretty">{{ tip }}</p>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ showText }}">
+        <div style="position:relative;display:flex;flex-direction:column;gap:10px;flex:1;justify-content:center">
+          <div style="display:flex;flex-wrap:wrap;gap:4px 2px;font-family:'Zen Maru Gothic',var(--font-body);font-weight:700;font-size:40px;line-height:1.35">
+            <sc-for list="{{ chunks }}" as="c" hint-placeholder-count="4"><span style="padding:2px 8px;border-radius:14px;background:{{ c.bg }};color:{{ c.fg }};transition:background .15s">{{ c.jp }}</span></sc-for>
+          </div>
+          <div style="display:flex;flex-wrap:wrap;gap:2px;font-family:'Zen Maru Gothic',var(--font-body);font-weight:500;font-size:19px;color:var(--color-neutral-700)">
+            <sc-for list="{{ chunks }}" as="c" hint-placeholder-count="4"><span style="padding:1px 8px;border-radius:10px;color:{{ c.kfg }}">{{ c.kana }}</span></sc-for>
+          </div>
+          <sc-if value="{{ showEn }}"><div style="padding:4px 8px 0;font-size:16px;color:var(--color-neutral-800)">Honestly, I'm not sure I'll make the deadline.</div></sc-if>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ showTextLong }}">
+        <div style="position:relative;display:flex;flex-direction:column;gap:14px;flex:1;justify-content:center;max-width:1010px">
+          <div style="font-family:'Zen Maru Gothic',var(--font-body);font-weight:700;font-size:30px;line-height:1.5;text-wrap:pretty">{{ jpLong }}</div>
+          <div style="font-family:'Zen Maru Gothic',var(--font-body);font-weight:500;font-size:17px;line-height:1.6;color:var(--color-neutral-700);text-wrap:pretty">{{ kanaLong }}</div>
+          <sc-if value="{{ showEn }}"><div style="font-size:16px;max-width:820px;color:var(--color-neutral-800);text-wrap:pretty">{{ en }}</div></sc-if>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isBlind }}">
+        <div style="position:relative;flex:1;display:flex;align-items:center;gap:16px;color:var(--color-neutral-700)">
+          <span style="width:52px;height:52px;border-radius:50%;background:var(--color-bg);display:grid;place-items:center;color:var(--color-accent-2-700)"><svg width="24" height="24" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:2.75;stroke-linecap:round;stroke-linejoin:round"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"></path><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"></path><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"></path><path d="M2 2l20 20"></path></svg></span>
+          <div style="font-size:15px">Eyes off the text. Speak along with the sound.</div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ notFinalNotDone }}">
+        <div style="position:relative;display:flex;flex-direction:column;gap:22px">
+          <div style="display:flex;align-items:center;gap:3px;height:{{ waveH }}">
+            <sc-for list="{{ bars }}" as="b" hint-placeholder-count="60"><span style="flex:1;border-radius:99px;height:{{ b.h }};background:{{ b.c }}"></span></sc-for>
+          </div>
+          <div style="display:flex;align-items:center;gap:14px">
+            <button onClick="{{ togglePlay }}" style="width:68px;height:68px;border-radius:50%;border:0;background:var(--color-accent);color:var(--color-bg);display:grid;place-items:center;cursor:pointer;box-shadow:var(--shadow-md)" style-hover="background:var(--color-accent-600)" style-active="background:var(--color-accent-700)">
+              <sc-if value="{{ playing }}"><svg width="26" height="26" viewBox="0 0 24 24" style="fill:currentColor;stroke:none"><rect x="6" y="4" width="4" height="16" rx="1.5"></rect><rect x="14" y="4" width="4" height="16" rx="1.5"></rect></svg></sc-if>
+              <sc-if value="{{ notPlaying }}"><svg width="28" height="28" viewBox="0 0 24 24" style="fill:currentColor;stroke:currentColor;stroke-width:2.75;stroke-linejoin:round;margin-left:3px"><path d="M7 4l13 8-13 8z"></path></svg></sc-if>
+            </button>
+            <button class="btn btn-secondary btn-icon" onClick="{{ replay }}" style="width:44px;height:44px"><svg width="18" height="18" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:2.75;stroke-linecap:round;stroke-linejoin:round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path></svg></button>
+            <div style="display:flex;flex-direction:column">
+              <div style="font-weight:700;font-size:15px">{{ speedLabel }}</div>
+              <div style="font-size:13px;color:var(--color-neutral-700)">{{ playsLabel }}</div>
+            </div>
+            <div style="margin-left:auto;display:flex;gap:10px;align-items:center">
+              <button class="btn btn-secondary" onClick="{{ back }}" disabled="{{ cantBack }}" style="padding:12px 20px;font-size:15px">Back</button>
+              <button class="btn btn-primary" onClick="{{ next }}" style="padding:12px 22px;font-size:16px">{{ nextLabel }}<svg width="18" height="18" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:2.75;stroke-linecap:round;stroke-linejoin:round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg></button>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isFinal }}">
+        <div style="position:relative;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:28px;flex:1;min-height:0">
+          <div style="display:flex;flex-direction:column;gap:18px;justify-content:center">
+            <div style="background:var(--color-bg);border-radius:24px;padding:16px 20px;display:flex;flex-direction:column;gap:10px">
+              <div style="display:flex;justify-content:space-between;font-size:13px"><span style="font-weight:700">Native Audio · Natural</span><span style="color:var(--color-neutral-700)">Kenji, Tokyo</span></div>
+              <div style="display:flex;align-items:center;gap:3px;height:56px"><sc-for list="{{ bars }}" as="b" hint-placeholder-count="60"><span style="flex:1;border-radius:99px;height:{{ b.h }};background:{{ b.c }}"></span></sc-for></div>
+            </div>
+            <div style="background:var(--color-bg);border-radius:24px;padding:16px 20px;display:flex;flex-direction:column;gap:10px">
+              <div style="display:flex;justify-content:space-between;font-size:13px"><span style="font-weight:700">Your Recording</span><span style="color:var(--color-neutral-700)">{{ recStatus }}</span></div>
+              <div style="display:flex;align-items:center;gap:3px;height:56px"><sc-for list="{{ recBars }}" as="b" hint-placeholder-count="60"><span style="flex:1;border-radius:99px;height:{{ b.h }};background:{{ b.c }}"></span></sc-for></div>
+            </div>
+            <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+              <button onClick="{{ recordClick }}" style="display:flex;align-items:center;gap:10px;border:0;border-radius:999px;padding:8px 22px 8px 8px;background:{{ recBtnBg }};color:var(--color-bg);cursor:pointer;font-family:var(--font-heading);font-size:16px;box-shadow:{{ recRing }}">
+                <span style="width:44px;height:44px;border-radius:50%;background:var(--color-bg);color:{{ recBtnBg }};display:grid;place-items:center"><svg width="20" height="20" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:2.75;stroke-linecap:round;stroke-linejoin:round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><path d="M12 19v3"></path></svg></span>{{ recLabel }}
+              </button>
+              <sc-if value="{{ hasRec }}">
+                <button class="btn btn-secondary" onClick="{{ playTogether }}" style="padding:11px 18px;font-size:15px">Play together</button>
+                <button class="btn btn-secondary" onClick="{{ playMine }}" style="padding:11px 18px;font-size:15px">Play mine</button>
+              </sc-if>
+            </div>
+            <div style="font-size:12px;color:var(--color-neutral-700)">Recordings stay in your browser and are never stored.</div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:12px;justify-content:flex-end">
+            <sc-if value="{{ graded }}">
+              <div style="background:var(--color-accent-2-100);border-radius:28px;padding:18px 20px;display:flex;flex-direction:column;gap:10px">
+                <div style="display:flex;align-items:center;gap:12px">
+                  <span style="width:64px;height:64px;border-radius:50%;background:var(--color-accent-2-600);color:var(--color-bg);display:grid;place-items:center;font-family:var(--font-heading);font-size:26px">{{ score }}</span>
+                  <div style="font-size:13px;line-height:1.35;color:var(--color-accent-2-900)"><strong>Accuracy Score</strong><br>Up 9 from your last try</div>
+                </div>
+                <sc-if value="{{ heardShort }}"><div style="font-family:'Zen Maru Gothic',var(--font-body);font-size:15px;line-height:1.5;color:var(--color-accent-2-900)">締め切りに間に合うかどうか、正直なところ<span style="background:var(--color-accent-200);color:var(--color-accent-800);border-radius:6px;padding:0 3px">自身</span>がない。</div></sc-if>
+                <sc-if value="{{ heardLong }}"><div style="font-family:'Zen Maru Gothic',var(--font-body);font-size:14px;line-height:1.55;color:var(--color-accent-2-900)">終電にぎりぎり間に合うと思って走ったんですが、ホームに着いた瞬間にドアが閉まってしまっ<span style="background:var(--color-accent-200);color:var(--color-accent-800);border-radius:6px;padding:0 3px">た</span>、結局タクシーで帰ることになりました。</div></sc-if>
+              </div>
+            </sc-if>
+            <sc-if value="{{ canGrade }}">
+              <button class="btn btn-secondary" onClick="{{ grade }}" style="padding:12px 18px;font-size:15px"><svg width="16" height="16" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:2.75;stroke-linecap:round;stroke-linejoin:round"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"></path></svg>Grade my Recording</button>
+            </sc-if>
+            <button class="btn btn-primary" onClick="{{ markDone }}" style="padding:14px 22px;font-size:17px"><svg width="18" height="18" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:3;stroke-linecap:round;stroke-linejoin:round"><path d="M20 6 9 17l-5-5"></path></svg>Mark Done</button>
+            <div style="font-size:12px;text-align:center;color:var(--color-neutral-700)">Grading is optional. You can Mark Done without it.</div>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isDone }}">
+        <div style="position:relative;flex:1;display:flex;flex-direction:column;justify-content:center;gap:22px;max-width:640px">
+          <span style="width:104px;height:104px;border-radius:50%;background:var(--color-accent-2);color:var(--color-bg);display:grid;place-items:center;box-shadow:0 0 0 12px var(--color-accent-2-200)"><svg width="48" height="48" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:3;stroke-linecap:round;stroke-linejoin:round"><path d="M20 6 9 17l-5-5"></path></svg></span>
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <div style="font-family:'Zen Maru Gothic',var(--font-body);font-weight:700;font-size:20px;color:var(--color-accent-700)">お疲れさま！</div>
+            <h1 style="margin:0">Lesson shadowed</h1>
+            <p style="margin:0;font-size:16px;color:var(--color-neutral-800)">All seven Steps done. That's your 3rd Shadowing Attempt on this Lesson.</p>
+          </div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap">
+            <span class="tag tag-accent" style="font-size:13px;padding:6px 14px;gap:6px"><svg width="14" height="14" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:2.75;stroke-linecap:round;stroke-linejoin:round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.07-2.14-.22-4.05 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.15.43-2.29 1-3a2.5 2.5 0 0 0 2.5 2.5z"></path></svg>13-day streak</span>
+            
+          </div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap">
+            <button class="btn btn-primary" style="padding:13px 24px;font-size:16px">Next Lesson<svg width="18" height="18" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:2.75;stroke-linecap:round;stroke-linejoin:round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg></button>
+            <button class="btn btn-secondary" onClick="{{ restart }}" style="padding:13px 22px;font-size:16px">Shadow again</button>
+            <button class="btn btn-ghost" style="padding:13px 14px;font-size:16px">Back to Lessons</button>
+          </div>
+        </div>
+      </sc-if>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1200,&quot;height&quot;:820},&quot;initialStep&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:1,&quot;min&quot;:1,&quot;max&quot;:8,&quot;tsType&quot;:&quot;number&quot;},&quot;initialRecorded&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;},&quot;initialGraded&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;},&quot;long&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;}}">
+const CHUNKS=[['締め切りに','しめきりに'],['間に合うかどうか、','まにあうかどうか、'],['正直なところ','しょうじきなところ'],['自信がない。','じしんがない。']];
+const LONG=[['終電に','しゅうでんに'],['ぎりぎり','ぎりぎり'],['間に合うと思って','まにあうとおもって'],['走ったんですが、','はしったんですが、'],['ホームに着いた','ホームについた'],['瞬間に','しゅんかんに'],['ドアが','ドアが'],['閉まってしまって、','しまってしまって、'],['結局','けっきょく'],['タクシーで','タクシーで'],['帰ることになりました。','かえることになりました。']];
+const LONG_EN='I ran because I thought I could just make the last train, but the doors closed the moment I reached the platform, so I ended up taking a taxi home.';
+const STEPS=[null,
+ {name:'Listen',round:'Slow',text:'full'},
+ {name:'Shadow with Transcript',round:'Slow',text:'jp'},
+ {name:'Shadow without Transcript',round:'Slow',text:'none'},
+ {name:'Listen',round:'Natural',text:'full'},
+ {name:'Shadow with Transcript',round:'Natural',text:'jp'},
+ {name:'Shadow without Transcript',round:'Natural',text:'none'},
+ {name:'Final Recording',round:'Natural',text:'final'}];
+const TIPS={full:'Listen and read along. Notice where the pitch rises and falls, and where the speaker pauses.',jp:'Speak along with the speaker, a half-beat behind, reading the Sentence as you go. Nothing is recorded.',none:'The text is hidden. Follow the sound alone and match its rhythm. Nothing is recorded.',final:'Shadow the Natural audio one last time while recording, then play it back against the speaker.'};
+const N=60;
+const H=i=>14+44*Math.abs(Math.sin(i*0.61)*Math.cos(i*0.17+1))+(i%3)*4;
+const R=i=>12+40*Math.abs(Math.sin(i*0.55+0.4)*Math.cos(i*0.21))+(i%4)*3;
+class Component extends DCLogic {
+  constructor(p){super(p);const s=(p&&p.initialStep)||1;this.state={step:s,max:Math.min(s,7),playing:false,prog:0,mode:'native',plays:{},rec:p&&p.initialRecorded?'done':'idle',graded:!!(p&&p.initialGraded)};}
+  componentWillUnmount(){clearInterval(this.t);}
+  play(mode){clearInterval(this.t);const lg=!!this.props.long;const dur=this.state.step<=3?(lg?14000:6000):(lg?9000:4200);const t0=Date.now();
+    this.setState(s=>({playing:true,mode,prog:0,rec:mode==='record'?'recording':s.rec,graded:mode==='record'?false:s.graded}));
+    this.t=setInterval(()=>{const p=Math.min(1,(Date.now()-t0)/dur);
+      if(p>=1){clearInterval(this.t);this.setState(s=>({playing:false,prog:1,plays:{...s.plays,[s.step]:(s.plays[s.step]||0)+1},rec:s.mode==='record'?'done':s.rec}));}
+      else this.setState({prog:p});},50);}
+  stop(){clearInterval(this.t);this.setState(s=>({playing:false,rec:s.rec==='recording'?'idle':s.rec}));}
+  go(n){clearInterval(this.t);this.setState(s=>({step:n,max:Math.min(7,Math.max(s.max,n)),prog:0,playing:false}));}
+  renderVals(){
+    const s=this.state,done=s.step>7,st=STEPS[Math.min(s.step,7)],slow=s.step<=3,lg=!!this.props.long,CH=lg?LONG:CHUNKS;
+    const nativeOn=['native','together','record'].includes(s.mode);
+    const active=s.playing&&nativeOn?Math.min(CH.length-1,Math.floor(s.prog*CH.length)):-1;
+    const big=st.text==='none';
+    const bars=Array.from({length:N},(_,i)=>({h:Math.round(H(i)*(big?1.7:1))+'px',c:nativeOn&&i/N<s.prog?'var(--color-accent)':'var(--color-neutral-400)'}));
+    const recBars=Array.from({length:N},(_,i)=>{
+      if(s.rec==='idle')return{h:'4px',c:'var(--color-neutral-300)'};
+      if(s.rec==='recording')return i/N<s.prog?{h:Math.round(R(i))+'px',c:'var(--color-accent-2-500)'}:{h:'4px',c:'var(--color-neutral-300)'};
+      const on=(s.mode==='mine'||s.mode==='together')&&i/N<s.prog;
+      return{h:Math.round(R(i))+'px',c:on?'var(--color-accent-2-700)':'var(--color-accent-2-400)'};});
+    const trail=[1,2,3,4,5,6,7].map(n=>{const d=done||n<s.step,cur=!done&&n===s.step,reach=n<=s.max,ahead=reach&&n>s.step&&!done;
+      return{n,name:STEPS[n].name,done:d,notDone:!d,
+        bg:d?'var(--color-accent-2)':cur?'var(--color-accent)':ahead?'var(--color-accent-2-200)':'var(--color-neutral-100)',
+        fg:d||cur?'var(--color-bg)':ahead?'var(--color-accent-2-800)':'var(--color-neutral-600)',
+        ring:cur?'0 0 0 6px var(--color-accent-200)':'none',cursor:reach&&!done&&!cur?'pointer':'default',locked:!reach||done,
+        go:()=>this.go(n),line:(done||n<s.step)?'var(--color-accent-2)':'var(--color-neutral-300)',lineDisplay:n<7?'block':'none',
+        labelColor:cur?'var(--color-text)':'var(--color-neutral-700)',weight:cur?700:400};});
+    const plays=s.plays[s.step]||0;
+    const recording=s.rec==='recording';
+    return{
+      trail,stepCounter:done?'Lesson complete':`Step ${s.step} of 7`,
+      kicker:`${st.round} Round · Step ${s.step}`.replace('Natural Round · Step 7','Final · Step 7'),
+      stepName:st.name,tip:TIPS[st.text],
+      notDone:!done,isDone:done,isFinal:!done&&st.text==='final',notFinalNotDone:!done&&st.text!=='final',
+      showText:!lg&&!done&&(st.text==='full'||st.text==='jp'),showTextLong:lg&&!done&&(st.text==='full'||st.text==='jp'),showEn:st.text==='full',isBlind:!done&&big,en:LONG_EN,
+      chunks:CH.map(([jp,kana],i)=>({jp,kana,bg:i===active?'var(--color-accent-200)':'transparent',fg:i===active?'var(--color-accent-800)':'inherit',kfg:i===active?'var(--color-accent-700)':lg?'var(--color-neutral-700)':'inherit'})),
+      score:lg?81:86,lvTag:lg?'N3':'N2',jpLong:LONG.map(c=>c[0]).join(''),kanaLong:LONG.map(c=>c[1]).join(''),catTag:lg?'Travel':'Work',heardShort:!lg,heardLong:lg,
+      bars,recBars,waveH:big?'110px':'64px',
+      playing:s.playing,notPlaying:!s.playing,
+      togglePlay:()=>s.playing?this.stop():this.play('native'),replay:()=>this.play('native'),
+      speedLabel:(slow?'Slow Native Audio':'Natural Native Audio')+(lg?(slow?' · 0:14':' · 0:09'):''),
+      playsLabel:plays?`Played ${plays}× · replay as often as you like`:'Press play to start',
+      back:()=>this.go(s.step-1),cantBack:s.step<=1,next:()=>this.go(s.step+1),
+      nextLabel:s.step===3?'Start Natural Round':s.step===6?'Go to Final Recording':'Next Step',
+      recStatus:recording?'Recording…':s.rec==='done'?'Ready to play back':'Not recorded yet',
+      recLabel:recording?'Stop':s.rec==='done'?'Re-record':'Record & shadow',
+      recBtnBg:recording?'var(--color-accent-700)':'var(--color-accent)',
+      recRing:recording?'0 0 0 8px var(--color-accent-200)':'var(--shadow-md)',
+      recordClick:()=>recording?this.stop():this.play('record'),
+      hasRec:s.rec==='done',playTogether:()=>this.play('together'),playMine:()=>this.play('mine'),
+      graded:s.graded,canGrade:s.rec==='done'&&!s.graded,grade:()=>this.setState({graded:true}),
+      markDone:()=>this.go(8),
+      restart:()=>{clearInterval(this.t);this.setState({step:1,max:1,prog:0,playing:false,plays:{},rec:'idle',graded:false});}
+    };
+  }
+}
+</script>
+</body>
+</html>
