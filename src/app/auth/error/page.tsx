@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 
 type AuthErrorCode =
   "invalid_or_expired_link" | "missing_auth_token" | "unexpected_auth_error";
@@ -20,7 +21,7 @@ async function ErrorContent({
   const errorCode = getAuthErrorCode(params.code);
 
   return (
-    <p className="text-sm text-muted-foreground font-mono bg-background p-3 rounded-lg border border-border overflow-x-auto">
+    <p className="rounded-lg border bg-background p-3 text-sm text-neutral-800">
       {AUTH_ERROR_MESSAGES[errorCode]}
     </p>
   );
@@ -32,26 +33,22 @@ export default function Page({
   searchParams: Promise<{ code?: string }>;
 }) {
   return (
-    <div className="flex min-h-screen w-full items-center justify-center p-6 md:p-10 bg-background">
+    <div className="flex min-h-screen w-full items-center justify-center bg-background p-6 md:p-10">
       <div className="w-full max-w-sm">
-        <div className="flex flex-col gap-6">
-          <div className="bg-card border border-border rounded-xl shadow-sm overflow-hidden">
-            <div className="p-6 pb-4">
-              <h2 className="text-2xl font-semibold tracking-tight text-foreground">
-                Sorry, something went wrong.
-              </h2>
-            </div>
-            <div className="p-6 pt-0">
-              <Suspense
-                fallback={
-                  <p className="text-sm text-muted-foreground">Loading...</p>
-                }
-              >
-                <ErrorContent searchParams={searchParams} />
-              </Suspense>
-            </div>
-          </div>
-        </div>
+        <Card className="shadow-sm">
+          <CardHeader>
+            <h1 className="text-2xl">Sorry, something went wrong.</h1>
+          </CardHeader>
+          <CardContent>
+            <Suspense
+              fallback={
+                <p className="text-sm text-muted-foreground">Loading…</p>
+              }
+            >
+              <ErrorContent searchParams={searchParams} />
+            </Suspense>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

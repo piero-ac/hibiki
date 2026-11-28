@@ -1,36 +1,26 @@
 "use client";
 
-import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import {
+  Field,
+  FieldDescription,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
+import { signUpErrorMessage } from "@/lib/auth/errors";
 import { createClient } from "@/lib/supabase/client";
-import { isAuthError } from "@supabase/supabase-js";
 
-type SignUpErrorCode =
-  | "passwords_do_not_match"
-  | "weak_password"
-  | "email_already_registered"
-  | "signup_disabled"
-  | "rate_limited"
-  | "unexpected_signup_error";
+const MIN_PASSWORD_LENGTH = 8;
 
-const SIGN_UP_ERROR_MESSAGES = {
-  passwords_do_not_match: "Passwords do not match.",
-  weak_password: "Choose a stronger password.",
-  email_already_registered: "An account may already exist for this email.",
-  signup_disabled: "New account registration is currently unavailable.",
-  rate_limited: "Too many attempts. Please wait a moment and try again.",
-  unexpected_signup_error:
-    "We could not create your account. Please try again.",
-} satisfies Record<SignUpErrorCode, string>;
-
-export default function SignUpForm({
-  className,
-  ...props
-}: React.ComponentPropsWithoutRef<"div">) {
+export default function SignUpForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [repeatPassword, setRepeatPassword] = useState("");
-  const [errorCode, setErrorCode] = useState<SignUpErrorCode | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
@@ -38,13 +28,7 @@ export default function SignUpForm({
     e.preventDefault();
     const supabase = createClient();
     setIsLoading(true);
-    setErrorCode(null);
-
-    if (password !== repeatPassword) {
-      setErrorCode("passwords_do_not_match");
-      setIsLoading(false);
-      return;
-    }
+    setError(null);
 
     try {
       const { error } = await supabase.auth.signUp({
@@ -55,128 +39,93 @@ export default function SignUpForm({
         },
       });
       if (error) {
-        setErrorCode(getSignUpErrorCode(error));
+        setError(signUpErrorMessage(error));
         return;
       }
-      router.push("/auth/sign-up-success");
+      router.push(
+        `/auth/sign-up-success?${new URLSearchParams({ email }).toString()}`,
+      );
     } catch (error: unknown) {
       if (process.env.NODE_ENV !== "production") {
         console.error(error);
       }
 
-      setErrorCode("unexpected_signup_error");
+      setError(signUpErrorMessage(error));
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div
-      className={`w-full max-w-md mx-auto p-6 bg-card border border-border rounded-xl shadow-sm ${className}`}
-      {...props}
+    <form
+      onSubmit={handleSignUp}
+      className="flex flex-1 flex-col gap-4.5 lg:flex-none lg:gap-5"
     >
-      <form onSubmit={handleSignUp} className="flex flex-col gap-4">
-        <div>
-          <h2 className="text-2xl font-semibold tracking-tight text-foreground">
-            Create your Hibiki Account
-          </h2>
-          <p className="text-sm text-muted-foreground mt-1">
-            Enter your details below to get started.
-          </p>
-        </div>
+      <div className="flex flex-col gap-1.5">
+        <h1 className="text-4xl lg:text-[40px]">Start shadowing.</h1>
+        <p className="text-[15px] text-neutral-800">
+          Free. Your first Lesson takes about five minutes.
+        </p>
+      </div>
 
-        <div className="flex flex-col gap-1.5">
-          <label
-            htmlFor="email"
-            className="text-sm font-medium text-muted-foreground"
-          >
-            Email Address
-          </label>
-          <input
+      <FieldGroup className="gap-3.5">
+        <Field>
+          <FieldLabel htmlFor="email" className="text-neutral-800">
+            Email
+          </FieldLabel>
+          <Input
             id="email"
             type="email"
+            autoComplete="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
             placeholder="you@example.com"
-            className="w-full px-3 py-2 border border-input rounded-lg bg-transparent text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
+            className="h-12.5 px-4 text-base md:text-base"
           />
-        </div>
-
-        <div className="flex flex-col gap-1.5">
-          <label
-            htmlFor="password"
-            className="text-sm font-medium text-muted-foreground"
-          >
+        </Field>
+        <Field>
+          <FieldLabel htmlFor="password" className="text-neutral-800">
             Password
-          </label>
-          <input
+          </FieldLabel>
+          <Input
             id="password"
             type="password"
+            autoComplete="new-password"
+            minLength={MIN_PASSWORD_LENGTH}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
-            placeholder="••••••••"
-            className="w-full px-3 py-2 border border-input rounded-lg bg-transparent text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
+            placeholder={`At least ${MIN_PASSWORD_LENGTH} characters`}
+            aria-describedby="password-hint"
+            className="h-12.5 px-4 text-base md:text-base"
           />
-        </div>
+          <FieldDescription id="password-hint" className="pl-3.5 text-xs">
+            Use at least {MIN_PASSWORD_LENGTH} characters.
+          </FieldDescription>
+        </Field>
+        {error && <FieldError>{error}</FieldError>}
+      </FieldGroup>
 
-        <div className="flex flex-col gap-1.5">
-          <label
-            htmlFor="repeatPassword"
-            className="text-sm font-medium text-muted-foreground"
-          >
-            Confirm Password
-          </label>
-          <input
-            id="repeatPassword"
-            type="password"
-            value={repeatPassword}
-            onChange={(e) => setRepeatPassword(e.target.value)}
-            required
-            placeholder="••••••••"
-            className="w-full px-3 py-2 border border-input rounded-lg bg-transparent text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
-          />
-        </div>
+      <Button
+        type="submit"
+        size="lg"
+        shape="pill"
+        disabled={isLoading}
+        className="h-13.5 text-[17px] lg:h-13"
+      >
+        {isLoading ? "Creating account…" : "Create account"}
+      </Button>
 
-        {errorCode && (
-          <div className="text-sm font-medium text-destructive bg-destructive/10 p-2.5 rounded-lg border border-destructive/30">
-            {SIGN_UP_ERROR_MESSAGES[errorCode]}
-          </div>
-        )}
-
-        <button
-          type="submit"
-          disabled={isLoading}
-          className="w-full mt-2 bg-primary hover:bg-accent-600 active:bg-accent-700 text-primary-foreground font-medium text-sm py-2 px-4 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+      <p className="mt-auto text-center text-[15px] text-neutral-800 lg:mt-0 lg:text-left">
+        Already have an account?{" "}
+        <Link
+          href="/auth/login"
+          className="font-bold text-accent-700 hover:text-accent-800"
         >
-          {isLoading ? "Creating account..." : "Sign Up"}
-        </button>
-      </form>
-    </div>
+          Log in
+        </Link>
+      </p>
+    </form>
   );
-}
-
-function getSignUpErrorCode(error: unknown): SignUpErrorCode {
-  if (!isAuthError(error)) {
-    return "unexpected_signup_error";
-  }
-
-  if (error.status === 429) {
-    return "rate_limited";
-  }
-
-  if (error.code === "weak_password") {
-    return "weak_password";
-  }
-
-  if (error.code === "email_exists" || error.code === "user_already_exists") {
-    return "email_already_registered";
-  }
-
-  if (error.code === "signup_disabled") {
-    return "signup_disabled";
-  }
-
-  return "unexpected_signup_error";
 }

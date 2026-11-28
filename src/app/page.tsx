@@ -1,136 +1,257 @@
 import Link from "next/link";
 import { Suspense } from "react";
-import {
-  BarChart3,
-  BookOpenText,
-  Brain,
-  CheckCircle2,
-  Headphones,
-  Mic,
-  Sparkles,
-} from "lucide-react";
-import { AuthButton } from "@/components/auth/auth-button";
-import { Separator } from "@/components/ui/separator";
-import AppPreview from "@/components/landing/app-preview";
-import ProcessCard from "@/components/landing/process-card";
-import FeatureCard from "@/components/landing/feature-card";
+import { ArrowRight, Play } from "lucide-react";
+import { LogoutButton } from "@/components/auth/logout-button";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { PUBLIC_SIGN_UP_ENABLED } from "@/lib/auth/sign-up";
+import { cn } from "@/lib/utils";
+import { createClient } from "@/lib/supabase/server";
 
-export default function Home() {
+// Landing (mockups 5a mobile, 5b desktop). The mockups' "Grading when you
+// want it" panel is left out on purpose: Accuracy Scores stay hidden.
+
+const START_HREF = PUBLIC_SIGN_UP_ENABLED ? "/auth/sign-up" : "/auth/login";
+
+// Decorative waveform under the sample Sentence: the first bars are "played".
+const WAVEFORM_PLAYED = [8, 14, 14, 10, 10, 9, 14, 22, 26, 23, 12, 18, 30, 34];
+const WAVEFORM_AHEAD = [
+  28, 14, 15, 23, 24, 18, 11, 9, 9, 13, 16, 14, 11, 22, 30, 30, 21, 10, 24, 32,
+];
+
+const STEP_CIRCLES = [
+  { step: 1, className: "bg-accent-2-500" },
+  { step: 2, className: "bg-accent-2-500" },
+  { step: 3, className: "bg-accent-2-500" },
+  { step: 4, className: "bg-primary" },
+  { step: 5, className: "bg-primary" },
+  { step: 6, className: "bg-primary" },
+  { step: 7, className: "bg-foreground" },
+];
+
+const heading = "leading-[1.12] tracking-[-0.015em]";
+
+export default function Landing() {
   return (
-    <main className="min-h-screen bg-background text-foreground">
-      <div className="mx-auto flex min-h-screen max-w-6xl flex-col px-6 py-6 sm:px-8 lg:px-12">
-        <nav className="flex items-center justify-between">
-          <Link href="/" className="group">
-            <p className="text-xl font-bold tracking-tight">Hibiki</p>
-            <p className="text-xs text-muted-foreground">ひびき · 響</p>
-          </Link>
+    <main className="relative min-h-screen overflow-hidden bg-background">
+      <span
+        aria-hidden
+        className="absolute top-10 -right-20 size-55 rounded-full bg-accent-2-200 opacity-60 lg:-top-30 lg:-right-30 lg:size-130 lg:opacity-55"
+      />
+      <span
+        aria-hidden
+        className="absolute top-105 right-105 hidden size-30 rounded-full bg-accent-200 opacity-60 lg:block"
+      />
 
-          <Suspense
-            fallback={
-              <div className="text-sm text-muted-foreground">Loading...</div>
-            }
+      <div className="relative mx-auto max-w-300">
+        <header className="flex items-center gap-2 px-5 py-4.5 lg:gap-5 lg:px-12 lg:py-5.5">
+          <Link
+            href="/"
+            className="mr-auto font-heading text-[22px] lg:text-[26px]"
           >
-            <AuthButton showOpenApp={true} />
+            Hibiki
+            <span className="ml-1.5 font-japanese text-base text-primary lg:text-xl">
+              響
+            </span>
+          </Link>
+          <Suspense fallback={null}>
+            <HeaderActions />
           </Suspense>
-        </nav>
+        </header>
 
-        <section className="grid flex-1 items-center gap-12 py-16 lg:grid-cols-[1.05fr_0.95fr] lg:py-24">
-          <div className="text-center lg:text-left">
-            <div className="mb-5 inline-flex items-center gap-2 rounded-full border bg-card px-4 py-2 text-sm text-muted-foreground shadow-sm">
-              <Sparkles className="h-4 w-4" />
-              AI-powered Japanese shadowing practice
-            </div>
-
-            <h1 className="text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl">
-              Shadow. Speak. Improve your Japanese.
+        <section className="grid gap-7 px-5 pt-5 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] lg:items-center lg:gap-14 lg:px-12 lg:pt-15 lg:pb-18">
+          <div className="flex flex-col gap-3.5 lg:gap-5">
+            <h1
+              className={cn(
+                heading,
+                "text-[40px] lg:text-6xl lg:leading-[1.05]",
+              )}
+            >
+              Speak Japanese the way it sounds.
             </h1>
-
-            <p className="mx-auto mt-6 max-w-2xl text-base leading-7 text-muted-foreground sm:text-lg lg:mx-0">
-              Practice advanced N2 and N1 sentences, record your voice, compare
-              your speech with AI transcription, and track your pronunciation
-              progress over time.
+            <p className="max-w-130 text-base text-pretty text-neutral-800 lg:text-lg">
+              Hibiki is shadowing practice for Japanese learners. Listen to a
+              native speaker, speak along, and get your pronunciation closer
+              every day. Lessons span every JLPT level, with a focus on N2 and
+              N1.
             </p>
-
-            <div className="mt-8 flex flex-col items-center gap-3 text-sm text-muted-foreground sm:flex-row sm:justify-center lg:justify-start">
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="h-4 w-4" />
-                <span>Built for N2/N1 learners</span>
-              </div>
-
-              <div className="hidden h-1 w-1 rounded-full bg-muted-foreground sm:block" />
-
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="h-4 w-4" />
-                <span>Practice from any device</span>
-              </div>
+            <div className="flex flex-col gap-2.5 lg:flex-row">
+              <Button
+                asChild
+                size="lg"
+                shape="pill"
+                className="h-13.5 text-[17px] lg:px-6.5"
+              >
+                <Link href={START_HREF}>
+                  {PUBLIC_SIGN_UP_ENABLED
+                    ? "Start shadowing free"
+                    : "Start shadowing"}
+                  <ArrowRight data-icon="inline-end" />
+                </Link>
+              </Button>
+              {PUBLIC_SIGN_UP_ENABLED && (
+                <Button
+                  asChild
+                  variant="outline"
+                  size="lg"
+                  shape="pill"
+                  className="hidden h-13.5 bg-transparent text-[17px] lg:inline-flex lg:px-5.5"
+                >
+                  <Link href="/auth/login">Log in</Link>
+                </Button>
+              )}
             </div>
           </div>
 
-          <AppPreview />
+          <SamplePreview />
         </section>
 
-        <Separator />
-
-        <section className="py-16">
-          <div className="mx-auto max-w-2xl text-center">
-            <h2 className="text-3xl font-bold tracking-tight">
-              A simple loop for better pronunciation.
-            </h2>
-            <p className="mt-4 text-muted-foreground">
-              Hibiki keeps practice focused: listen carefully, shadow out loud,
-              compare your attempt, and improve through repetition.
+        <section className="flex flex-col gap-3.5 px-5 pt-10 lg:max-w-[calc(55%+24px)] lg:gap-4 lg:px-12 lg:pt-0 lg:pb-16">
+          <h2 className={cn(heading, "text-[28px] lg:text-[32px]")}>
+            Seven Steps per Lesson
+          </h2>
+          <ol
+            aria-label="The seven Steps"
+            className="flex flex-wrap items-center gap-3 lg:gap-4"
+          >
+            {STEP_CIRCLES.map(({ step, className }) => (
+              <li
+                key={step}
+                className={cn(
+                  "grid size-9 place-items-center rounded-full font-heading text-[14.4px] text-background lg:size-12 lg:text-[19.2px]",
+                  className,
+                )}
+              >
+                {step}
+              </li>
+            ))}
+          </ol>
+          <div className="flex flex-col gap-2.5 text-[15px] lg:text-base">
+            <p>
+              <strong>Slow Round, Steps 1–3.</strong> Listen with the Sentence,
+              kana and translation on screen, shadow while reading, then shadow
+              with the text hidden.
+            </p>
+            <p>
+              <strong>Natural Round, Steps 4–6.</strong> The same three Steps at
+              native speed.
+            </p>
+            <p>
+              <strong>Final Recording, Step 7.</strong> Record yourself, play it
+              back with the speaker, and Mark Done.
             </p>
           </div>
-
-          <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <ProcessCard
-              icon={<Headphones className="h-5 w-5" />}
-              title="Listen"
-              description="Hear the target Japanese sentence."
-            />
-
-            <ProcessCard
-              icon={<Mic className="h-5 w-5" />}
-              title="Shadow"
-              description="Record yourself speaking out loud."
-            />
-
-            <ProcessCard
-              icon={<Brain className="h-5 w-5" />}
-              title="Compare"
-              description="AI transcribes and checks your attempt."
-            />
-
-            <ProcessCard
-              icon={<BarChart3 className="h-5 w-5" />}
-              title="Improve"
-              description="Track attempts, scores, and progress."
-            />
-          </div>
         </section>
 
-        <section className="pb-16">
-          <div className="grid gap-4 lg:grid-cols-3">
-            <FeatureCard
-              icon={<BookOpenText className="h-6 w-6" />}
-              title="Curated advanced sentences"
-              description="Practice with focused N2 and N1 Japanese sentences instead of beginner material you already know."
-            />
-
-            <FeatureCard
-              icon={<Mic className="h-6 w-6" />}
-              title="Real speaking practice"
-              description="Move beyond passive study by recording yourself, shadowing aloud, and building speaking confidence."
-            />
-
-            <FeatureCard
-              icon={<BarChart3 className="h-6 w-6" />}
-              title="Progress you can see"
-              description="Review your history, scores, and repeated attempts so improvement feels measurable."
-            />
-          </div>
+        <section className="mx-4 mt-10 mb-4 flex flex-col gap-3 rounded-[32px] bg-accent-2-100 px-5 py-6 lg:mx-12 lg:mt-0 lg:mb-12 lg:flex-row lg:items-center lg:gap-6 lg:rounded-[40px] lg:px-10 lg:py-9">
+          <h3
+            className={cn(heading, "text-[25px] text-accent-2-900 lg:mr-auto")}
+          >
+            Your first Lesson takes about five minutes.
+          </h3>
+          <Button
+            asChild
+            size="lg"
+            shape="pill"
+            className="h-13 text-base lg:h-13.5 lg:px-6.5 lg:text-[17px]"
+          >
+            <Link href={START_HREF}>
+              {PUBLIC_SIGN_UP_ENABLED ? "Create an account" : "Log in"}
+            </Link>
+          </Button>
         </section>
       </div>
     </main>
+  );
+}
+
+async function HeaderActions() {
+  const supabase = await createClient();
+  const { data } = await supabase.auth.getClaims();
+
+  if (data?.claims) {
+    return (
+      <>
+        <LogoutButton />
+        <Button
+          asChild
+          size="sm"
+          shape="pill"
+          className="h-11 px-5 text-[15px]"
+        >
+          <Link href="/protected">Open Hibiki</Link>
+        </Button>
+      </>
+    );
+  }
+
+  return (
+    <>
+      <Button
+        asChild
+        variant="ghost"
+        shape="pill"
+        className="h-11 px-3 text-[15px] text-accent-700"
+      >
+        <Link href="/auth/login">Log in</Link>
+      </Button>
+      {PUBLIC_SIGN_UP_ENABLED && (
+        <Button
+          asChild
+          shape="pill"
+          className="hidden h-11 px-5 text-[15px] lg:inline-flex"
+        >
+          <Link href="/auth/sign-up">Sign up</Link>
+        </Button>
+      )}
+    </>
+  );
+}
+
+// A static picture of the Lesson player in Step 1, not a working player.
+function SamplePreview() {
+  return (
+    <figure
+      aria-label="A Lesson in Step 1, Listen"
+      className="-mx-1 flex flex-col gap-3 rounded-[32px] bg-card p-5 shadow-md lg:mx-0 lg:p-7"
+    >
+      <div className="flex items-center gap-1.5">
+        <Badge variant="accent">N3</Badge>
+        <Badge variant="accent-2">Travel</Badge>
+        <span className="ml-auto text-xs text-neutral-700">
+          Step 1 · Listen
+        </span>
+      </div>
+      <p
+        lang="ja"
+        className="font-japanese text-[19px] leading-normal font-bold text-pretty lg:text-2xl"
+      >
+        終電にぎりぎり間に合うと思って走ったんですが、ホームに着いた瞬間にドアが閉まってしまって…
+      </p>
+      <figcaption className="text-[13px] text-neutral-800">
+        I ran because I thought I could just make the last train…
+      </figcaption>
+      <div aria-hidden className="flex items-center gap-3">
+        <span className="grid size-12 flex-none place-items-center rounded-full bg-primary text-background">
+          <Play className="size-5" />
+        </span>
+        <span className="flex h-9 flex-1 items-center gap-0.5">
+          {WAVEFORM_PLAYED.map((height, i) => (
+            <span
+              key={`played-${i}`}
+              className="flex-1 rounded-full bg-primary"
+              style={{ height }}
+            />
+          ))}
+          {WAVEFORM_AHEAD.map((height, i) => (
+            <span
+              key={`ahead-${i}`}
+              className="flex-1 rounded-full bg-neutral-400"
+              style={{ height }}
+            />
+          ))}
+        </span>
+      </div>
+    </figure>
   );
 }
