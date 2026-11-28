@@ -70,7 +70,7 @@ export function buildCatalogue(
   });
 }
 
-const JLPT_LEVELS = ["N5", "N4", "N3", "N2", "N1"] as const;
+export const JLPT_LEVELS = ["N5", "N4", "N3", "N2", "N1"] as const;
 
 type JlptLevel = (typeof JLPT_LEVELS)[number];
 
@@ -122,6 +122,18 @@ export function filterCatalogue(
       (status === "all" || entry.status === status),
   );
   return { entries, count: entries.length };
+}
+
+/**
+ * Each Category in the catalogue once, in the order first seen. Lessons
+ * without a Category add nothing.
+ */
+export function listCategories(catalogue: readonly CatalogueEntry[]): string[] {
+  const categories = new Set<string>();
+  for (const { lesson } of catalogue) {
+    if (lesson.category) categories.add(lesson.category);
+  }
+  return [...categories];
 }
 
 function toLessonStatus(count: number): LessonStatus {

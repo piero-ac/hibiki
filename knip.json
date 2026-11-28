@@ -6,6 +6,10 @@
     "src/types/database.types.ts": ["exports", "types"],
     "src/components/ui/badge.tsx": ["exports"],
     "src/components/ui/button.tsx": ["exports"],
-    "src/components/ui/card.tsx": ["exports"]
+    "src/components/ui/card.tsx": ["exports"],
+    "src/components/ui/drawer.tsx": ["exports"],
+    "src/components/ui/empty.tsx": ["exports"],
+    "src/components/ui/select.tsx": ["exports"],
+    "src/components/ui/toggle.tsx": ["exports"]
   }
 }

@@ -3,6 +3,7 @@ import {
   buildCatalogue,
   filterCatalogue,
   groupByJlptLevel,
+  listCategories,
   type CatalogueLesson,
 } from "@/lib/lesson-catalogue";
 
@@ -189,5 +190,30 @@ describe("filterCatalogue", () => {
 
     expect(filterCatalogue(unknown, { status: "new" }).count).toBe(0);
     expect(filterCatalogue(unknown).count).toBe(2);
+  });
+});
+
+describe("listCategories", () => {
+  it("lists each Category once, in the order first seen, skipping Lessons without one", () => {
+    const catalogue = buildCatalogue(
+      [
+        lesson("a", { category: "Travel" }),
+        lesson("b", { category: "Work" }),
+        lesson("c", { category: null }),
+        lesson("d", { category: "Travel" }),
+        lesson("e", { category: "Everyday Life" }),
+      ],
+      new Map(),
+    );
+
+    expect(listCategories(catalogue)).toEqual([
+      "Travel",
+      "Work",
+      "Everyday Life",
+    ]);
+  });
+
+  it("has no Categories for no Lessons", () => {
+    expect(listCategories([])).toEqual([]);
   });
 });
