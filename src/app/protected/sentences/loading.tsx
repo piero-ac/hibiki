@@ -1,21 +1,17 @@
-import { PageContainer } from "@/components/app/page-container";
-import { Badge } from "@/components/ui/badge";
 import { Card, CardFooter, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function Loading() {
   return (
-    <PageContainer>
+    <div className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 sm:py-10 lg:px-8 [&_[data-slot=skeleton]]:bg-foreground/10">
       <div className="space-y-8">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div className="space-y-3">
-            <Skeleton className="h-10 w-72" />
+            <Skeleton className="h-10 w-72 max-w-full" />
             <Skeleton className="h-5 w-96 max-w-full" />
           </div>
 
-          <Badge variant="secondary" className="w-fit">
-            <Skeleton className="h-4 w-20" />
-          </Badge>
+          <Skeleton className="h-6 w-28 rounded-full" />
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
@@ -41,12 +37,12 @@ export default function Loading() {
               </CardHeader>
 
               <CardFooter className="mt-auto">
-                <Skeleton className="h-10 w-full" />
+                <Skeleton className="h-10 w-full rounded-full" />
               </CardFooter>
             </Card>
           ))}
         </div>
       </div>
-    </PageContainer>
+    </div>
   );
 }
