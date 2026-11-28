@@ -1,30 +1,24 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import {
+  Field,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
+import { loginErrorMessage } from "@/lib/auth/errors";
+import { PUBLIC_SIGN_UP_ENABLED } from "@/lib/auth/sign-up";
 import { createClient } from "@/lib/supabase/client";
-import { isAuthError } from "@supabase/supabase-js";
 
-type LoginErrorCode =
-  | "invalid_credentials"
-  | "email_not_confirmed"
-  | "rate_limited"
-  | "unexpected_login_error";
-
-const LOGIN_ERROR_MESSAGES = {
-  invalid_credentials: "Invalid email or password.",
-  email_not_confirmed: "Please confirm your email before logging in.",
-  rate_limited: "Too many attempts. Please wait a moment and try again.",
-  unexpected_login_error: "We could not log you in. Please try again.",
-} satisfies Record<LoginErrorCode, string>;
-
-export default function LoginForm({
-  className,
-  ...props
-}: React.ComponentPropsWithoutRef<"div">) {
+export default function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [errorCode, setErrorCode] = useState<LoginErrorCode | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
@@ -34,7 +28,7 @@ export default function LoginForm({
     const supabase = createClient();
 
     setIsLoading(true);
-    setErrorCode(null);
+    setError(null);
 
     try {
       const { error } = await supabase.auth.signInWithPassword({
@@ -43,7 +37,7 @@ export default function LoginForm({
       });
 
       if (error) {
-        setErrorCode(getLoginErrorCode(error));
+        setError(loginErrorMessage(error));
         return;
       }
 
@@ -53,97 +47,82 @@ export default function LoginForm({
         console.error(error);
       }
 
-      setErrorCode("unexpected_login_error");
+      setError(loginErrorMessage(error));
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div
-      className={`w-full max-w-md mx-auto p-6 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl shadow-sm ${className}`}
-      {...props}
+    <form
+      onSubmit={handleLogin}
+      className="flex flex-1 flex-col gap-4.5 lg:flex-none lg:gap-5"
     >
-      <form onSubmit={handleLogin} className="flex flex-col gap-4">
-        <div>
-          <h2 className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">
-            Log into your Hibiki Account
-          </h2>
-          <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
-            Welcome back! Enter your credentials to access your dashboard.
-          </p>
-        </div>
+      <h1 className="text-4xl lg:text-display">
+        <span lang="ja" className="lg:hidden">
+          おかえり.
+          <br />
+        </span>
+        Welcome back.
+      </h1>
 
-        <div className="flex flex-col gap-1.5">
-          <label
-            htmlFor="email"
-            className="text-sm font-medium text-zinc-700 dark:text-zinc-300"
-          >
-            Email Address
-          </label>
-          <input
+      <FieldGroup className="gap-3.5">
+        <Field>
+          <FieldLabel htmlFor="email" className="text-neutral-800">
+            Email
+          </FieldLabel>
+          <Input
             id="email"
             type="email"
+            autoComplete="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
             placeholder="you@example.com"
-            className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-700 rounded-lg bg-transparent text-sm focus:outline-none focus:ring-2 focus:ring-zinc-950 dark:focus:ring-zinc-300 focus:border-transparent transition-all"
+            aria-invalid={error ? true : undefined}
+            className="h-12.5 px-4 text-base md:text-base"
           />
-        </div>
-
-        <div className="flex flex-col gap-1.5">
-          <label
-            htmlFor="password"
-            className="text-sm font-medium text-zinc-700 dark:text-zinc-300"
-          >
+        </Field>
+        <Field>
+          <FieldLabel htmlFor="password" className="text-neutral-800">
             Password
-          </label>
-          <input
+          </FieldLabel>
+          <Input
             id="password"
             type="password"
+            autoComplete="current-password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
             placeholder="••••••••"
-            className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-700 rounded-lg bg-transparent text-sm focus:outline-none focus:ring-2 focus:ring-zinc-950 dark:focus:ring-zinc-300 focus:border-transparent transition-all"
+            aria-invalid={error ? true : undefined}
+            className="h-12.5 px-4 text-base md:text-base"
           />
-        </div>
+        </Field>
+        {error && <FieldError>{error}</FieldError>}
+      </FieldGroup>
 
-        {errorCode && (
-          <div className="text-sm font-medium text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/30 p-2.5 rounded-lg border border-red-200 dark:border-red-900/50">
-            {LOGIN_ERROR_MESSAGES[errorCode]}
-          </div>
-        )}
+      <Button
+        type="submit"
+        size="lg"
+        shape="pill"
+        disabled={isLoading}
+        className="h-13.5 text-lead lg:h-13"
+      >
+        {isLoading ? "Logging in…" : "Log in"}
+      </Button>
 
-        <button
-          type="submit"
-          disabled={isLoading}
-          className="w-full mt-2 bg-zinc-900 hover:bg-zinc-800 dark:bg-zinc-50 dark:hover:bg-zinc-200 text-zinc-50 dark:text-zinc-900 font-medium text-sm py-2 px-4 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {isLoading ? "Logging in..." : "Login"}
-        </button>
-      </form>
-    </div>
+      {PUBLIC_SIGN_UP_ENABLED && (
+        <p className="mt-auto text-center text-body text-neutral-800 lg:mt-0 lg:text-left">
+          New to Hibiki?{" "}
+          <Link
+            href="/auth/sign-up"
+            className="font-bold text-accent-700 hover:text-accent-800"
+          >
+            Sign up
+          </Link>
+        </p>
+      )}
+    </form>
   );
-}
-
-function getLoginErrorCode(error: unknown): LoginErrorCode {
-  if (!isAuthError(error)) {
-    return "unexpected_login_error";
-  }
-
-  if (error.status === 429) {
-    return "rate_limited";
-  }
-
-  if (error.code === "email_not_confirmed") {
-    return "email_not_confirmed";
-  }
-
-  if (error.code === "invalid_credentials" || error.code === "invalid_grant") {
-    return "invalid_credentials";
-  }
-
-  return "unexpected_login_error";
 }

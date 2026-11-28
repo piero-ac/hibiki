@@ -2,24 +2,34 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
+/*
+ * Light only. Tailwind's built-in `dark:` variant follows the OS colour
+ * scheme, which would switch on the `dark:` classes inside the shadcn
+ * components. Pin it to a `.dark` class that the app never sets, so they
+ * never apply. Dark mode is a separate issue.
+ */
 @custom-variant dark (&:is(.dark *));
 
+/*
+ * Organic theme (docs/design/ui/_ds/…/styles.css) mapped onto shadcn's
+ * tokens. See ADR 0002: the look lives here, not in component internals.
+ */
 @theme inline {
-  --font-heading: var(--font-mono);
-  --font-mono: var(--font-mono);
-  --color-sidebar-ring: var(--sidebar-ring);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar: var(--sidebar);
-  --color-chart-5: var(--chart-5);
-  --color-chart-4: var(--chart-4);
-  --color-chart-3: var(--chart-3);
-  --color-chart-2: var(--chart-2);
-  --color-chart-1: var(--chart-1);
+  --font-sans: var(--font-figtree), system-ui, sans-serif;
+  --font-heading: var(--font-caprasimo), system-ui, sans-serif;
+  --font-japanese:
+    var(--font-zen-maru-gothic), "Hiragino Maru Gothic ProN", system-ui,
+    sans-serif;
+
+  /* Organic in-between type sizes the mockups repeat (Tailwind's scale
+     covers the rest), e.g. text-body. */
+  --text-label: 0.6875rem; /* 11px: kickers, small labels */
+  --text-caption: 0.8125rem; /* 13px: captions, counts */
+  --text-body: 0.9375rem; /* 15px: secondary body copy */
+  --text-lead: 1.0625rem; /* 17px: list Sentences, lead copy */
+  --text-headline: 1.75rem; /* 28px */
+  --text-display: 2.5rem; /* 40px: page titles on desktop */
+
   --color-ring: var(--ring);
   --color-input: var(--input);
   --color-border: var(--border);
@@ -38,82 +48,111 @@
   --color-card: var(--card);
   --color-foreground: var(--foreground);
   --color-background: var(--background);
-  --radius-sm: calc(var(--radius) * 0.6);
-  --radius-md: calc(var(--radius) * 0.8);
+
+  /* Organic tonal ramps, usable as e.g. bg-accent-100, text-accent-2-800. */
+  --color-neutral-100: var(--organic-neutral-100);
+  --color-neutral-200: var(--organic-neutral-200);
+  --color-neutral-300: var(--organic-neutral-300);
+  --color-neutral-400: var(--organic-neutral-400);
+  --color-neutral-500: var(--organic-neutral-500);
+  --color-neutral-600: var(--organic-neutral-600);
+  --color-neutral-700: var(--organic-neutral-700);
+  --color-neutral-800: var(--organic-neutral-800);
+  --color-neutral-900: var(--organic-neutral-900);
+  --color-accent-100: var(--organic-accent-100);
+  --color-accent-200: var(--organic-accent-200);
+  --color-accent-300: var(--organic-accent-300);
+  --color-accent-400: var(--organic-accent-400);
+  --color-accent-500: var(--organic-accent-500);
+  --color-accent-600: var(--organic-accent-600);
+  --color-accent-700: var(--organic-accent-700);
+  --color-accent-800: var(--organic-accent-800);
+  --color-accent-900: var(--organic-accent-900);
+  --color-accent-2-100: var(--organic-accent-2-100);
+  --color-accent-2-200: var(--organic-accent-2-200);
+  --color-accent-2-300: var(--organic-accent-2-300);
+  --color-accent-2-400: var(--organic-accent-2-400);
+  --color-accent-2-500: var(--organic-accent-2-500);
+  --color-accent-2-600: var(--organic-accent-2-600);
+  --color-accent-2-700: var(--organic-accent-2-700);
+  --color-accent-2-800: var(--organic-accent-2-800);
+  --color-accent-2-900: var(--organic-accent-2-900);
+
+  /* --radius is 16px; Organic's 8px is radius-sm and 28px is radius-2xl. */
+  --radius-sm: calc(var(--radius) * 0.5);
+  --radius-md: calc(var(--radius) * 0.75);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) * 1.4);
-  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-2xl: calc(var(--radius) * 1.75);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
+  /* Organic .card / .dialog: radius-lg (our 2xl) x 1.15, about 32px. */
+  --radius-card: calc(var(--radius) * 1.75 * 1.15);
+
+  --shadow-sm: 0 1px 2px color-mix(in srgb, #2e2b25 14%, transparent);
+  --shadow-md: 0 3px 10px color-mix(in srgb, #2e2b25 16%, transparent);
+  --shadow-lg: 0 12px 32px color-mix(in srgb, #2e2b25 22%, transparent);
 }
 
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
-}
+  color-scheme: light;
 
-.dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  --organic-bg: #f5ead8;
+  --organic-surface: #ebddc5;
+  --organic-text: #201e1d;
+  --organic-accent: #c67139;
+  --organic-accent-2: #7a8a5e;
+  --organic-divider: color-mix(in srgb, #201e1d 16%, transparent);
+
+  --organic-neutral-100: #f9f4ed;
+  --organic-neutral-200: #eee7db;
+  --organic-neutral-300: #dcd3c4;
+  --organic-neutral-400: #c0b6a5;
+  --organic-neutral-500: #a19786;
+  --organic-neutral-600: #82796a;
+  --organic-neutral-700: #645c50;
+  --organic-neutral-800: #474238;
+  --organic-neutral-900: #2e2b25;
+
+  --organic-accent-100: #fff2eb;
+  --organic-accent-200: #ffe1d0;
+  --organic-accent-300: #ffc6a5;
+  --organic-accent-400: #f6a06b;
+  --organic-accent-500: #d67f48;
+  --organic-accent-600: #b2622d;
+  --organic-accent-700: #8c491a;
+  --organic-accent-800: #643312;
+  --organic-accent-900: #402310;
+
+  --organic-accent-2-100: #f0fae1;
+  --organic-accent-2-200: #e1eecc;
+  --organic-accent-2-300: #ccdbb2;
+  --organic-accent-2-400: #aebf92;
+  --organic-accent-2-500: #8fa073;
+  --organic-accent-2-600: #728157;
+  --organic-accent-2-700: #56633f;
+  --organic-accent-2-800: #3d472b;
+  --organic-accent-2-900: #272e1b;
+
+  --background: var(--organic-bg);
+  --foreground: var(--organic-text);
+  --card: var(--organic-surface);
+  --card-foreground: var(--organic-text);
+  --popover: var(--organic-surface);
+  --popover-foreground: var(--organic-text);
+  --primary: var(--organic-accent);
+  --primary-foreground: var(--organic-bg);
+  --secondary: var(--organic-neutral-200);
+  --secondary-foreground: var(--organic-text);
+  --muted: var(--organic-neutral-200);
+  --muted-foreground: var(--organic-neutral-700);
+  --accent: var(--organic-neutral-300);
+  --accent-foreground: var(--organic-text);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: var(--organic-divider);
+  --input: var(--organic-divider);
+  --ring: var(--organic-accent);
+  --radius: 1rem;
 }
 
 @layer base {
@@ -121,9 +160,24 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background font-sans text-foreground;
   }
-  html {
-    @apply font-mono;
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply font-heading font-normal;
+  }
+  /* Organic focus ring for elements the shadcn components don't style. */
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+  ::selection {
+    background: color-mix(in srgb, var(--organic-accent) 30%, transparent);
+  }
+  /* Lucide icons render heavier and rounder in Organic. */
+  svg.lucide {
+    stroke-width: 2.75;
   }
 }
