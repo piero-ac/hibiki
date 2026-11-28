@@ -111,7 +111,7 @@ export function LessonPlayer({
         </div>
         <p className="ml-auto text-caption text-neutral-700">
           {lessonShadowed
-            ? "Lesson complete"
+            ? "Lesson shadowed"
             : `Step ${state.step} of ${STEP_COUNT}`}
         </p>
         <LessonExit

@@ -15,12 +15,12 @@ export default function ProgressOverview({
 }) {
   const stats: { label: string; value: number; icon: LucideIcon }[] = [
     {
-      label: "Lessons Completed",
+      label: "Shadowing Attempts",
       value: activity.lessonsCompleted,
       icon: Target,
     },
     {
-      label: "Lessons Practiced",
+      label: "Lessons Shadowed",
       value: activity.lessonsPracticed,
       icon: BookOpen,
     },

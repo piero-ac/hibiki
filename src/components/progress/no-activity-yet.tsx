@@ -19,9 +19,9 @@ export default function NoActivityYet() {
         >
           <BookOpen />
         </EmptyMedia>
-        <EmptyTitle>No Lessons completed yet</EmptyTitle>
+        <EmptyTitle>No Shadowing Attempts yet</EmptyTitle>
         <EmptyDescription>
-          Work through a Lesson and press Mark Done in the Final Recording step.
+          Work through a Lesson and press Mark Done in the Final Recording Step.
           Your practice will show up here.
         </EmptyDescription>
       </EmptyHeader>
