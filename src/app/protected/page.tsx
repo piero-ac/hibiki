@@ -1,30 +1,16 @@
-import Link from "next/link";
 import { redirect } from "next/navigation";
-import {
-  ArrowRight,
-  BarChart3,
-  BookOpenText,
-  Headphones,
-  Dices,
-} from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
-import { getLearnerProgress } from "@/lib/progress";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { getShadowingAttemptCounts } from "@/lib/progress";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import ActionCard from "@/components/dashboard/action-card";
+  buildCatalogue,
+  groupByJlptLevel,
+  toCatalogueLesson,
+} from "@/lib/lesson-catalogue";
+import { suggestNewLesson } from "@/lib/lesson-catalogue/suggest";
+import { UpNextCard } from "@/components/home/up-next-card";
+import { LessonStatusGrid } from "@/components/home/lesson-status-grid";
 
-import { PageContainer } from "@/components/app/page-container";
-import ProgressOverview from "@/components/progress/progress-overview";
-import NoActivityYet from "@/components/progress/no-activity-yet";
-
-export default async function HomeDashboard() {
+export default async function Home() {
   const supabase = await createClient();
 
   const { data: claims, error: authError } = await supabase.auth.getClaims();
@@ -33,78 +19,43 @@ export default async function HomeDashboard() {
     redirect("/auth/login");
   }
 
-  const progress = await getLearnerProgress(supabase).catch(() => null);
+  const { data: sentences, error: sentencesError } = await supabase
+    .from("sentences")
+    .select(
+      "id, japanese_text, kana_text, english_translation, jlpt_level, category",
+    )
+    // groupByJlptLevel orders the levels N5 to N1.
+    .order("category", { ascending: true })
+    .order("id", { ascending: true });
 
-  if (!progress) {
-    return <div>Error loading dashboard.</div>;
+  // Without the counts the Lessons still list, just without status colours.
+  let shadowingAttemptCounts: Map<string, number> | null;
+  try {
+    shadowingAttemptCounts = await getShadowingAttemptCounts(supabase);
+  } catch {
+    shadowingAttemptCounts = null;
   }
 
+  const catalogue = buildCatalogue(
+    (sentences ?? []).map(toCatalogueLesson),
+    shadowingAttemptCounts,
+  );
+
   return (
-    <PageContainer>
-      <div className="space-y-8">
-        {/* Hero */}
-        <Card>
-          <CardHeader className="space-y-4">
-            <Badge variant="secondary" className="w-fit">
-              Hibiki Dashboard
-            </Badge>
+    <div className="mx-auto flex w-full max-w-6xl flex-col gap-3.5 px-4 pt-2 pb-6 md:gap-7 md:px-9 md:pt-8 md:pb-10">
+      <h1 lang="ja" className="mx-1 mt-1 text-[1.75rem] md:mx-0 md:text-[38px]">
+        おかえり。
+      </h1>
 
-            <div>
-              <CardTitle className="text-3xl sm:text-4xl">
-                Welcome back.
-              </CardTitle>
+      <UpNextCard suggestion={suggestNewLesson(catalogue)} />
 
-              <CardDescription className="mt-2 max-w-2xl text-base leading-7">
-                Continue improving your Japanese pronunciation one shadowing
-                session at a time.
-              </CardDescription>
-            </div>
-          </CardHeader>
-
-          <CardContent>
-            <Button asChild size="lg">
-              <Link href="/protected/sentences/random">
-                <Dices className="mr-2 h-4 w-4" />
-                Practice a Random Sentence
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Link>
-            </Button>
-          </CardContent>
-        </Card>
-
-        {/* Quick Actions */}
-        <div className="grid gap-4 md:grid-cols-3">
-          <ActionCard
-            icon={<BookOpenText className="h-5 w-5" />}
-            title="Practice Sentences"
-            description="Browse all available N2 and N1 shadowing sentences."
-            href="/protected/sentences"
-            buttonText="Browse"
-          />
-
-          <ActionCard
-            icon={<BarChart3 className="h-5 w-5" />}
-            title="Progress"
-            description="Review the Lessons you have completed and your practice history."
-            href="/protected/progress"
-            buttonText="View Progress"
-          />
-
-          <ActionCard
-            icon={<Headphones className="h-5 w-5" />}
-            title="Continue Practicing"
-            description="Pick another sentence and keep improving."
-            href="/protected/sentences"
-            buttonText="Continue"
-          />
-        </div>
-
-        {/* Snapshot */}
-        <div className="space-y-4">
-          <ProgressOverview activity={progress.activity} />
-          {progress.activity.lessonsCompleted === 0 && <NoActivityYet />}
-        </div>
-      </div>
-    </PageContainer>
+      {sentencesError ? (
+        <p className="px-1 text-sm text-muted-foreground">
+          Lessons couldn&apos;t be loaded. Try refreshing the page.
+        </p>
+      ) : (
+        <LessonStatusGrid groups={groupByJlptLevel(catalogue)} />
+      )}
+    </div>
   );
 }
