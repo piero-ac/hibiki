@@ -1,10 +1,7 @@
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
-import ShadowingPlayer from "@/components/practice/shadowing-client-player";
-import { Badge } from "@/components/ui/badge";
+import { LessonPlayer } from "@/components/lesson-player/lesson-player";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import LessonActivityCard from "@/components/practice/lesson-activity-card";
 import { createClient } from "@/lib/supabase/server";
 import { createLessonAudioUrl } from "@/lib/lesson-audio";
 import { getLessonProgress } from "@/lib/progress";
@@ -28,11 +25,11 @@ export default async function ShadowingPage({ params }: PageProps) {
       <main className="flex min-h-[calc(100vh-4rem)] items-center justify-center bg-background p-6 text-foreground">
         <Card className="w-full max-w-md text-center">
           <CardHeader>
-            <CardTitle>Sentence not found</CardTitle>
+            <CardTitle>Lesson not found</CardTitle>
           </CardHeader>
           <CardContent>
-            <Button asChild variant="outline">
-              <Link href="/protected/sentences">Back to sentences</Link>
+            <Button asChild variant="outline" shape="pill">
+              <Link href="/protected/sentences">Back to Lessons</Link>
             </Button>
           </CardContent>
         </Card>
@@ -45,55 +42,29 @@ export default async function ShadowingPage({ params }: PageProps) {
     createLessonAudioUrl(supabase, sentence.slow_audio_prompt_url),
   ]);
 
-  // The sidebar is secondary: if it fails, the Lesson stays practicable.
+  // The attempt count is secondary: if it fails, the Lesson stays practicable.
   const lessonProgress = await getLessonProgress(supabase, sentence.id).catch(
     () => null,
   );
 
   return (
-    <main className="min-h-[calc(100vh-4rem)] bg-background px-4 py-4 text-foreground sm:px-6 lg:px-8">
-      <section className="mx-auto flex w-full max-w-7xl flex-col">
-        <div className="mb-3 flex items-center justify-between">
-          <Button asChild variant="ghost" size="sm">
-            <Link href="/protected/sentences">
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Sentences
-            </Link>
-          </Button>
-        </div>
-
-        <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_320px] xl:grid-cols-[minmax(0,1fr)_360px]">
-          <Card className="flex min-h-[calc(100vh-7rem)] flex-col shadow-sm">
-            <CardHeader className="text-center">
-              <div className="flex items-center justify-center gap-2">
-                {sentence.jlpt_level && (
-                  <Badge variant="secondary">{sentence.jlpt_level}</Badge>
-                )}
-
-                {sentence.category && (
-                  <Badge variant="outline">{sentence.category}</Badge>
-                )}
-              </div>
-            </CardHeader>
-
-            <CardContent className="flex flex-1 items-center justify-center">
-              <ShadowingPlayer
-                key={sentence.id}
-                naturalAudioUrl={naturalAudioUrl}
-                slowAudioUrl={slowAudioUrl}
-                sentenceId={sentence.id}
-                japaneseText={sentence.japanese_text}
-                kanaText={sentence.kana_text}
-                englishTranslation={sentence.english_translation}
-              />
-            </CardContent>
-          </Card>
-
-          {lessonProgress && (
-            <LessonActivityCard activity={lessonProgress.activity} />
-          )}
-        </div>
-      </section>
-    </main>
+    <div className="flex min-h-[calc(100dvh-6.375rem)] flex-col sm:min-h-[calc(100dvh-4rem)]">
+      <LessonPlayer
+        key={sentence.id}
+        lesson={{
+          id: sentence.id,
+          sentence: sentence.japanese_text,
+          kana: sentence.kana_text,
+          translation: sentence.english_translation,
+          jlptLevel: sentence.jlpt_level,
+          category: sentence.category,
+        }}
+        naturalAudioUrl={naturalAudioUrl}
+        slowAudioUrl={slowAudioUrl}
+        shadowingAttemptCount={
+          lessonProgress?.activity.shadowingAttemptCount ?? null
+        }
+      />
+    </div>
   );
 }
