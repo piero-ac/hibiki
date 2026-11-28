@@ -5,7 +5,7 @@ import { ArrowRight, ChevronLeft, ChevronRight, Play, X } from "lucide-react";
 import {
   checkPronunciation,
   markLessonDone,
-} from "@/app/protected/sentences/actions";
+} from "@/app/protected/(lesson)/sentences/[id]/actions";
 import { Button } from "@/components/ui/button";
 import { LessonTags } from "@/components/sentences/lesson-tags";
 import {

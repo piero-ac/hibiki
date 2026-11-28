@@ -22,7 +22,7 @@ export default async function ShadowingPage({ params }: PageProps) {
 
   if (error || !sentence) {
     return (
-      <main className="flex min-h-[calc(100vh-4rem)] items-center justify-center bg-background p-6 text-foreground">
+      <div className="flex flex-1 items-center justify-center p-6">
         <Card className="w-full max-w-md text-center">
           <CardHeader>
             <CardTitle>Lesson not found</CardTitle>
@@ -33,7 +33,7 @@ export default async function ShadowingPage({ params }: PageProps) {
             </Button>
           </CardContent>
         </Card>
-      </main>
+      </div>
     );
   }
 
@@ -48,7 +48,7 @@ export default async function ShadowingPage({ params }: PageProps) {
   );
 
   return (
-    <div className="flex min-h-[calc(100dvh-6.375rem)] flex-col sm:min-h-[calc(100dvh-4rem)]">
+    <div className="flex flex-1 flex-col">
       <LessonPlayer
         key={sentence.id}
         lesson={{
