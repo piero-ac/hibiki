@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useReducer, useRef } from "react";
+import { useCallback, useEffect, useReducer, useRef, useState } from "react";
 import type { LessonMedia } from "./media";
 import {
   canRecord,
@@ -50,6 +50,8 @@ export function useLessonPlayer({
     markDoneReducer,
     initialMarkDoneState,
   );
+  // Outlasts the brief "Marked done" confirmation, until the Learner restarts.
+  const [lessonShadowed, setLessonShadowed] = useState(false);
   const countdownRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const playCountdownRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const autoStopRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -147,6 +149,11 @@ export function useLessonPlayer({
 
   const next = useCallback(() => move({ type: "next" }), [move]);
   const previous = useCallback(() => move({ type: "previous" }), [move]);
+  /** Whether the Step trail can go to this Step right now. */
+  const canGoTo = useCallback(
+    (step: number) => lessonReducer(state, { type: "goTo", step }) !== state,
+    [state],
+  );
   const goTo = useCallback(
     (step: number) => move({ type: "goTo", step }),
     [move],
@@ -163,6 +170,7 @@ export function useLessonPlayer({
       markingDoneRef.current = false;
     }
     dispatchMarkDone({ type: "restarted" });
+    setLessonShadowed(false);
   }, [state, currentRecording, media, move, markDoneState]);
 
   const record = useCallback(() => {
@@ -236,6 +244,7 @@ export function useLessonPlayer({
     }
 
     dispatchMarkDone({ type: "markDoneSucceeded" });
+    setLessonShadowed(true);
     confirmationRef.current = setTimeout(() => {
       confirmationRef.current = null;
       markingDoneRef.current = false;
@@ -250,10 +259,13 @@ export function useLessonPlayer({
     /** A Final Recording countdown or Recording is running; Steps are locked. */
     recordingBusy: isRecordingBusy(state),
     markDoneState,
+    /** Mark Done was saved in this run of the Lesson; cleared by restart. */
+    lessonShadowed,
     gradingAvailable: grade !== undefined,
     play,
     next,
     previous,
+    canGoTo,
     goTo,
     restart,
     record,

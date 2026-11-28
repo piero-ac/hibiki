@@ -1,0 +1,87 @@
+// @vitest-environment jsdom
+import { act, renderHook } from "@testing-library/react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  useLessonPlayer,
+  type MarkDone,
+} from "@/lib/lesson-player/use-lesson-player";
+import { FakeLessonMedia } from "./fake-lesson-media";
+
+let media: FakeLessonMedia;
+let markDone: ReturnType<typeof vi.fn<MarkDone>>;
+
+beforeEach(() => {
+  vi.useFakeTimers();
+  media = new FakeLessonMedia();
+  markDone = vi.fn<MarkDone>(async () => ({ ok: true }));
+});
+
+afterEach(() => {
+  vi.useRealTimers();
+});
+
+function renderAtFinalRecording() {
+  const rendered = renderHook(() => useLessonPlayer({ media, markDone }));
+  while (rendered.result.current.state.step < 7) {
+    act(() => rendered.result.current.next());
+  }
+  return rendered;
+}
+
+describe("useLessonPlayer: Lesson shadowed", () => {
+  it("is shadowed once Mark Done is saved, and stays so after the confirmation", async () => {
+    const { result } = renderAtFinalRecording();
+    expect(result.current.lessonShadowed).toBe(false);
+
+    await act(() => result.current.markDone());
+    expect(result.current.lessonShadowed).toBe(true);
+
+    await act(() => vi.advanceTimersByTimeAsync(2000));
+    expect(result.current.lessonShadowed).toBe(true);
+  });
+
+  it("isn't shadowed when Mark Done can't be saved", async () => {
+    markDone.mockResolvedValueOnce({ ok: false, error: "Couldn't save." });
+    const { result } = renderAtFinalRecording();
+
+    await act(() => result.current.markDone());
+
+    expect(result.current.lessonShadowed).toBe(false);
+  });
+
+  it("restart starts a fresh run that isn't shadowed", async () => {
+    const { result } = renderAtFinalRecording();
+    await act(() => result.current.markDone());
+
+    act(() => result.current.restart());
+
+    expect(result.current.lessonShadowed).toBe(false);
+    expect(result.current.state.step).toBe(1);
+  });
+});
+
+describe("useLessonPlayer: which Steps the trail can go to", () => {
+  it("allows only Steps already reached, other than the current one", () => {
+    const { result } = renderHook(() => useLessonPlayer({ media, markDone }));
+    expect(result.current.canGoTo(1)).toBe(false);
+    expect(result.current.canGoTo(2)).toBe(false);
+
+    act(() => result.current.next());
+    act(() => result.current.next());
+    act(() => result.current.next());
+    act(() => result.current.goTo(2));
+
+    expect(result.current.canGoTo(1)).toBe(true);
+    expect(result.current.canGoTo(2)).toBe(false);
+    expect(result.current.canGoTo(4)).toBe(true);
+    expect(result.current.canGoTo(5)).toBe(false);
+  });
+
+  it("allows no Step while recording", () => {
+    const { result } = renderAtFinalRecording();
+
+    act(() => result.current.record());
+
+    expect(result.current.canGoTo(6)).toBe(false);
+  });
+});
