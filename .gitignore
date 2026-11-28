@@ -40,3 +40,5 @@ next-env.d.ts
 
 # Supabase
 supabase/.temp/
+# Claude Design export: stale copies of repo docs, never committed
+/docs/design/ui/uploads/

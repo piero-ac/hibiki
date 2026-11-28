@@ -1,6 +1,7 @@
 {
   "$schema": "https://unpkg.com/knip@6/schema.json",
   "tags": ["-lintignore"],
+  "ignore": ["docs/design/**"],
   "ignoreIssues": {
     "src/types/database.types.ts": ["exports", "types"],
     "src/components/ui/badge.tsx": ["exports"],

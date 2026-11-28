@@ -20,7 +20,7 @@ async function ErrorContent({
   const errorCode = getAuthErrorCode(params.code);
 
   return (
-    <p className="text-sm text-zinc-500 dark:text-zinc-400 font-mono bg-zinc-50 dark:bg-zinc-950 p-3 rounded-lg border border-zinc-100 dark:border-zinc-900 overflow-x-auto">
+    <p className="text-sm text-muted-foreground font-mono bg-background p-3 rounded-lg border border-border overflow-x-auto">
       {AUTH_ERROR_MESSAGES[errorCode]}
     </p>
   );
@@ -32,18 +32,20 @@ export default function Page({
   searchParams: Promise<{ code?: string }>;
 }) {
   return (
-    <div className="flex min-h-screen w-full items-center justify-center p-6 md:p-10 bg-zinc-50 dark:bg-zinc-950">
+    <div className="flex min-h-screen w-full items-center justify-center p-6 md:p-10 bg-background">
       <div className="w-full max-w-sm">
         <div className="flex flex-col gap-6">
-          <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl shadow-sm overflow-hidden">
+          <div className="bg-card border border-border rounded-xl shadow-sm overflow-hidden">
             <div className="p-6 pb-4">
-              <h2 className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">
+              <h2 className="text-2xl font-semibold tracking-tight text-foreground">
                 Sorry, something went wrong.
               </h2>
             </div>
             <div className="p-6 pt-0">
               <Suspense
-                fallback={<p className="text-sm text-zinc-400">Loading...</p>}
+                fallback={
+                  <p className="text-sm text-muted-foreground">Loading...</p>
+                }
               >
                 <ErrorContent searchParams={searchParams} />
               </Suspense>

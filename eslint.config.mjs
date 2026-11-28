@@ -14,6 +14,8 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
     // Local Supabase CLI runtime state and generated function bundles:
     "supabase/.temp/**",
+    // Claude Design mockups, kept as exported:
+    "docs/design/**",
   ]),
 ]);
 

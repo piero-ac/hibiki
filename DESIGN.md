@@ -27,8 +27,9 @@ The application follows a server-first architecture using the Next.js App Router
 - React 19
 - TypeScript
 - Tailwind CSS
-- shadcn/ui
-- Lucide Icons
+- shadcn/ui on the rounded `radix-maia` style, themed with the Claude Design "Organic" look (mockups and design system in `docs/design/ui/`). The look lives in theme tokens in `src/app/globals.css`, not in forked components (ADR 0002). Light only.
+- Organic fonts through `next/font/google`: Caprasimo (headings), Figtree (body) and Zen Maru Gothic (Japanese text)
+- Lucide icons at stroke-width 2.75
 
 ## Backend
 

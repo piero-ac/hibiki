@@ -233,12 +233,14 @@ function LessonText({
   return (
     <div className="flex min-h-32 flex-col items-center justify-center space-y-3 text-center">
       {shows.sentence && (
-        <p className="text-3xl leading-relaxed font-bold tracking-tight sm:text-4xl">
+        <p className="font-japanese text-3xl leading-relaxed font-bold tracking-tight sm:text-4xl">
           {japaneseText}
         </p>
       )}
       {shows.kana && (
-        <p className="text-base text-muted-foreground sm:text-lg">{kanaText}</p>
+        <p className="font-japanese text-base text-muted-foreground sm:text-lg">
+          {kanaText}
+        </p>
       )}
       {shows.translation && (
         <p className="max-w-xl text-sm leading-6 text-muted-foreground sm:text-base">
