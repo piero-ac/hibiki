@@ -43,7 +43,7 @@ export default async function Home() {
 
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-3.5 px-4 pt-2 pb-6 md:gap-7 md:px-9 md:pt-8 md:pb-10">
-      <h1 lang="ja" className="mx-1 mt-1 text-[1.75rem] md:mx-0 md:text-[38px]">
+      <h1 lang="ja" className="mx-1 mt-1 text-headline md:mx-0 md:text-[38px]">
         おかえり。
       </h1>
 

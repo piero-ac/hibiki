@@ -26,7 +26,7 @@ export function LessonShadowed({
           お疲れさま！
         </p>
         <h1 className="text-3xl md:text-4xl">Lesson shadowed</h1>
-        <p className="text-[15px] text-neutral-800 md:text-base">
+        <p className="text-body text-neutral-800 md:text-base">
           All seven Steps done.
           {shadowingAttemptCount !== null &&
             ` That's your ${ordinal(shadowingAttemptCount)} Shadowing Attempt on this Lesson.`}

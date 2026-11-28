@@ -1,16 +1,16 @@
 import Link from "next/link";
 import { ArrowRight, Shuffle } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { LessonTags } from "@/components/sentences/lesson-tags";
+import { cn } from "@/lib/utils";
 import type { CatalogueEntry } from "@/lib/lesson-catalogue";
 
-const RANDOM_LESSON_HREF = "/protected/sentences/random";
+/** The Up next Card's shape, shared with Home's loading skeleton. */
+export const UP_NEXT_CARD_CLASS =
+  "gap-2.5 p-4.5 ring-0 md:max-w-190 md:gap-4 md:rounded-3xl md:px-8.5 md:py-7.5";
 
-function categoryLabel(category: string) {
-  const words = category.replaceAll("_", " ");
-  return words.charAt(0).toUpperCase() + words.slice(1);
-}
+const RANDOM_LESSON_HREF = "/protected/sentences/random";
 
 /**
  * The suggested New Lesson with Start, plus Start Random Lesson. With no
@@ -25,13 +25,13 @@ export function UpNextCard({
   const lesson = suggestion?.lesson;
 
   return (
-    <Card className="relative gap-2.5 p-4.5 ring-0 md:max-w-190 md:gap-4 md:rounded-[36px] md:px-8.5 md:py-7.5">
+    <Card className={cn("relative", UP_NEXT_CARD_CLASS)}>
       <span
         aria-hidden
         className="pointer-events-none absolute -right-12.5 -bottom-15 size-37.5 rounded-full bg-accent-200 opacity-60 md:-right-15 md:-bottom-20 md:size-55"
       />
 
-      <p className="relative text-[11px] font-bold tracking-widest text-accent-700 uppercase md:text-xs">
+      <p className="relative text-label font-bold tracking-widest text-accent-700 uppercase md:text-xs">
         {lesson ? "Up next · New to you" : "Up next"}
       </p>
 
@@ -40,21 +40,18 @@ export function UpNextCard({
           <div className="relative flex flex-col gap-1">
             <p
               lang="ja"
-              className="line-clamp-2 font-japanese text-[17px] leading-normal font-bold md:line-clamp-none md:text-[28px] md:leading-[1.35]"
+              className="line-clamp-2 font-japanese text-lead leading-normal font-bold md:line-clamp-none md:text-headline md:leading-[1.35]"
             >
               {lesson.sentence}
             </p>
-            <p className="hidden text-[15px] text-neutral-800 md:block">
+            <p className="hidden text-body text-neutral-800 md:block">
               {lesson.translation}
             </p>
           </div>
 
           <div className="relative flex flex-wrap items-center gap-1.5">
-            <Badge variant="accent">{lesson.jlptLevel}</Badge>
-            {lesson.category && (
-              <Badge variant="accent-2">{categoryLabel(lesson.category)}</Badge>
-            )}
-            <span className="ml-1 text-xs text-muted-foreground md:text-[13px]">
+            <LessonTags lesson={lesson} />
+            <span className="ml-1 text-xs text-muted-foreground md:text-caption">
               7 Steps · about 5 min
             </span>
           </div>

@@ -1,12 +1,13 @@
 import Link from "next/link";
 import { Suspense } from "react";
-import { Separator } from "@/components/ui/separator";
 import { AuthButton } from "@/components/auth/auth-button";
+import { APP_NAV_ITEMS } from "@/lib/app-nav";
 
 type AppNavbarProps = {
   email?: string | null;
 };
 
+/** The app header. On phones the links move to `AppTabBar` at the bottom. */
 export function AppNavbar({ email }: AppNavbarProps) {
   return (
     <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur">
@@ -17,26 +18,15 @@ export function AppNavbar({ email }: AppNavbarProps) {
           </Link>
 
           <nav className="hidden items-center gap-4 sm:flex">
-            <Link
-              href="/protected"
-              className="text-sm text-muted-foreground transition-colors hover:text-primary"
-            >
-              Home
-            </Link>
-
-            <Link
-              href="/protected/sentences"
-              className="text-sm text-muted-foreground transition-colors hover:text-primary"
-            >
-              Lessons
-            </Link>
-
-            <Link
-              href="/protected/progress"
-              className="text-sm text-muted-foreground transition-colors hover:text-primary"
-            >
-              Progress
-            </Link>
+            {APP_NAV_ITEMS.map(({ id, label, href }) => (
+              <Link
+                key={id}
+                href={href}
+                className="text-sm text-muted-foreground transition-colors hover:text-primary"
+              >
+                {label}
+              </Link>
+            ))}
           </nav>
         </div>
 
@@ -55,35 +45,6 @@ export function AppNavbar({ email }: AppNavbarProps) {
             <AuthButton />
           </Suspense>
         </div>
-      </div>
-
-      <div className="border-t sm:hidden">
-        <nav className="mx-auto flex max-w-6xl items-center gap-4 px-4 py-2">
-          <Link
-            href="/protected"
-            className="text-sm text-muted-foreground hover:text-primary"
-          >
-            Home
-          </Link>
-
-          <Separator orientation="vertical" className="h-4" />
-
-          <Link
-            href="/protected/sentences"
-            className="text-sm text-muted-foreground hover:text-primary"
-          >
-            Lessons
-          </Link>
-
-          <Separator orientation="vertical" className="h-4" />
-
-          <Link
-            href="/protected/progress"
-            className="text-sm text-muted-foreground hover:text-primary"
-          >
-            Progress
-          </Link>
-        </nav>
       </div>
     </header>
   );

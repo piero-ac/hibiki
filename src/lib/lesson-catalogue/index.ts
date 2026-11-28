@@ -40,6 +40,16 @@ export const LESSON_STATUS_LABELS: Record<LessonStatus, string> = {
   "shadowed-3-plus": "Shadowed 3×+",
 };
 
+/** Every Lesson Status, from New to Shadowed 3×+. */
+export const LESSON_STATUSES = Object.keys(
+  LESSON_STATUS_LABELS,
+) as LessonStatus[];
+
+/** True once the Lesson has at least one Shadowing Attempt. Unknown is false. */
+export function isShadowed(status: LessonStatus | null): boolean {
+  return status === "shadowed" || status === "shadowed-3-plus";
+}
+
 export type CatalogueEntry = {
   lesson: CatalogueLesson;
   /** Null when the Shadowing Attempt counts couldn't be loaded. */
@@ -134,6 +144,12 @@ export function listCategories(catalogue: readonly CatalogueEntry[]): string[] {
     if (lesson.category) categories.add(lesson.category);
   }
   return [...categories];
+}
+
+/** How a Category reads on screen: "daily_conversation" → "Daily conversation". */
+export function categoryLabel(category: string): string {
+  const words = category.replaceAll("_", " ");
+  return words.charAt(0).toUpperCase() + words.slice(1);
 }
 
 function toLessonStatus(count: number): LessonStatus {

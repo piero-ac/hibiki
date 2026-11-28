@@ -64,7 +64,7 @@ export default function Landing() {
             <h1
               className={cn(
                 heading,
-                "text-[40px] lg:text-6xl lg:leading-[1.05]",
+                "text-display lg:text-6xl lg:leading-[1.05]",
               )}
             >
               Speak Japanese the way it sounds.
@@ -80,7 +80,7 @@ export default function Landing() {
                 asChild
                 size="lg"
                 shape="pill"
-                className="h-13.5 text-[17px] lg:px-6.5"
+                className="h-13.5 text-lead lg:px-6.5"
               >
                 <Link href={START_HREF}>
                   {PUBLIC_SIGN_UP_ENABLED
@@ -95,7 +95,7 @@ export default function Landing() {
                   variant="outline"
                   size="lg"
                   shape="pill"
-                  className="hidden h-13.5 bg-transparent text-[17px] lg:inline-flex lg:px-5.5"
+                  className="hidden h-13.5 bg-transparent text-lead lg:inline-flex lg:px-5.5"
                 >
                   <Link href="/auth/login">Log in</Link>
                 </Button>
@@ -107,7 +107,7 @@ export default function Landing() {
         </section>
 
         <section className="flex flex-col gap-3.5 px-5 pt-10 lg:max-w-[calc(55%+24px)] lg:gap-4 lg:px-12 lg:pt-0 lg:pb-16">
-          <h2 className={cn(heading, "text-[28px] lg:text-[32px]")}>
+          <h2 className={cn(heading, "text-headline lg:text-[32px]")}>
             Seven Steps per Lesson
           </h2>
           <ol
@@ -126,7 +126,7 @@ export default function Landing() {
               </li>
             ))}
           </ol>
-          <div className="flex flex-col gap-2.5 text-[15px] lg:text-base">
+          <div className="flex flex-col gap-2.5 text-body lg:text-base">
             <p>
               <strong>Slow Round, Steps 1–3.</strong> Listen with the Sentence,
               kana and translation on screen, shadow while reading, then shadow
@@ -143,7 +143,7 @@ export default function Landing() {
           </div>
         </section>
 
-        <section className="mx-4 mt-10 mb-4 flex flex-col gap-3 rounded-[32px] bg-accent-2-100 px-5 py-6 lg:mx-12 lg:mt-0 lg:mb-12 lg:flex-row lg:items-center lg:gap-6 lg:rounded-[40px] lg:px-10 lg:py-9">
+        <section className="mx-4 mt-10 mb-4 flex flex-col gap-3 rounded-card bg-accent-2-100 px-5 py-6 lg:mx-12 lg:mt-0 lg:mb-12 lg:flex-row lg:items-center lg:gap-6 lg:rounded-4xl lg:px-10 lg:py-9">
           <h3
             className={cn(heading, "text-[25px] text-accent-2-900 lg:mr-auto")}
           >
@@ -153,7 +153,7 @@ export default function Landing() {
             asChild
             size="lg"
             shape="pill"
-            className="h-13 text-base lg:h-13.5 lg:px-6.5 lg:text-[17px]"
+            className="h-13 text-base lg:h-13.5 lg:px-6.5 lg:text-lead"
           >
             <Link href={START_HREF}>
               {PUBLIC_SIGN_UP_ENABLED ? "Create an account" : "Log in"}
@@ -173,12 +173,7 @@ async function HeaderActions() {
     return (
       <>
         <LogoutButton />
-        <Button
-          asChild
-          size="sm"
-          shape="pill"
-          className="h-11 px-5 text-[15px]"
-        >
+        <Button asChild size="sm" shape="pill" className="h-11 px-5 text-body">
           <Link href="/protected">Open Hibiki</Link>
         </Button>
       </>
@@ -191,7 +186,7 @@ async function HeaderActions() {
         asChild
         variant="ghost"
         shape="pill"
-        className="h-11 px-3 text-[15px] text-accent-700"
+        className="h-11 px-3 text-body text-accent-700"
       >
         <Link href="/auth/login">Log in</Link>
       </Button>
@@ -199,7 +194,7 @@ async function HeaderActions() {
         <Button
           asChild
           shape="pill"
-          className="hidden h-11 px-5 text-[15px] lg:inline-flex"
+          className="hidden h-11 px-5 text-body lg:inline-flex"
         >
           <Link href="/auth/sign-up">Sign up</Link>
         </Button>
@@ -213,7 +208,7 @@ function SamplePreview() {
   return (
     <figure
       aria-label="A Lesson in Step 1, Listen"
-      className="-mx-1 flex flex-col gap-3 rounded-[32px] bg-card p-5 shadow-md lg:mx-0 lg:p-7"
+      className="-mx-1 flex flex-col gap-3 rounded-card bg-card p-5 shadow-md lg:mx-0 lg:p-7"
     >
       <div className="flex items-center gap-1.5">
         <Badge variant="accent">N3</Badge>
@@ -228,7 +223,7 @@ function SamplePreview() {
       >
         終電にぎりぎり間に合うと思って走ったんですが、ホームに着いた瞬間にドアが閉まってしまって…
       </p>
-      <figcaption className="text-[13px] text-neutral-800">
+      <figcaption className="text-caption text-neutral-800">
         I ran because I thought I could just make the last train…
       </figcaption>
       <div aria-hidden className="flex items-center gap-3">

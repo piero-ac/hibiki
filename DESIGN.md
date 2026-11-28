@@ -101,18 +101,16 @@ Business logic remains on the server.
 
 ## Reusable UI
 
-Common layouts and repeated UI patterns are extracted into reusable components.
+The UI is built from shadcn/ui components themed through tokens (ADR 0002). shadcn components in use (`src/components/ui/`): Accordion, AlertDialog, Badge, Button, Card, Drawer, Empty, Field, Input, Label, Progress, Select, Separator, Skeleton, Toggle and ToggleGroup.
 
-Examples:
+The only custom compositions are the Step trail and the Sentence block (`src/components/lesson-player/`). Other shared pieces are plain compositions of shadcn parts:
 
-- PageContainer
-- AppNavbar
-- ProgressOverview
-- PreviousAttemptsCard
-- SentenceCard
-- ActionCard
-
-The design system is built on top of shadcn/ui.
+- AppNavbar and AppTabBar (header nav on desktop, bottom tab bar on phones)
+- LessonTags (JLPT Level and Category Badges)
+- LessonPlayer and LessonExit (every player exit confirms before leaving)
+- UpNextCard and LessonStatusGrid (Home)
+- LessonPicker (Lessons)
+- ProgressOverview, RecentActivity and NoActivityYet (Progress)
 
 ---
 
@@ -142,25 +140,30 @@ Benefits:
 src/
 ├── app/
 │   ├── auth/
-│   ├── protected/
+│   └── protected/
+│       ├── (app)/       # Home, Lessons, Progress: navbar + tab bar
+│       └── (lesson)/    # Lesson player at /protected/sentences/[id]
 │
 ├── components/
-│   ├── app/
+│   ├── app/             # AppNavbar, AppTabBar
 │   ├── auth/
-│   ├── dashboard/
-│   ├── landing/
-│   ├── practice/
+│   ├── home/            # UpNextCard, LessonStatusGrid
+│   ├── lesson-player/   # LessonPlayer, Step trail, Sentence block
 │   ├── progress/
-│   ├── sentences/
-│   └── ui/
+│   ├── sentences/       # LessonPicker, LessonTags
+│   └── ui/              # shadcn components (radix-maia)
 │
 ├── lib/
+│   ├── app-nav/
+│   ├── auth/
+│   ├── lesson-catalogue/
+│   ├── lesson-player/
+│   ├── progress/
 │   ├── supabase/
 │   ├── scoring.ts
 │   └── utils.ts
 │
-├── types/
-└── utils/
+└── types/
 ```
 
 ---

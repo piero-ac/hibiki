@@ -6,7 +6,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export default function Loading() {
   return (
-    <div className="flex min-h-[calc(100vh-4rem)] flex-col bg-background px-4 py-4 text-foreground sm:px-6 lg:px-8 [&_[data-slot=skeleton]]:bg-foreground/10">
+    <div className="flex flex-1 flex-col px-4 py-4 text-foreground sm:px-6 lg:px-8 [&_[data-slot=skeleton]]:bg-foreground/10">
       <section className="mx-auto flex w-full max-w-5xl flex-1 flex-col">
         <div className="mb-3 flex items-center justify-between">
           <Button variant="ghost" size="sm" shape="pill" disabled>

@@ -1,8 +1,10 @@
 import { describe, expect, it } from "vitest";
 import {
   buildCatalogue,
+  categoryLabel,
   filterCatalogue,
   groupByJlptLevel,
+  isShadowed,
   listCategories,
   type CatalogueLesson,
 } from "@/lib/lesson-catalogue";
@@ -215,5 +217,27 @@ describe("listCategories", () => {
 
   it("has no Categories for no Lessons", () => {
     expect(listCategories([])).toEqual([]);
+  });
+});
+
+describe("categoryLabel", () => {
+  it("turns a snake_case Category into sentence case", () => {
+    expect(categoryLabel("daily_conversation")).toBe("Daily conversation");
+  });
+
+  it("capitalises a one-word Category", () => {
+    expect(categoryLabel("travel")).toBe("Travel");
+  });
+});
+
+describe("isShadowed", () => {
+  it("is true once a Lesson has a Shadowing Attempt", () => {
+    expect(isShadowed("shadowed")).toBe(true);
+    expect(isShadowed("shadowed-3-plus")).toBe(true);
+  });
+
+  it("is false for a New Lesson or an unknown status", () => {
+    expect(isShadowed("new")).toBe(false);
+    expect(isShadowed(null)).toBe(false);
   });
 });

@@ -22,7 +22,7 @@ export function SentenceBlock({
 }: SentenceBlockProps) {
   if (!shows.sentence && !shows.kana && !shows.translation) {
     return (
-      <Card className="min-h-52 flex-1 items-center justify-center gap-2.5 rounded-2xl bg-accent-2-100 px-6 text-center text-sm text-accent-2-800 ring-0 md:min-h-0 md:flex-row md:justify-start md:gap-4 md:bg-transparent md:px-0 md:text-[15px] md:text-neutral-700">
+      <Card className="min-h-52 flex-1 items-center justify-center gap-2.5 rounded-2xl bg-accent-2-100 px-6 text-center text-sm text-accent-2-800 ring-0 md:min-h-0 md:flex-row md:justify-start md:gap-4 md:bg-transparent md:px-0 md:text-body md:text-neutral-700">
         <span className="grid size-13 place-items-center rounded-full md:bg-background md:text-accent-2-700">
           <EyeOff aria-hidden className="size-7 md:size-6" />
         </span>
@@ -44,7 +44,7 @@ export function SentenceBlock({
       {shows.kana && (
         <p
           lang="ja"
-          className="font-japanese text-sm leading-relaxed font-medium text-pretty text-neutral-700 md:text-[17px]"
+          className="font-japanese text-sm leading-relaxed font-medium text-pretty text-neutral-700 md:text-lead"
         >
           {kana}
         </p>

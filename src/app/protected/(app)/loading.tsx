@@ -1,5 +1,6 @@
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { UP_NEXT_CARD_CLASS } from "@/components/home/up-next-card";
 
 // Mirrors the Home layout: greeting, Up next card, Lessons by level.
 export default function Loading() {
@@ -7,7 +8,7 @@ export default function Loading() {
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-3.5 px-4 pt-2 pb-6 md:gap-7 md:px-9 md:pt-8 md:pb-10 [&_[data-slot=skeleton]]:bg-foreground/10">
       <Skeleton className="mx-1 mt-1 h-9 w-40 md:mx-0 md:h-11 md:w-56" />
 
-      <Card className="gap-2.5 p-4.5 ring-0 md:max-w-190 md:gap-4 md:rounded-[36px] md:px-8.5 md:py-7.5">
+      <Card className={UP_NEXT_CARD_CLASS}>
         <Skeleton className="h-3 w-36" />
         <Skeleton className="h-6 w-full md:h-9" />
         <Skeleton className="h-6 w-3/4 md:h-5 md:w-1/2" />

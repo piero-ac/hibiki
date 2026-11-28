@@ -20,7 +20,7 @@ export function FinalRecordingPanel({ player }: { player: Player }) {
   return (
     <div className="grid flex-1 gap-7 md:grid-cols-[minmax(0,1fr)_260px]">
       <div className="flex flex-col justify-center gap-3 md:gap-4">
-        <div className="flex items-center justify-between rounded-xl bg-card px-4 py-3 text-xs md:rounded-3xl md:bg-background md:px-5 md:py-4 md:text-[13px]">
+        <div className="flex items-center justify-between rounded-xl bg-card px-4 py-3 text-xs md:rounded-3xl md:bg-background md:px-5 md:py-4 md:text-caption">
           <span className="font-bold">Your Recording</span>
           <span className="text-neutral-700">
             {recordingStatus(finalRecording)}
@@ -108,7 +108,7 @@ export function RecordButton({
       shape="pill"
       size="lg"
       className={cn(
-        "h-14 gap-2.5 font-heading text-[17px] shadow-md md:h-15 md:pr-6 md:pl-2 md:text-base [&_svg:not([class*='size-'])]:size-5",
+        "h-14 gap-2.5 font-heading text-lead shadow-md md:h-15 md:pr-6 md:pl-2 md:text-base [&_svg:not([class*='size-'])]:size-5",
         busy && "bg-accent-700 ring-8 ring-accent-200 disabled:opacity-100",
         finalRecording.status === "recording" && "animate-pulse",
         className,
@@ -132,7 +132,7 @@ export function MarkDoneButton({ player }: { player: Player }) {
         disabled={markDoneState.status !== "idle" || player.recordingBusy}
         shape="pill"
         size="lg"
-        className="h-12 text-base md:h-13 md:text-[17px]"
+        className="h-12 text-base md:h-13 md:text-lead"
       >
         <Check aria-hidden />
         {markDoneState.status === "saving" ? "Saving..." : "Mark Done"}

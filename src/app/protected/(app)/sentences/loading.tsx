@@ -40,7 +40,7 @@ export default function Loading() {
           ))}
         </div>
 
-        <Skeleton className="hidden h-[480px] rounded-[36px] lg:block" />
+        <Skeleton className="hidden h-[480px] rounded-3xl lg:block" />
       </div>
     </div>
   );
