@@ -58,7 +58,7 @@ export default function LoginForm() {
       onSubmit={handleLogin}
       className="flex flex-1 flex-col gap-4.5 lg:flex-none lg:gap-5"
     >
-      <h1 className="text-4xl lg:text-[40px]">
+      <h1 className="text-4xl lg:text-display">
         <span lang="ja" className="lg:hidden">
           おかえり.
           <br />
@@ -107,13 +107,13 @@ export default function LoginForm() {
         size="lg"
         shape="pill"
         disabled={isLoading}
-        className="h-13.5 text-[17px] lg:h-13"
+        className="h-13.5 text-lead lg:h-13"
       >
         {isLoading ? "Logging in…" : "Log in"}
       </Button>
 
       {PUBLIC_SIGN_UP_ENABLED && (
-        <p className="mt-auto text-center text-[15px] text-neutral-800 lg:mt-0 lg:text-left">
+        <p className="mt-auto text-center text-body text-neutral-800 lg:mt-0 lg:text-left">
           New to Hibiki?{" "}
           <Link
             href="/auth/sign-up"

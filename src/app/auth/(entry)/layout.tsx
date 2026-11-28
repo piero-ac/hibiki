@@ -28,11 +28,11 @@ export default function AuthEntryLayout({
         <figure className="relative flex max-w-120 flex-col gap-3">
           <p
             lang="ja"
-            className="font-japanese text-[28px] leading-normal font-bold"
+            className="font-japanese text-headline leading-normal font-bold"
           >
             朝は晴れていたので傘を持たずに出かけたら…
           </p>
-          <figcaption className="text-[15px] text-neutral-800">
+          <figcaption className="text-body text-neutral-800">
             It was sunny in the morning, so I went out without an umbrella…
           </figcaption>
         </figure>

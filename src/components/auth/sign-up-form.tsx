@@ -62,8 +62,8 @@ export default function SignUpForm() {
       className="flex flex-1 flex-col gap-4.5 lg:flex-none lg:gap-5"
     >
       <div className="flex flex-col gap-1.5">
-        <h1 className="text-4xl lg:text-[40px]">Start shadowing.</h1>
-        <p className="text-[15px] text-neutral-800">
+        <h1 className="text-4xl lg:text-display">Start shadowing.</h1>
+        <p className="text-body text-neutral-800">
           Free. Your first Lesson takes about five minutes.
         </p>
       </div>
@@ -112,12 +112,12 @@ export default function SignUpForm() {
         size="lg"
         shape="pill"
         disabled={isLoading}
-        className="h-13.5 text-[17px] lg:h-13"
+        className="h-13.5 text-lead lg:h-13"
       >
         {isLoading ? "Creating account…" : "Create account"}
       </Button>
 
-      <p className="mt-auto text-center text-[15px] text-neutral-800 lg:mt-0 lg:text-left">
+      <p className="mt-auto text-center text-body text-neutral-800 lg:mt-0 lg:text-left">
         Already have an account?{" "}
         <Link
           href="/auth/login"

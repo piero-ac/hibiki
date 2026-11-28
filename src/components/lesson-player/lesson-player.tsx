@@ -101,7 +101,7 @@ export function LessonPlayer({
           variant="ghost"
           size="lg"
           shape="pill"
-          className="hidden text-[15px] md:inline-flex"
+          className="hidden text-body md:inline-flex"
         >
           <ChevronLeft aria-hidden />
           Lessons
@@ -114,7 +114,7 @@ export function LessonPlayer({
             <Badge variant="accent-2">{lesson.category}</Badge>
           )}
         </div>
-        <p className="ml-auto text-[13px] text-neutral-700">
+        <p className="ml-auto text-caption text-neutral-700">
           {lessonShadowed
             ? "Lesson complete"
             : `Step ${state.step} of ${STEP_COUNT}`}
@@ -142,7 +142,7 @@ export function LessonPlayer({
       </div>
 
       <div className="flex flex-1 flex-col md:px-8 md:pt-5.5 md:pb-8">
-        <section className="relative flex flex-1 flex-col gap-4 overflow-hidden px-5 pt-4.5 pb-4 md:gap-6 md:rounded-[36px] md:bg-card md:px-11 md:py-9">
+        <section className="relative flex flex-1 flex-col gap-4 overflow-hidden px-5 pt-4.5 pb-4 md:gap-6 md:rounded-3xl md:bg-card md:px-11 md:py-9">
           <span
             aria-hidden
             className="pointer-events-none absolute -top-27.5 -right-22.5 hidden size-75 rounded-full bg-accent-2-200 opacity-55 md:block"
@@ -194,11 +194,11 @@ export function LessonPlayer({
 function StepHeader({ step }: { step: Step }) {
   return (
     <div className="relative flex max-w-155 flex-col gap-1 md:gap-1.5">
-      <p className="text-[11px] font-bold tracking-widest text-accent-700 uppercase md:text-xs">
+      <p className="text-label font-bold tracking-widest text-accent-700 uppercase md:text-xs">
         {stepKicker(step)}
       </p>
       <h2 className="text-2xl md:text-3xl">{STEP_NAMES[step.type]}</h2>
-      <p className="text-sm text-pretty text-neutral-800 md:text-[15px]">
+      <p className="text-sm text-pretty text-neutral-800 md:text-body">
         {STEP_TIPS[step.type]}
       </p>
     </div>
@@ -250,7 +250,7 @@ function DesktopPlayControls({ player }: { player: Player }) {
           variant="secondary"
           shape="pill"
           size="lg"
-          className="h-12 px-5 text-[15px]"
+          className="h-12 px-5 text-body"
         >
           Back
         </Button>
@@ -314,8 +314,8 @@ function PlaybackLabel({ player }: { player: Player }) {
   const { playback } = player.state;
 
   return (
-    <div className="flex justify-between text-xs text-neutral-700 md:flex-col md:justify-start md:text-[13px]">
-      <span className="font-bold text-foreground md:text-[15px]">
+    <div className="flex justify-between text-xs text-neutral-700 md:flex-col md:justify-start md:text-caption">
+      <span className="font-bold text-foreground md:text-body">
         {speedLabel(player.step)}
       </span>
       <span>

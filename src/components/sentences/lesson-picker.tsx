@@ -232,7 +232,7 @@ export function LessonPicker({
         {selected && (
           <aside
             aria-label="Lesson preview"
-            className="sticky top-24 hidden overflow-hidden rounded-[36px] bg-card p-7 shadow-sm lg:block"
+            className="sticky top-24 hidden overflow-hidden rounded-3xl bg-card p-7 shadow-sm lg:block"
           >
             <LessonPreview entry={selected} />
           </aside>
@@ -286,11 +286,11 @@ function LessonRow({
       onClick={onSelect}
       aria-current={selected ? "true" : undefined}
       className={cn(
-        "flex w-full flex-col gap-2 rounded-[22px] p-3 text-left transition-colors hover:bg-card focus-visible:outline-2 focus-visible:outline-ring sm:rounded-3xl sm:px-4.5 sm:py-3.5",
+        "flex w-full flex-col gap-2 rounded-xl p-3 text-left transition-colors hover:bg-card focus-visible:outline-2 focus-visible:outline-ring sm:rounded-3xl sm:px-4.5 sm:py-3.5",
         selected && "bg-card lg:shadow-md",
       )}
     >
-      <span className="line-clamp-2 font-japanese text-[15px] leading-normal font-bold sm:text-[17px]">
+      <span className="line-clamp-2 font-japanese text-body leading-normal font-bold sm:text-lead">
         {lesson.sentence}
       </span>
       <span className="hidden truncate text-sm text-muted-foreground sm:block">
@@ -352,7 +352,7 @@ function LessonPreview({ entry }: { entry: CatalogueEntry }) {
         <p className="font-japanese text-sm leading-relaxed text-muted-foreground">
           {lesson.kana}
         </p>
-        <p className="text-sm text-pretty text-neutral-800 lg:text-[15px]">
+        <p className="text-sm text-pretty text-neutral-800 lg:text-body">
           {lesson.translation}
         </p>
       </div>

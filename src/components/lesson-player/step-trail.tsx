@@ -64,7 +64,7 @@ export function StepTrail(props: StepTrailProps) {
       </ol>
       <div
         aria-hidden
-        className="flex justify-between pt-1 text-[11px] text-neutral-700 md:hidden"
+        className="flex justify-between pt-1 text-label text-neutral-700 md:hidden"
       >
         <span>Slow Round</span>
         <span>Natural Round</span>

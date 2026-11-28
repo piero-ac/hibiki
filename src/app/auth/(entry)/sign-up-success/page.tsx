@@ -17,7 +17,7 @@ export default async function Page({
         <MailCheck className="size-9" />
       </span>
 
-      <h1 className="mt-2 text-[34px] lg:text-[40px]">Check your inbox.</h1>
+      <h1 className="mt-2 text-[34px] lg:text-display">Check your inbox.</h1>
 
       <p className="text-base text-pretty text-neutral-800">
         We sent a confirmation link to{" "}
@@ -32,7 +32,7 @@ export default async function Page({
           variant="ghost"
           size="lg"
           shape="pill"
-          className="h-11 text-[15px] text-accent-700"
+          className="h-11 text-body text-accent-700"
         >
           <Link href="/auth/sign-up">Use a different email</Link>
         </Button>

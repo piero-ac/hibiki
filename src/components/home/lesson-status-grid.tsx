@@ -69,7 +69,7 @@ function LevelCount({
   statusesKnown: boolean;
 }) {
   return (
-    <span className="text-[13px] text-muted-foreground tabular-nums">
+    <span className="text-caption text-muted-foreground tabular-nums">
       {statusesKnown
         ? `${shadowedCount(group)}/${group.entries.length}`
         : group.entries.length}
@@ -164,7 +164,7 @@ export function LessonStatusGrid({ groups }: { groups: JlptLevelGroup[] }) {
             className="flex flex-col gap-3 rounded-2xl bg-card px-4.5 pt-4.5 pb-5 transition-shadow hover:shadow-md"
           >
             <div className="flex items-baseline justify-between">
-              <h3 className="text-[30px] leading-none">{group.jlptLevel}</h3>
+              <h3 className="text-3xl leading-none">{group.jlptLevel}</h3>
               <LevelCount group={group} statusesKnown={statusesKnown} />
             </div>
             <DotGrid entries={group.entries} />

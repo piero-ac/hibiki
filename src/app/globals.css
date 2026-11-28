@@ -21,6 +21,15 @@
     var(--font-zen-maru-gothic), "Hiragino Maru Gothic ProN", system-ui,
     sans-serif;
 
+  /* Organic in-between type sizes the mockups repeat (Tailwind's scale
+     covers the rest), e.g. text-body. */
+  --text-label: 0.6875rem; /* 11px: kickers, small labels */
+  --text-caption: 0.8125rem; /* 13px: captions, counts */
+  --text-body: 0.9375rem; /* 15px: secondary body copy */
+  --text-lead: 1.0625rem; /* 17px: list Sentences, lead copy */
+  --text-headline: 1.75rem; /* 28px */
+  --text-display: 2.5rem; /* 40px: page titles on desktop */
+
   --color-ring: var(--ring);
   --color-input: var(--input);
   --color-border: var(--border);
@@ -77,6 +86,8 @@
   --radius-2xl: calc(var(--radius) * 1.75);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
+  /* Organic .card / .dialog: radius-lg (our 2xl) x 1.15, about 32px. */
+  --radius-card: calc(var(--radius) * 1.75 * 1.15);
 
   --shadow-sm: 0 1px 2px color-mix(in srgb, #2e2b25 14%, transparent);
   --shadow-md: 0 3px 10px color-mix(in srgb, #2e2b25 16%, transparent);
