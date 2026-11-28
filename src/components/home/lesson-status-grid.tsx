@@ -9,6 +9,8 @@ import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 import {
   LESSON_STATUS_LABELS,
+  LESSON_STATUSES,
+  isShadowed,
   type CatalogueEntry,
   type JlptLevelGroup,
   type LessonStatus,
@@ -24,10 +26,7 @@ const STATUS_DOT: Record<LessonStatus, string> = {
 const UNKNOWN_DOT = "border-2 border-neutral-400";
 
 function shadowedCount(group: JlptLevelGroup) {
-  return group.entries.filter(
-    (entry) =>
-      entry.status === "shadowed" || entry.status === "shadowed-3-plus",
-  ).length;
+  return group.entries.filter((entry) => isShadowed(entry.status)).length;
 }
 
 function LessonDot({ entry, index }: { entry: CatalogueEntry; index: number }) {
@@ -80,7 +79,7 @@ function LevelCount({
 function Legend() {
   return (
     <ul className="flex flex-wrap gap-x-3.5 gap-y-1 text-xs text-muted-foreground">
-      {(Object.keys(STATUS_DOT) as LessonStatus[]).map((status) => (
+      {LESSON_STATUSES.map((status) => (
         <li key={status} className="flex items-center gap-1.5">
           <span
             aria-hidden

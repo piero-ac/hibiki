@@ -1,5 +1,5 @@
-import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
+import { LessonTags } from "@/components/sentences/lesson-tags";
 import NoActivityYet from "@/components/progress/no-activity-yet";
 import type { ShadowingAttempt } from "@/lib/progress";
 
@@ -36,10 +36,7 @@ export default function RecentActivity({
                 </div>
 
                 <div className="mt-4 flex flex-wrap gap-2">
-                  <Badge variant="accent">{attempt.lesson.jlptLevel}</Badge>
-                  <Badge variant="accent-2">
-                    {attempt.lesson.category ?? "General"}
-                  </Badge>
+                  <LessonTags lesson={attempt.lesson} />
                 </div>
               </CardContent>
             </Card>

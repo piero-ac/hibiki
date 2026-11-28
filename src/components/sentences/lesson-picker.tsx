@@ -26,9 +26,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { LessonTags } from "@/components/sentences/lesson-tags";
 import {
   JLPT_LEVELS,
   LESSON_STATUS_LABELS,
+  LESSON_STATUSES,
+  categoryLabel,
   filterCatalogue,
   listCategories,
   type CatalogueEntry,
@@ -36,8 +39,6 @@ import {
   type LessonStatus,
 } from "@/lib/lesson-catalogue";
 import { cn } from "@/lib/utils";
-
-const LESSON_STATUSES = Object.keys(LESSON_STATUS_LABELS) as LessonStatus[];
 
 const STATUS_BADGE_VARIANT = {
   new: "secondary",
@@ -60,10 +61,6 @@ function useIsDesktop() {
     () => window.matchMedia(DESKTOP_QUERY).matches,
     () => false,
   );
-}
-
-function categoryLabel(category: string) {
-  return category === "daily_conversation" ? "Conversation" : category;
 }
 
 type LessonPickerProps = {
@@ -254,22 +251,6 @@ export function LessonPicker({
   );
 }
 
-function LessonTags({ entry }: { entry: CatalogueEntry }) {
-  const { jlptLevel, category } = entry.lesson;
-  return (
-    <>
-      <Badge variant="accent" className="font-semibold">
-        {jlptLevel}
-      </Badge>
-      {category && (
-        <Badge variant="accent-2" className="font-semibold">
-          {categoryLabel(category)}
-        </Badge>
-      )}
-    </>
-  );
-}
-
 function LessonRow({
   entry,
   selected,
@@ -297,7 +278,7 @@ function LessonRow({
         {lesson.translation}
       </span>
       <span className="flex flex-wrap items-center gap-1.5">
-        <LessonTags entry={entry} />
+        <LessonTags lesson={entry.lesson} className="font-semibold" />
         {status && (
           <Badge
             variant={STATUS_BADGE_VARIANT[status]}
@@ -342,7 +323,7 @@ function LessonPreview({ entry }: { entry: CatalogueEntry }) {
       />
 
       <div className="relative flex flex-wrap gap-1.5">
-        <LessonTags entry={entry} />
+        <LessonTags lesson={entry.lesson} className="font-semibold" />
       </div>
 
       <div className="relative flex flex-col gap-1.5">

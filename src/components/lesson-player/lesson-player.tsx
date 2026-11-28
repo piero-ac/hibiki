@@ -6,8 +6,8 @@ import {
   checkPronunciation,
   markLessonDone,
 } from "@/app/protected/sentences/actions";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { LessonTags } from "@/components/sentences/lesson-tags";
 import {
   createBrowserLessonMedia,
   STEP_COUNT,
@@ -107,12 +107,7 @@ export function LessonPlayer({
           Lessons
         </LessonExit>
         <div className="flex gap-1.5">
-          {lesson.jlptLevel && (
-            <Badge variant="accent">{lesson.jlptLevel}</Badge>
-          )}
-          {lesson.category && (
-            <Badge variant="accent-2">{lesson.category}</Badge>
-          )}
+          <LessonTags lesson={lesson} />
         </div>
         <p className="ml-auto text-caption text-neutral-700">
           {lessonShadowed
@@ -236,43 +231,67 @@ function PlayButton({
   );
 }
 
-function DesktopPlayControls({ player }: { player: Player }) {
-  const { state } = player;
+/** Icon-only in the mobile tray, labelled on desktop. */
+type StepButtonProps = { player: Player; iconOnly?: boolean };
 
+const TRAY_ICON_BUTTON = "size-12 [&_svg:not([class*='size-'])]:size-5";
+
+function PreviousStepButton({ player, iconOnly = false }: StepButtonProps) {
+  return (
+    <Button
+      onClick={player.previous}
+      disabled={player.state.step === 1}
+      aria-label={iconOnly ? "Previous Step" : undefined}
+      variant="secondary"
+      shape="pill"
+      size={iconOnly ? "icon-lg" : "lg"}
+      className={iconOnly ? TRAY_ICON_BUTTON : "h-12 px-5 text-body"}
+    >
+      {iconOnly ? <ChevronLeft aria-hidden /> : "Back"}
+    </Button>
+  );
+}
+
+function NextStepButton({ player, iconOnly = false }: StepButtonProps) {
+  const label = nextLabel(player.state.step);
+  return (
+    <Button
+      onClick={player.next}
+      aria-label={iconOnly ? label : undefined}
+      shape="pill"
+      size={iconOnly ? "icon-lg" : "lg"}
+      className={iconOnly ? TRAY_ICON_BUTTON : "h-12 px-5.5 text-base"}
+    >
+      {iconOnly ? (
+        <ChevronRight aria-hidden />
+      ) : (
+        <>
+          {label}
+          <ArrowRight aria-hidden />
+        </>
+      )}
+    </Button>
+  );
+}
+
+function DesktopPlayControls({ player }: { player: Player }) {
   return (
     <div className="relative hidden items-center gap-3.5 md:flex">
       <PlayButton player={player} />
       <PlaybackLabel player={player} />
       <div className="ml-auto flex items-center gap-2.5">
-        <Button
-          onClick={player.previous}
-          disabled={state.step === 1}
-          variant="secondary"
-          shape="pill"
-          size="lg"
-          className="h-12 px-5 text-body"
-        >
-          Back
-        </Button>
-        <Button
-          onClick={player.next}
-          shape="pill"
-          size="lg"
-          className="h-12 px-5.5 text-base"
-        >
-          {nextLabel(state.step)}
-          <ArrowRight aria-hidden />
-        </Button>
+        <PreviousStepButton player={player} />
+        <NextStepButton player={player} />
       </div>
     </div>
   );
 }
 
 function MobileTray({ player }: { player: Player }) {
-  const { state, step } = player;
+  const { step } = player;
 
   return (
-    <div className="sticky bottom-0 z-10 flex flex-col gap-3.5 rounded-t-[32px] bg-card px-5 pt-4 pb-7 md:hidden">
+    <div className="sticky bottom-0 z-10 flex flex-col gap-3.5 rounded-t-card bg-card px-5 pt-4 pb-7 md:hidden">
       {step.records ? (
         <>
           <RecordButton player={player} className="w-full" />
@@ -282,27 +301,9 @@ function MobileTray({ player }: { player: Player }) {
         <>
           <PlaybackLabel player={player} />
           <div className="flex items-center justify-between">
-            <Button
-              onClick={player.previous}
-              disabled={state.step === 1}
-              aria-label="Previous Step"
-              variant="secondary"
-              shape="pill"
-              size="icon-lg"
-              className="size-12 [&_svg:not([class*='size-'])]:size-5"
-            >
-              <ChevronLeft aria-hidden />
-            </Button>
+            <PreviousStepButton player={player} iconOnly />
             <PlayButton player={player} />
-            <Button
-              onClick={player.next}
-              aria-label={nextLabel(state.step)}
-              shape="pill"
-              size="icon-lg"
-              className="size-12 [&_svg:not([class*='size-'])]:size-5"
-            >
-              <ChevronRight aria-hidden />
-            </Button>
+            <NextStepButton player={player} iconOnly />
           </div>
         </>
       )}
